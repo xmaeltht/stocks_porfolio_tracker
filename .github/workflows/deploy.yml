@@ -1,0 +1,64 @@
+name: 🚀 Deploy to Mac Mini
+
+# ─────────────────────────────────────────────────────────
+#  Triggers on every push to the main branch.
+#  Runs on the self-hosted runner installed on your Mac Mini.
+#  See: setup_runner.sh for one-time runner installation.
+# ─────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Only deploy when actual app files change
+      - 'server.py'
+      - 'portfolio_dashboard.html'
+      - 'login.html'
+      - 'landing.html'
+      - 'deploy.sh'
+      - 'setup_mac.sh'
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Pull & Restart
+    runs-on: self-hosted   # ← your Mac Mini's runner
+
+    steps:
+      - name: 📋 Show deployment info
+        run: |
+          echo "Repository : ${{ github.repository }}"
+          echo "Branch     : ${{ github.ref_name }}"
+          echo "Commit     : ${{ github.sha }}"
+          echo "Triggered by: ${{ github.actor }}"
+          echo "Runner host : $(hostname)"
+
+      - name: 📥 Pull latest code
+        run: |
+          DEPLOY_DIR="$HOME/maelkloud"
+          echo "Deploy dir: $DEPLOY_DIR"
+          if [ ! -d "$DEPLOY_DIR/.git" ]; then
+            echo "ERROR: $DEPLOY_DIR is not a git repo. Run setup_runner.sh first."
+            exit 1
+          fi
+          git -C "$DEPLOY_DIR" fetch origin main
+          git -C "$DEPLOY_DIR" reset --hard origin/main
+          echo "✓ Updated to $(git -C "$DEPLOY_DIR" rev-parse --short HEAD)"
+
+      - name: 🚀 Run deploy script
+        run: bash "$HOME/maelkloud/deploy.sh"
+
+      - name: ✅ Verify deployment
+        run: |
+          RESPONSE=$(curl -sf http://localhost:8080/api/health || echo '{"status":"error"}')
+          STATUS=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('status','error'))")
+          VERSION=$(echo "$RESPONSE" | python3 -c "import sys,json; print(json.load(sys.stdin).get('version','?'))")
+          echo "Server status : $STATUS"
+          echo "Server version: $VERSION"
+          if [ "$STATUS" != "ok" ]; then
+            echo "::error::Health check failed — server is not responding correctly"
+            exit 1
+          fi
+          echo "✅ Deployment successful — v$VERSION is live at https://stocks.maelkloud.com"

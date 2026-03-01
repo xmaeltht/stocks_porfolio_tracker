@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>maelkloud — Your Personal Portfolio Monitor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d1117;--surface:#161b22;--border:#21262d;
+  --text:#e6edf3;--muted:#8b949e;
+  --green:#26a641;--red:#f85149;--blue:#388bfd;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* NAV */
+nav{padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,17,23,.95);backdrop-filter:blur(8px);z-index:100;}
+.nav-logo{font-size:1.15rem;font-weight:800;letter-spacing:-.02em;}
+.nav-logo span{color:var(--blue);}
+.nav-links{display:flex;gap:10px;align-items:center;}
+.btn{padding:7px 18px;border-radius:8px;border:none;cursor:pointer;font-size:.85rem;font-weight:600;text-decoration:none;transition:opacity .15s;display:inline-block;}
+.btn:hover{opacity:.85;}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-primary{background:var(--blue);color:#fff;}
+
+/* HERO */
+.hero{max-width:800px;margin:0 auto;padding:80px 32px 60px;text-align:center;}
+.hero-badge{display:inline-block;background:rgba(56,139,253,.1);border:1px solid rgba(56,139,253,.3);color:var(--blue);border-radius:20px;padding:4px 14px;font-size:.78rem;font-weight:700;margin-bottom:20px;letter-spacing:.03em;}
+.hero h1{font-size:3.2rem;font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:18px;}
+.hero h1 span{color:var(--blue);}
+.hero p{font-size:1.1rem;color:var(--muted);line-height:1.65;max-width:560px;margin:0 auto 32px;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.btn-lg{padding:12px 28px;font-size:.95rem;border-radius:10px;}
+
+/* TICKER TAPE */
+.ticker-tape{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:10px 0;overflow:hidden;margin-bottom:0;}
+.ticker-inner{display:flex;gap:32px;animation:scroll 25s linear infinite;width:max-content;}
+@keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.tick{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:.82rem;}
+.tick-sym{font-weight:700;font-family:monospace;color:var(--blue);}
+.tick-price{color:var(--text);}
+.tick-up{color:var(--green);}
+.tick-dn{color:var(--red);}
+
+/* FEATURES */
+.features{max-width:1000px;margin:0 auto;padding:64px 32px;}
+.features h2{text-align:center;font-size:1.9rem;font-weight:700;letter-spacing:-.03em;margin-bottom:10px;}
+.features-sub{text-align:center;color:var(--muted);font-size:.95rem;margin-bottom:48px;}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:22px;}
+.feat-icon{font-size:1.8rem;margin-bottom:12px;}
+.feat-title{font-size:1rem;font-weight:700;margin-bottom:6px;}
+.feat-desc{font-size:.85rem;color:var(--muted);line-height:1.6;}
+
+/* STATS */
+.stats{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.stats-inner{max-width:900px;margin:0 auto;padding:48px 32px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;text-align:center;}
+.stat-item .num{font-size:2.4rem;font-weight:800;color:var(--blue);}
+.stat-item .lbl{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+
+/* CTA */
+.cta{max-width:600px;margin:0 auto;padding:72px 32px;text-align:center;}
+.cta h2{font-size:2rem;font-weight:700;letter-spacing:-.03em;margin-bottom:12px;}
+.cta p{color:var(--muted);font-size:.95rem;margin-bottom:28px;line-height:1.6;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:24px 32px;text-align:center;color:var(--muted);font-size:.76rem;}
+footer a{color:var(--muted);text-decoration:none;}
+footer a:hover{color:var(--text);}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">mael<span>kloud</span></div>
+  <div class="nav-links">
+    <a class="btn btn-outline" href="https://stocks.maelkloud.com/login">Sign In</a>
+    <a class="btn btn-primary" href="https://stocks.maelkloud.com/login">Get Started Free →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">📊 Real-time Portfolio Monitoring</div>
+  <h1>Track your stocks.<br><span>Stay ahead of the market.</span></h1>
+  <p>maelkloud gives you a live view of your portfolio, real-time market data, sector performance, top movers, and a trading journal — all in one place.</p>
+  <div class="hero-btns">
+    <a class="btn btn-primary btn-lg" href="https://stocks.maelkloud.com/login">Create Free Account →</a>
+    <a class="btn btn-outline btn-lg" href="https://stocks.maelkloud.com/login">Sign In</a>
+  </div>
+</section>
+
+<div class="ticker-tape">
+  <div class="ticker-inner">
+    <!-- First copy -->
+    <div class="tick"><span class="tick-sym">AAPL</span><span class="tick-price">$213.49</span><span class="tick-up">+1.24%</span></div>
+    <div class="tick"><span class="tick-sym">NVDA</span><span class="tick-price">$875.32</span><span class="tick-up">+2.87%</span></div>
+    <div class="tick"><span class="tick-sym">TSLA</span><span class="tick-price">$245.18</span><span class="tick-dn">-0.93%</span></div>
+    <div class="tick"><span class="tick-sym">MSFT</span><span class="tick-price">$411.22</span><span class="tick-up">+0.61%</span></div>
+    <div class="tick"><span class="tick-sym">META</span><span class="tick-price">$508.64</span><span class="tick-up">+1.45%</span></div>
+    <div class="tick"><span class="tick-sym">AMZN</span><span class="tick-price">$192.37</span><span class="tick-up">+0.38%</span></div>
+    <div class="tick"><span class="tick-sym">GOOGL</span><span class="tick-price">$176.85</span><span class="tick-dn">-0.22%</span></div>
+    <div class="tick"><span class="tick-sym">AMD</span><span class="tick-price">$163.42</span><span class="tick-up">+3.12%</span></div>
+    <div class="tick"><span class="tick-sym">^GSPC</span><span class="tick-price">5,234.18</span><span class="tick-up">+0.57%</span></div>
+    <div class="tick"><span class="tick-sym">^IXIC</span><span class="tick-price">16,428.82</span><span class="tick-up">+0.83%</span></div>
+    <!-- Second copy (for seamless loop) -->
+    <div class="tick"><span class="tick-sym">AAPL</span><span class="tick-price">$213.49</span><span class="tick-up">+1.24%</span></div>
+    <div class="tick"><span class="tick-sym">NVDA</span><span class="tick-price">$875.32</span><span class="tick-up">+2.87%</span></div>
+    <div class="tick"><span class="tick-sym">TSLA</span><span class="tick-price">$245.18</span><span class="tick-dn">-0.93%</span></div>
+    <div class="tick"><span class="tick-sym">MSFT</span><span class="tick-price">$411.22</span><span class="tick-up">+0.61%</span></div>
+    <div class="tick"><span class="tick-sym">META</span><span class="tick-price">$508.64</span><span class="tick-up">+1.45%</span></div>
+    <div class="tick"><span class="tick-sym">AMZN</span><span class="tick-price">$192.37</span><span class="tick-up">+0.38%</span></div>
+    <div class="tick"><span class="tick-sym">GOOGL</span><span class="tick-price">$176.85</span><span class="tick-dn">-0.22%</span></div>
+    <div class="tick"><span class="tick-sym">AMD</span><span class="tick-price">$163.42</span><span class="tick-up">+3.12%</span></div>
+    <div class="tick"><span class="tick-sym">^GSPC</span><span class="tick-price">5,234.18</span><span class="tick-up">+0.57%</span></div>
+    <div class="tick"><span class="tick-sym">^IXIC</span><span class="tick-price">16,428.82</span><span class="tick-up">+0.83%</span></div>
+  </div>
+</div>
+
+<section class="features">
+  <h2>Everything you need to stay informed</h2>
+  <p class="features-sub">Built for investors who want real data, not noise.</p>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">📈</div>
+      <div class="feat-title">Live Portfolio Tracking</div>
+      <div class="feat-desc">See your holdings with real-time prices, P&L, and day performance — all updating automatically.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🌍</div>
+      <div class="feat-title">Live Market Overview</div>
+      <div class="feat-desc">Major indices, all 11 sectors, top gainers and losers — updated every few minutes during market hours.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📓</div>
+      <div class="feat-title">Trading Journal</div>
+      <div class="feat-desc">Log every trade with notes, dates, and prices. Build a record of your decisions over time.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">👁</div>
+      <div class="feat-title">Watchlist</div>
+      <div class="feat-desc">Track stocks you're eyeing before you buy. See live prices on your watchlist alongside the market.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🚨</div>
+      <div class="feat-title">Movement Alerts</div>
+      <div class="feat-desc">Get flagged when any of your holdings move ±5% or more in a single day.</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">Performance Chart</div>
+      <div class="feat-desc">Visual history of your portfolio value vs. cost basis over 1 month, 3 months, 6 months, or 1 year.</div>
+    </div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stats-inner">
+    <div class="stat-item"><div class="num">15+</div><div class="lbl">Top Movers Tracked</div></div>
+    <div class="stat-item"><div class="num">11</div><div class="lbl">Market Sectors</div></div>
+    <div class="stat-item"><div class="num">Free</div><div class="lbl">Always</div></div>
+    <div class="stat-item"><div class="num">Live</div><div class="lbl">Market Data</div></div>
+  </div>
+</div>
+
+<section class="cta">
+  <h2>Start tracking your portfolio today.</h2>
+  <p>Free to use. No credit card. Just create an account and add your holdings in under a minute.</p>
+  <a class="btn btn-primary btn-lg" href="https://stocks.maelkloud.com/login">Get Started Free →</a>
+</section>
+
+<footer>
+  © 2026 maelkloud · Data via Yahoo Finance · Not financial advice ·
+  <a href="https://stocks.maelkloud.com">Launch App</a>
+</footer>
+
+</body>
+</html>

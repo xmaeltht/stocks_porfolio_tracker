@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>maelkloud — Sign In</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#21262d;
+  --text:#e6edf3;--muted:#8b949e;
+  --green:#26a641;--green-bg:#0f2d1a;
+  --red:#f85149;--blue:#388bfd;--blue-dim:#1a3a6e;
+  --radius:10px;
+}
+html,body{height:100%;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;
+}
+
+/* ── Layout ── */
+.split{display:flex;width:100%;min-height:100vh;}
+.left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:48px 64px;max-width:560px;}
+.right{flex:1;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;padding:48px 64px;position:relative;overflow:hidden;}
+@media(max-width:860px){.right{display:none;}.left{max-width:100%;padding:32px 24px;}}
+
+/* ── Brand ── */
+.brand{margin-bottom:40px;}
+.brand-logo{display:flex;align-items:center;gap:10px;margin-bottom:24px;}
+.brand-logo .icon{font-size:2rem;width:44px;height:44px;background:linear-gradient(135deg,#388bfd,#0d2244);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.brand-logo h1{font-size:1.5rem;font-weight:800;letter-spacing:-.04em;}
+.brand-logo h1 span{color:var(--blue);}
+.brand-tagline{font-size:1.6rem;font-weight:700;line-height:1.3;color:var(--text);margin-bottom:8px;}
+.brand-sub{font-size:.9rem;color:var(--muted);line-height:1.6;}
+
+/* ── Auth card ── */
+.auth-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;}
+
+/* ── Tabs ── */
+.tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:3px;margin-bottom:22px;}
+.tab{flex:1;padding:8px;border:none;background:none;color:var(--muted);font-size:.88rem;font-weight:600;border-radius:8px;cursor:pointer;transition:all .15s;}
+.tab.active{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+
+/* ── Form ── */
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.form-group input{
+  width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  color:var(--text);padding:10px 13px;font-size:.93rem;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.form-group input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(56,139,253,.12);}
+.form-group input::placeholder{color:var(--muted);}
+
+/* ── Submit ── */
+.btn-submit{
+  width:100%;padding:11px;background:var(--blue);color:#fff;border:none;
+  border-radius:8px;font-size:.95rem;font-weight:700;cursor:pointer;
+  transition:opacity .15s,transform .1s;margin-top:4px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.btn-submit:hover{opacity:.88;}
+.btn-submit:active{transform:scale(.98);}
+
+/* ── Error ── */
+.error-box{
+  background:rgba(248,81,73,.1);border:1px solid var(--red);border-radius:8px;
+  padding:10px 13px;margin-bottom:14px;font-size:.84rem;color:var(--red);display:none;
+  animation:shake .3s ease;
+}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.hint{font-size:.72rem;color:var(--muted);margin-top:4px;}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+.footer-note{margin-top:14px;text-align:center;font-size:.75rem;color:var(--muted);}
+
+/* ── Right side features ── */
+.features-title{font-size:1.3rem;font-weight:700;margin-bottom:28px;color:var(--text);}
+.feature-list{display:flex;flex-direction:column;gap:18px;margin-bottom:36px;}
+.feature-item{display:flex;align-items:flex-start;gap:14px;}
+.feature-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.fi-blue{background:rgba(56,139,253,.15);border:1px solid rgba(56,139,253,.3);}
+.fi-green{background:rgba(38,166,65,.15);border:1px solid rgba(38,166,65,.3);}
+.fi-yellow{background:rgba(227,179,65,.15);border:1px solid rgba(227,179,65,.3);}
+.fi-red{background:rgba(248,81,73,.15);border:1px solid rgba(248,81,73,.3);}
+.fi-purple{background:rgba(163,113,247,.15);border:1px solid rgba(163,113,247,.3);}
+.feature-text h4{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.feature-text p{font-size:.78rem;color:var(--muted);line-height:1.5;}
+
+/* ── Ticker ticker ── */
+.ticker-tape{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px;}
+.tape-badge{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:.78rem;display:flex;align-items:center;gap:8px;}
+.tape-sym{font-weight:700;font-family:monospace;color:var(--blue);}
+.tape-val{font-weight:700;}
+
+/* ── Decoration ── */
+.deco-grid{position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(56,139,253,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(56,139,253,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;opacity:.6;}
+</style>
+</head>
+<body>
+
+<div class="split">
+
+  <!-- ── Left: Auth form ── -->
+  <div class="left">
+
+    <div class="brand">
+      <div class="brand-logo">
+        <div class="icon">📊</div>
+        <h1>mael<span>kloud</span></h1>
+      </div>
+      <div class="brand-tagline">Your personal stock<br>portfolio, supercharged.</div>
+      <div class="brand-sub" style="margin-top:10px">Real-time prices · Live market data · Multi-user · Free</div>
+    </div>
+
+    <div class="auth-card">
+      <div class="tabs">
+        <button class="tab active" id="tab-login"    onclick="showTab('login')">Sign In</button>
+        <button class="tab"        id="tab-register" onclick="showTab('register')">Create Account</button>
+      </div>
+
+      <div class="error-box" id="error-box"></div>
+
+      <!-- SIGN IN -->
+      <form id="form-login" method="POST" action="/login" onsubmit="return validate('login')">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" id="l-username" placeholder="your username" autocomplete="username" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" id="l-password" placeholder="••••••••" autocomplete="current-password" required/>
+        </div>
+        <button type="submit" class="btn-submit">Sign In →</button>
+      </form>
+
+      <!-- CREATE ACCOUNT -->
+      <form id="form-register" method="POST" action="/register" onsubmit="return validate('register')" style="display:none">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" name="username" id="r-username" placeholder="choose a username" autocomplete="username" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" name="password" id="r-password" placeholder="min. 6 characters" autocomplete="new-password" required/>
+          <div class="hint">At least 6 characters</div>
+        </div>
+        <div class="form-group">
+          <label>Email <span style="color:var(--muted);font-weight:400;text-transform:none">(optional)</span></label>
+          <input type="email" name="email" id="r-email" placeholder="you@example.com" autocomplete="email"/>
+        </div>
+        <button type="submit" class="btn-submit">Create Account →</button>
+      </form>
+
+      <div class="footer-note">
+        maelkloud · Data via Yahoo Finance · Not financial advice
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Right: Feature showcase ── -->
+  <div class="right">
+    <div class="deco-grid"></div>
+
+    <div class="features-title">Everything you need to<br>track your investments.</div>
+
+    <div class="feature-list">
+      <div class="feature-item">
+        <div class="feature-icon fi-blue">📈</div>
+        <div class="feature-text">
+          <h4>Live Portfolio Tracking</h4>
+          <p>Real-time prices, P&amp;L, day change, and performance charts. Auto-refreshes every 5 minutes.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-green">🌍</div>
+        <div class="feature-text">
+          <h4>Live Market Overview</h4>
+          <p>Major indices, crypto prices, sector heatmaps, top movers, Fear &amp; Greed meter, and market news.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-yellow">🎯</div>
+        <div class="feature-text">
+          <h4>Price Target Alerts</h4>
+          <p>Set price targets per stock — get notified when they're hit. Watchlist with real-time quotes.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-red">📓</div>
+        <div class="feature-text">
+          <h4>Trading Journal</h4>
+          <p>Log every BUY, SELL, or note with full trade history. Export to Excel or CSV anytime.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon fi-purple">🔍</div>
+        <div class="feature-text">
+          <h4>Deep Stock Analysis</h4>
+          <p>Click any stock for full details: valuation, financials, dividends, analyst ratings, news, and charts.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ticker-tape" id="ticker-tape">
+      <div class="tape-badge"><span class="tape-sym">S&amp;P 500</span><span class="tape-val green">+0.42%</span></div>
+      <div class="tape-badge"><span class="tape-sym">NASDAQ</span><span class="tape-val green">+0.61%</span></div>
+      <div class="tape-badge"><span class="tape-sym">BTC</span><span class="tape-val green">₿ Live</span></div>
+      <div class="tape-badge"><span class="tape-sym">ETH</span><span class="tape-val green">Ξ Live</span></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tab-login').classList.toggle('active', isLogin);
+  document.getElementById('tab-register').classList.toggle('active', !isLogin);
+  document.getElementById('form-login').style.display    = isLogin ? '' : 'none';
+  document.getElementById('form-register').style.display = isLogin ? 'none' : '';
+  document.getElementById('error-box').style.display = 'none';
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent   = '⚠️  ' + msg;
+  el.style.display = '';
+  // re-trigger animation
+  el.style.animation = 'none';
+  el.offsetHeight;
+  el.style.animation = '';
+}
+
+function validate(tab) {
+  if (tab === 'login') {
+    const u = document.getElementById('l-username').value.trim();
+    const p = document.getElementById('l-password').value;
+    if (!u) { showError('Please enter your username.'); return false; }
+    if (!p) { showError('Please enter your password.'); return false; }
+  } else {
+    const u = document.getElementById('r-username').value.trim();
+    const p = document.getElementById('r-password').value;
+    if (!u || u.length < 3)  { showError('Username must be at least 3 characters.'); return false; }
+    if (!p || p.length < 6)  { showError('Password must be at least 6 characters.'); return false; }
+    if (!/^[a-zA-Z0-9_.-]+$/.test(u)) { showError('Username can only contain letters, numbers, _ . -'); return false; }
+  }
+  return true;
+}
+
+// URL params → show errors & set active tab
+(function() {
+  const p = new URLSearchParams(window.location.search);
+  const tab = p.get('tab');
+  const err = p.get('error');
+  if (tab === 'register') showTab('register');
+  const msgs = {
+    'invalid': 'Incorrect username or password.',
+    'taken':   'That username is already taken.',
+    'weak':    'Password must be at least 6 characters.',
+  };
+  if (err && msgs[err]) showError(msgs[err]);
+})();
+</script>
+
+</body>
+</html>

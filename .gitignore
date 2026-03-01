@@ -1,0 +1,40 @@
+# ── Databases (contains user accounts & portfolio data — never commit) ──
+*.db
+*.db-shm
+*.db-wal
+
+# ── Logs ──
+*.log
+server.log
+server-error.log
+tunnel.log
+tunnel-error.log
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── macOS ──
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V7
+.Trashes
+
+# ── Environment / secrets ──
+.env
+.env.*
+*.secret
+.cloudflared/
+
+# ── User-specific config ──
+portfolio_config.json
+
+# ── GitHub Actions runner (installed separately on Mac Mini) ──
+actions-runner/
