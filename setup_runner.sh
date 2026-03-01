@@ -4,7 +4,7 @@
 #  Run this ONCE on your Mac Mini to enable auto-deployment.
 #
 #  What it does:
-#    1. Clones your GitHub repo to ~/maelkloud
+#    1. Verifies the repo exists at ~/HomeLab/Stock-porfolio
 #    2. Downloads & configures the GitHub Actions runner
 #    3. Installs the runner as a launchd service (auto-starts on boot)
 #
@@ -21,7 +21,7 @@ warn()    { echo -e "${YELLOW}!${NC} $1"; }
 error()   { echo -e "${RED}✗${NC} $1"; exit 1; }
 step()    { echo -e "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"; echo -e "  ${GREEN}$1${NC}"; echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"; }
 
-DEPLOY_DIR="$HOME/maelkloud"
+DEPLOY_DIR="$HOME/HomeLab/Stock-porfolio"
 RUNNER_DIR="$HOME/actions-runner"
 
 echo ""
@@ -45,17 +45,18 @@ echo ""
 info "Repo URL: ${REPO_URL}"
 echo ""
 
-# ── Clone / update repo ───────────────────────────────────
-step "Step 2 / 4 — Clone Repository"
+# ── Verify repo exists ────────────────────────────────────
+step "Step 2 / 4 — Verify Repository"
 
 if [ -d "$DEPLOY_DIR/.git" ]; then
-  warn "Directory $DEPLOY_DIR already exists and is a git repo — pulling latest…"
+  CURRENT_REMOTE=$(git -C "$DEPLOY_DIR" remote get-url origin 2>/dev/null || echo "none")
+  success "Repo found at ${DEPLOY_DIR}"
+  info "Remote: ${CURRENT_REMOTE}"
+  info "Pulling latest from main…"
   git -C "$DEPLOY_DIR" pull origin main
-  success "Repo updated"
+  success "Repo is up to date"
 else
-  info "Cloning ${REPO_URL} → ${DEPLOY_DIR}…"
-  git clone "$REPO_URL" "$DEPLOY_DIR"
-  success "Repo cloned to ${DEPLOY_DIR}"
+  error "No git repo found at ${DEPLOY_DIR}.\nPlease ensure you have pushed the code to GitHub and run this script from inside the project folder."
 fi
 
 # ── Download GitHub Actions runner ───────────────────────

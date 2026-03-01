@@ -37,7 +37,7 @@ jobs:
 
       - name: 📥 Pull latest code
         run: |
-          DEPLOY_DIR="$HOME/maelkloud"
+          DEPLOY_DIR="$HOME/HomeLab/Stock-porfolio"
           echo "Deploy dir: $DEPLOY_DIR"
           if [ ! -d "$DEPLOY_DIR/.git" ]; then
             echo "ERROR: $DEPLOY_DIR is not a git repo. Run setup_runner.sh first."
@@ -48,7 +48,7 @@ jobs:
           echo "✓ Updated to $(git -C "$DEPLOY_DIR" rev-parse --short HEAD)"
 
       - name: 🚀 Run deploy script
-        run: bash "$HOME/maelkloud/deploy.sh"
+        run: bash "$HOME/HomeLab/Stock-porfolio/deploy.sh"
 
       - name: ✅ Verify deployment
         run: |
