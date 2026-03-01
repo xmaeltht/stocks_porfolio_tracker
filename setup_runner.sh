@@ -130,9 +130,9 @@ step "Step 4 / 4 — Install as Service (auto-start on boot)"
 
 cd "$RUNNER_DIR"
 
-# Install the service (uses macOS launchd under the hood)
-sudo ./svc.sh install
-sudo ./svc.sh start
+# Install the service (macOS: must NOT use sudo — installs as user LaunchAgent)
+./svc.sh install
+./svc.sh start
 
 success "Runner service installed and started"
 
@@ -164,7 +164,7 @@ echo ""
 echo "  Useful commands:"
 echo "    Runner status:  cd $RUNNER_DIR && ./svc.sh status"
 echo "    Runner logs:    tail -f $RUNNER_DIR/_diag/Runner_*.log"
-echo "    Stop runner:    cd $RUNNER_DIR && sudo ./svc.sh stop"
-echo "    Start runner:   cd $RUNNER_DIR && sudo ./svc.sh start"
+echo "    Stop runner:    cd $RUNNER_DIR && ./svc.sh stop"
+echo "    Start runner:   cd $RUNNER_DIR && ./svc.sh start"
 echo "    Manual deploy:  bash $DEPLOY_DIR/deploy.sh"
 echo ""
