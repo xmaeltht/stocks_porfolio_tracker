@@ -51,9 +51,32 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .logo{display:flex;align-items:center;gap:8px;}
 .logo h1{font-size:1.1rem;font-weight:700;}
 .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-#market-badge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
-.badge-open{background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
-.badge-closed{background:#1c1c1c;color:var(--muted);border:1px solid var(--border);}
+#market-badge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;cursor:default;}
+.badge-open     {background:var(--green-bg);color:var(--green);border:1px solid var(--green);}
+.badge-closed   {background:#1c1c1c;color:var(--muted);border:1px solid var(--border);}
+.badge-pre      {background:#0d2244;color:var(--blue);border:1px solid var(--blue);}
+.badge-post     {background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow);}
+.badge-overnight{background:#1a0d33;color:#a78bfa;border:1px solid #6d28d9;}
+
+/* Session banner below KPI cards */
+#session-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:9px 16px;margin-bottom:14px;font-size:.78rem;}
+#session-banner.sess-regular  {border-color:var(--green); background:rgba(38,166,65,.07);}
+#session-banner.sess-pre      {border-color:var(--blue);  background:rgba(56,139,253,.07);}
+#session-banner.sess-post     {border-color:var(--yellow);background:rgba(227,179,65,.07);}
+#session-banner.sess-overnight{border-color:#6d28d9;      background:rgba(109,40,217,.07);}
+#session-banner.sess-closed   {display:none;}
+.sess-label{font-weight:700;display:flex;align-items:center;gap:6px;}
+.sess-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.sess-dot-regular  {background:var(--green);}
+.sess-dot-pre      {background:var(--blue);}
+.sess-dot-post     {background:var(--yellow);}
+.sess-dot-overnight{background:#a78bfa;animation:pulse-overnight 2s infinite;}
+@keyframes pulse-overnight{0%,100%{opacity:1;}50%{opacity:.4;}}
+.sess-next{color:var(--muted);}
+[data-theme="light"] #session-banner.sess-regular  {background:rgba(26,127,55,.05);}
+[data-theme="light"] #session-banner.sess-pre      {background:rgba(9,105,218,.05);}
+[data-theme="light"] #session-banner.sess-post     {background:rgba(125,78,0,.05);}
+[data-theme="light"] #session-banner.sess-overnight{background:rgba(109,40,217,.05);}
 #server-badge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;cursor:default;}
 .srv-on{background:#0d2244;color:var(--blue);border:1px solid var(--blue);}
 .srv-off{background:var(--red-bg);color:var(--red);border:1px solid var(--red);}
@@ -714,6 +737,15 @@ tbody tr.clickable{cursor:pointer;}
       <div class="card clickable" onclick="showCardDetail('alerts')" title="Click to see all active alerts"><div class="card-label">Active Alerts 🚨</div><div class="card-value yellow" id="c-alerts">0</div><div class="card-sub">Moved ≥ ±5%</div></div>
     </div>
 
+    <!-- SESSION BANNER -->
+    <div id="session-banner" class="sess-closed">
+      <span class="sess-label">
+        <span class="sess-dot" id="sess-dot"></span>
+        <span id="sess-label-text">Market Closed</span>
+      </span>
+      <span class="sess-next" id="sess-next"></span>
+    </div>
+
     <!-- PERFORMANCE CHART -->
     <div class="chart-card" id="chart-card">
       <div class="chart-header">
@@ -1115,7 +1147,16 @@ function g(id) { return document.getElementById(id); }
 //  CONFIG
 // ═══════════════════════════════════════════════
 const THRESH     = 5.0;
-const REFRESH_MS = 5 * 60 * 1000;   // 5 minutes
+const REFRESH_MS = 5 * 60 * 1000;   // default 5 minutes (overridden adaptively)
+// Adaptive refresh: faster during active sessions, slower overnight/closed
+const SESSION_REFRESH_MS = {
+  regular:   5  * 60 * 1000,   //  5 min — normal trading
+  pre:       5  * 60 * 1000,   //  5 min — pre-market active
+  post:      5  * 60 * 1000,   //  5 min — after-hours active
+  overnight: 2  * 60 * 1000,   //  2 min — 24h crypto/futures move fast overnight
+  closed:    10 * 60 * 1000,   // 10 min — weekend, nothing moves
+};
+function getRefreshMs() { return SESSION_REFRESH_MS[getMarketSession()] ?? REFRESH_MS; }
 
 let IS_SERVER = false;   // set by init() via health check
 
@@ -1170,17 +1211,84 @@ function updateServerBadge(on) {
 }
 
 // ═══════════════════════════════════════════════
-//  MARKET HOURS
+//  MARKET HOURS  (5-state: regular / pre / post / overnight / closed)
 // ═══════════════════════════════════════════════
-function mktOpen() {
+/**
+ * Returns one of: 'regular' | 'pre' | 'post' | 'overnight' | 'closed'
+ *   regular   — Mon–Fri 09:30–16:00 ET
+ *   pre       — Mon–Fri 04:00–09:30 ET  (+ Sun 20:00 counts as pre for Mon)
+ *   post      — Mon–Fri 16:00–20:00 ET
+ *   overnight — Mon–Thu 20:00–04:00 ET  (Fri 20:00–Sun 20:00 is closed)
+ *   closed    — Sat all-day, Sun before 20:00, Fri after 20:00
+ */
+function getMarketSession() {
+  const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const d = et.getDay();   // 0=Sun 1=Mon … 5=Fri 6=Sat
+  const m = et.getHours() * 60 + et.getMinutes(); // minutes since midnight ET
+  // ── Saturday: always closed ──────────────────────────────────────────────
+  if (d === 6) return 'closed';
+  // ── Sunday ───────────────────────────────────────────────────────────────
+  if (d === 0) return m >= 1200 ? 'pre' : 'closed'; // Sun 20:00+ → pre for Mon open
+  // ── Monday–Friday ────────────────────────────────────────────────────────
+  if (m >= 570 && m < 960)  return 'regular';   // 09:30–16:00
+  if (m >= 240 && m < 570)  return 'pre';        // 04:00–09:30
+  if (m >= 960 && m < 1200) return 'post';       // 16:00–20:00
+  // 20:00–23:59 on Mon–Thu → overnight;  Fri 20:00+ → closed
+  if (m >= 1200) return d <= 4 ? 'overnight' : 'closed';
+  // 00:00–04:00 on Mon–Fri: carry-over from previous night
+  // Mon 00:00–04:00 → overnight from Sun; Tue–Fri 00:00–04:00 → overnight
+  return 'overnight';
+}
+
+/** Minutes until the next session-change boundary (ET), used for the countdown. */
+function minsUntilNextBoundary() {
   const et = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' }));
   const d = et.getDay(), m = et.getHours() * 60 + et.getMinutes();
-  return d >= 1 && d <= 5 && m >= 570 && m < 960;
+  // Sorted boundary list for weekdays [boundary minute, label]
+  const boundaries = [[240,'Pre-Market'], [570,'Market Open'], [960,'After-Hours'], [1200,'Overnight']];
+  if (d >= 1 && d <= 5) {
+    for (const [bm, lbl] of boundaries) {
+      if (m < bm) return { mins: bm - m, label: lbl };
+    }
+    // Past 20:00 weekday
+    if (d <= 4) return { mins: 1440 - m + 240, label: 'Pre-Market' }; // overnight until next day 04:00
+    return { mins: (1440 * 3) - m + 1200, label: 'Pre-Market' }; // Fri night → Mon pre
+  }
+  if (d === 0) { // Sunday
+    if (m < 1200) return { mins: 1200 - m, label: 'Overnight' };
+    return { mins: 1440 - m + 240, label: 'Pre-Market' };
+  }
+  // Saturday
+  return { mins: 1440 - m + 1440 + 1200, label: 'Overnight' }; // Sat → Sun 20:00
 }
+
+const SESSION_META = {
+  regular:   { cls:'badge-open',     badge:'⬤ Market Open',       dotCls:'sess-dot-regular',   label:'Regular Hours  09:30–16:00 ET' },
+  pre:       { cls:'badge-pre',      badge:'⬤ Pre-Market',        dotCls:'sess-dot-pre',        label:'Pre-Market  04:00–09:30 ET' },
+  post:      { cls:'badge-post',     badge:'⬤ After-Hours',       dotCls:'sess-dot-post',       label:'After-Hours  16:00–20:00 ET' },
+  overnight: { cls:'badge-overnight',badge:'⬤ Overnight',         dotCls:'sess-dot-overnight',  label:'Overnight Session' },
+  closed:    { cls:'badge-closed',   badge:'⬤ Market Closed',     dotCls:'',                    label:'' },
+};
+
 function updateBadge() {
-  const b = g('market-badge'), o = mktOpen();
-  b.className   = o ? 'badge-open' : 'badge-closed';
-  b.textContent = o ? '⬤ Market Open' : '⬤ Market Closed';
+  const sess = getMarketSession();
+  const meta = SESSION_META[sess];
+  // ── header badge ──────────────────────────────────────────────────────────
+  const b = g('market-badge');
+  b.className   = meta.cls;
+  b.textContent = meta.badge;
+  // ── session banner ────────────────────────────────────────────────────────
+  const banner = g('session-banner');
+  banner.className = `sess-${sess}`;
+  if (sess === 'closed') return; // banner hidden via CSS
+  const dot   = g('sess-dot');
+  const lbl   = g('sess-label-text');
+  const nxt   = g('sess-next');
+  dot.className   = `sess-dot ${meta.dotCls}`;
+  lbl.textContent = meta.label;
+  const nb = minsUntilNextBoundary();
+  const h = Math.floor(nb.mins / 60), mn = nb.mins % 60;
+  nxt.textContent = `${nb.label} in ${h > 0 ? h + 'h ' : ''}${mn}m`;
 }
 
 // ═══════════════════════════════════════════════
@@ -2036,7 +2144,7 @@ async function refresh() {
   loading = false;
   topBarDone();
 
-  if (IS_SERVER) startCountdown(REFRESH_MS);
+  if (IS_SERVER) startCountdown(getRefreshMs());
 }
 
 // ═══════════════════════════════════════════════
@@ -3829,7 +3937,7 @@ async function init() {
   // 3. Initial render
   updateBadge();
   updateServerBadge(IS_SERVER);
-  setInterval(updateBadge, 60000);
+  setInterval(updateBadge, 30000);  // update badge + session banner every 30s
   const rs = rows();
 
   // Show skeleton KPI cards instantly while quotes fetch in background
@@ -3839,12 +3947,19 @@ async function init() {
   renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
 
-  // 4. Fetch live prices for portfolio (background — market is default tab)
+  // 4. Fetch live prices for portfolio — adaptive interval by market session
   refresh();
-  setInterval(async () => {
-    if (document.hidden) return;   // skip refresh when tab is not visible
-    if (IS_SERVER && portfolio.length) { await refresh(); checkPriceTargetAlerts(); loadExtendedHours(); }
-  }, REFRESH_MS);
+  (function scheduleRefresh() {
+    const ms = getRefreshMs();
+    setTimeout(async () => {
+      if (!document.hidden && IS_SERVER && portfolio.length) {
+        await refresh();
+        checkPriceTargetAlerts();
+        loadExtendedHours();
+      }
+      scheduleRefresh();   // reschedule with updated session interval
+    }, ms);
+  })();
 
   // 5. Load performance chart
   loadPerfChart(_chartRange);
