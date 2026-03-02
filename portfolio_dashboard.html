@@ -884,9 +884,8 @@ tbody tr.clickable{cursor:pointer;}
 
   <!-- ═══ MARKET TAB ═══ -->
   <div class="tab-pane active" id="tab-market">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <div style="margin-bottom:14px;">
       <div class="section-title">🌍 Live Market Overview</div>
-      <button class="btn btn-primary btn-sm mkt-refresh-btn" onclick="loadMarket(true)">↻ Refresh Market</button>
     </div>
 
     <!-- Futures / Overnight -->
@@ -2117,6 +2116,9 @@ async function refresh() {
   btn.disabled  = true;
   updateBadge();
 
+  // Also refresh market data if user is on the Market tab
+  if (IS_SERVER && g('tab-market')?.classList.contains('active')) loadMarket(true);
+
   const tickers = portfolio.map(h => h.ticker);
   const [q, n]  = await Promise.all([fetchQuotes(tickers), fetchNews(tickers)]);
   const gotData  = Object.keys(q).length > 0;
@@ -2590,24 +2592,33 @@ function switchTab(name) {
 //  FUTURES & OVERNIGHT MARKET
 // ═══════════════════════════════════════════════
 async function loadFutures() {
+  const row = g('futures-row');
+  if (!row) return;
   try {
-    const r = await fetch('/api/futures');
-    if (!r.ok) return;
+    const ctrl = new AbortController();
+    const tOut = setTimeout(() => ctrl.abort(), 15000); // 15s timeout
+    const r = await fetch('/api/futures', { signal: ctrl.signal });
+    clearTimeout(tOut);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
-    const row  = g('futures-row');
-    if (!row || !data.length) return;
+    if (!Array.isArray(data) || !data.length) {
+      row.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Futures unavailable right now</div>';
+      return;
+    }
     row.innerHTML = data.map(f => {
       const hasData = f.price > 0;
       const cls = f.change_pct > 0 ? 'green' : f.change_pct < 0 ? 'red' : '';
+      const arrow = f.change_pct >= 0 ? '▲ +' : '▼ ';
       return `<div class="futures-card" onclick="openDrawer('${f.symbol}')" style="cursor:pointer" title="Click for details">
         <div class="futures-icon">${f.icon}</div>
         <div class="futures-name">${f.name}</div>
         <div class="futures-price">${hasData ? f.price.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
-        <div class="futures-chg ${cls}">${hasData ? (f.change_pct >= 0 ? '▲ +' : '▼ ') + Math.abs(f.change_pct).toFixed(2) + '%' : '—'}</div>
+        <div class="futures-chg ${cls}">${hasData ? arrow + Math.abs(f.change_pct).toFixed(2) + '%' : '—'}</div>
       </div>`;
     }).join('');
   } catch(e) {
     console.warn('loadFutures:', e);
+    row.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">⚠️ Could not load futures data</div>';
   }
 }
 
