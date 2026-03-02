@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="theme-color" content="#0d1117"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="maelkloud"/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" href="/icon.png"/>
 <title>maelkloud — Portfolio Monitor</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -395,6 +402,50 @@ tbody tr.clickable{cursor:pointer;}
   .header-search input:focus{width:160px;}
 }
 
+/* ═══ MOBILE RESPONSIVE ═══ */
+@media(max-width:768px){
+  header{padding:10px 14px;gap:6px;flex-wrap:nowrap;}
+  .logo h1{font-size:.85rem;}
+  .version-badge{display:none;}
+  #countdown{display:none;}
+  #export-wrap{display:none;}
+  .header-search input{width:110px;}
+  .header-search input:focus{width:140px;}
+  #theme-btn{padding:5px 9px;font-size:.85rem;}
+  main{padding:10px 12px;}
+  .cards{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .card{padding:10px 12px;}
+  .card-value{font-size:1.05rem;}
+  .card-sub{font-size:.68rem;}
+  .add-form{flex-wrap:wrap;gap:8px;}
+  .field{min-width:0;flex:1 1 100px;}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:580px;font-size:.78rem;}
+  thead th{padding:7px 6px;font-size:.62rem;}
+  tbody td{padding:7px 6px;}
+  .chart-card{padding:14px 12px;}
+  .chart-header{flex-direction:column;gap:8px;align-items:flex-start;}
+  .chart-range{gap:3px;}
+  .range-btn{padding:4px 9px;font-size:.72rem;}
+  .alloc-card{grid-template-columns:1fr;gap:12px;padding:14px;}
+  .analytics-grid{grid-template-columns:1fr 1fr;}
+  .analytics-card{padding:14px;}
+  #detail-drawer{width:100vw!important;max-width:100vw!important;border-left:none!important;border-radius:0;}
+  #qpanel{max-height:88vh;}
+  .qp-table th,.qp-table td{padding:7px 5px;font-size:.76rem;}
+  .journal-form{flex-wrap:wrap;gap:8px;}
+  .jfield{flex:1 1 120px;}
+  .cards-row2{grid-template-columns:1fr 1fr;gap:8px;}
+  .health-grid{grid-template-columns:1fr!important;}
+  .health-insights{max-height:220px;}
+}
+@media(max-width:480px){
+  .card-value{font-size:.95rem;}
+  main{padding:8px 10px;}
+  .header-search{display:none;}
+  #market-badge{display:none;}
+}
+
 /* CRYPTO SECTION */
 .crypto-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
 .crypto-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:pointer;transition:border-color .15s;}
@@ -423,6 +474,27 @@ tbody tr.clickable{cursor:pointer;}
 .skeleton{border-radius:4px;background:linear-gradient(90deg,var(--border) 25%,var(--surface) 50%,var(--border) 75%);background-size:800px 100%;animation:shimmer 1.4s infinite linear;}
 
 /* ANALYTICS SECTION */
+/* HEALTH SCORE */
+.health-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;}
+.health-grid{display:grid;grid-template-columns:180px 1fr;gap:20px;align-items:start;}
+.health-score-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.health-circle{position:relative;width:130px;height:130px;}
+.health-circle svg{transform:rotate(-90deg);}
+.health-circle-track{fill:none;stroke:var(--border);stroke-width:10;}
+.health-circle-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1),stroke .5s;}
+.health-score-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.health-score-num{font-size:2rem;font-weight:800;line-height:1;}
+.health-score-txt{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;}
+.health-grade{font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:20px;}
+.health-insights{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
+.insight-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:6px;font-size:.8rem;line-height:1.4;}
+.insight-good{background:var(--green-bg);border:1px solid rgba(38,166,65,.25);}
+.insight-warning{background:var(--yellow-bg);border:1px solid rgba(227,179,65,.25);}
+.insight-danger{background:var(--red-bg);border:1px solid rgba(248,81,73,.25);}
+.insight-info{background:var(--bg);border:1px solid var(--border);}
+.health-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+[data-theme="light"] .insight-info{background:#f6f8fa;}
+
 .analytics-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;}
 .analytics-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
 .analytics-title{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
@@ -579,6 +651,36 @@ tbody tr.clickable{cursor:pointer;}
         <div class="alloc-chart-wrap"><canvas id="alloc-chart"></canvas></div>
       </div>
       <div class="alloc-legend" id="alloc-legend"></div>
+    </div>
+
+    <!-- PORTFOLIO HEALTH SCORE -->
+    <div class="health-card" id="health-card" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+        <div style="font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">💊 Portfolio Health</div>
+        <div class="health-actions">
+          <button class="btn btn-outline btn-sm" onclick="showCardDetail('value');closeQPanel();openQPanel('⚖️ Rebalance','');openRebalancer();" style="font-size:.72rem;padding:4px 10px">⚖️ Rebalance</button>
+          <button class="btn btn-outline btn-sm" onclick="openWhatIf()" style="font-size:.72rem;padding:4px 10px">🧪 What-if</button>
+        </div>
+      </div>
+      <div class="health-grid">
+        <div class="health-score-wrap">
+          <div class="health-circle">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle class="health-circle-track" cx="65" cy="65" r="55"/>
+              <circle class="health-circle-fill" id="health-circle-fill" cx="65" cy="65" r="55"
+                stroke-dasharray="345.4" stroke-dashoffset="345.4"/>
+            </svg>
+            <div class="health-score-label">
+              <div class="health-score-num" id="health-score-num">—</div>
+              <div class="health-score-txt">/ 100</div>
+            </div>
+          </div>
+          <div class="health-grade" id="health-grade">—</div>
+        </div>
+        <div class="health-insights" id="health-insights">
+          <div style="color:var(--muted);font-size:.82rem;padding:10px 0;">Add holdings to see your portfolio health score.</div>
+        </div>
+      </div>
     </div>
 
     <!-- PORTFOLIO ANALYTICS -->
@@ -1062,6 +1164,309 @@ function rows() {
 // ═══════════════════════════════════════════════
 let _qpRows = [];   // snapshot of last rendered rows, used by card click handlers
 
+// ═══════════════════════════════════════════════
+//  PORTFOLIO HEALTH SCORE
+// ═══════════════════════════════════════════════
+function computePortfolioHealth(rs) {
+  const priced = rs.filter(r => r.price > 0 && r.value > 0);
+  if (!priced.length) return null;
+  const tv = priced.reduce((s, r) => s + r.value, 0);
+  const insights = [];
+  let score = 100;
+
+  // 1. Single position concentration
+  const sorted = [...priced].sort((a, b) => b.value - a.value);
+  const top1Pct = sorted[0].value / tv * 100;
+  const top3Pct = sorted.slice(0, 3).reduce((s, r) => s + r.value / tv * 100, 0);
+  if (top1Pct > 40) {
+    score -= 20;
+    insights.push({ t: 'danger', m: `🔴 <strong>${sorted[0].ticker}</strong> is ${top1Pct.toFixed(0)}% of your portfolio — extreme concentration risk.` });
+  } else if (top1Pct > 25) {
+    score -= 10;
+    insights.push({ t: 'warning', m: `🟡 <strong>${sorted[0].ticker}</strong> = ${top1Pct.toFixed(0)}% of portfolio — watch for over-exposure.` });
+  } else {
+    insights.push({ t: 'good', m: `✅ Largest position (<strong>${sorted[0].ticker}</strong>) is ${top1Pct.toFixed(0)}% — healthy sizing.` });
+  }
+
+  // 2. Top-3 concentration
+  if (top3Pct > 70) {
+    score -= 10;
+    insights.push({ t: 'warning', m: `🟡 Top 3 holdings = <strong>${top3Pct.toFixed(0)}%</strong> of portfolio. Low diversification.` });
+  }
+
+  // 3. Number of positions
+  if (priced.length < 5) {
+    score -= 10;
+    insights.push({ t: 'warning', m: `🟡 Only <strong>${priced.length} positions</strong>. Aim for 8–15 for balanced diversification.` });
+  } else if (priced.length >= 10) {
+    insights.push({ t: 'good', m: `✅ <strong>${priced.length} positions</strong> — well diversified by count.` });
+  }
+
+  // 4. Beta / volatility
+  const weightedBeta = priced.reduce((s, r) => s + (r.beta || 1) * r.value, 0) / tv;
+  if (weightedBeta > 1.8) {
+    score -= 15;
+    insights.push({ t: 'danger', m: `🔴 Portfolio beta <strong>${weightedBeta.toFixed(2)}</strong> — highly aggressive. Expect 80%+ more volatility than the market.` });
+  } else if (weightedBeta > 1.3) {
+    score -= 5;
+    insights.push({ t: 'warning', m: `🟡 Beta <strong>${weightedBeta.toFixed(2)}</strong> — above-market risk. High growth potential with higher drawdowns.` });
+  } else if (weightedBeta < 0.6) {
+    insights.push({ t: 'info', m: `🛡️ Beta <strong>${weightedBeta.toFixed(2)}</strong> — defensive portfolio. Less volatile but may lag in bull markets.` });
+  } else {
+    insights.push({ t: 'good', m: `✅ Beta <strong>${weightedBeta.toFixed(2)}</strong> — healthy market exposure.` });
+  }
+
+  // 5. Sector diversification
+  const sectors = {};
+  priced.forEach(r => { const s = r.sector || 'Unknown'; sectors[s] = (sectors[s] || 0) + r.value / tv * 100; });
+  const knownSectors = Object.entries(sectors).filter(([s]) => s !== 'Unknown');
+  const sectorCount = knownSectors.length;
+  if (knownSectors.length) {
+    const [topSec, topSecPct] = knownSectors.sort((a, b) => b[1] - a[1])[0];
+    if (topSecPct > 65) {
+      score -= 12;
+      insights.push({ t: 'warning', m: `🟡 <strong>${topSec}</strong> = ${topSecPct.toFixed(0)}% of portfolio. Heavy sector concentration.` });
+    } else if (sectorCount >= 5) {
+      insights.push({ t: 'good', m: `✅ Spread across <strong>${sectorCount} sectors</strong> — good sector diversification.` });
+    } else if (sectorCount >= 3) {
+      insights.push({ t: 'info', m: `📊 <strong>${sectorCount} sectors</strong> represented. Consider adding more sector diversity.` });
+    }
+  }
+
+  // 6. Dividend income
+  const annualDiv = priced.reduce((s, r) => s + (r.dividendRate || 0) * r.shares, 0);
+  if (annualDiv >= 500) {
+    insights.push({ t: 'good', m: `💵 Estimated annual dividend income: <strong>$${annualDiv.toFixed(0)}</strong> (~$${(annualDiv/12).toFixed(0)}/mo).` });
+  } else if (annualDiv > 0) {
+    insights.push({ t: 'info', m: `💵 Annual dividends: <strong>$${annualDiv.toFixed(0)}</strong>. Adding higher-yield positions could grow passive income.` });
+  } else {
+    insights.push({ t: 'info', m: `📌 No dividend income detected. Dividend stocks can add stability and passive income.` });
+  }
+
+  // 7. P&L check
+  const withCost = priced.filter(r => r.avg_cost > 0 && r.pnl != null);
+  if (withCost.length) {
+    const totalPnl = withCost.reduce((s, r) => s + r.pnl, 0);
+    const totalCost = withCost.reduce((s, r) => s + r.avg_cost * r.shares, 0);
+    const pnlPct = totalCost ? totalPnl / totalCost * 100 : 0;
+    if (pnlPct > 20) insights.push({ t: 'good',    m: `📈 Portfolio up <strong>${pnlPct.toFixed(1)}%</strong> overall vs cost basis.` });
+    else if (pnlPct < -15) insights.push({ t: 'warning', m: `📉 Portfolio down <strong>${Math.abs(pnlPct).toFixed(1)}%</strong> vs cost basis. Review underperformers.` });
+  }
+
+  score = Math.max(0, Math.min(100, score));
+  return { score, insights };
+}
+
+function renderHealthScore(rs) {
+  const hCard = g('health-card');
+  if (!hCard) return;
+  if (!rs.length) { hCard.style.display = 'none'; return; }
+  hCard.style.display = '';
+
+  const result = computePortfolioHealth(rs);
+  if (!result) return;
+  const { score, insights } = result;
+
+  // Score circle
+  const circumference = 2 * Math.PI * 55; // r=55
+  const offset = circumference - (score / 100) * circumference;
+  const fill = g('health-circle-fill');
+  const color = score >= 75 ? 'var(--green)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+  if (fill) {
+    fill.style.strokeDasharray = circumference;
+    fill.style.strokeDashoffset = offset;
+    fill.style.stroke = color;
+  }
+  const numEl = g('health-score-num');
+  if (numEl) { numEl.textContent = score; numEl.style.color = color; }
+
+  const grade = score >= 85 ? 'Excellent 🏆' : score >= 70 ? 'Good 👍' : score >= 50 ? 'Fair ⚠️' : 'Needs Work 🔴';
+  const gradeColor = score >= 85 ? 'var(--green)' : score >= 70 ? 'var(--blue)' : score >= 50 ? 'var(--yellow)' : 'var(--red)';
+  const gradeEl = g('health-grade');
+  if (gradeEl) { gradeEl.textContent = grade; gradeEl.style.background = `${color}22`; gradeEl.style.color = gradeColor; gradeEl.style.border = `1px solid ${color}44`; }
+
+  const insEl = g('health-insights');
+  if (insEl) {
+    insEl.innerHTML = insights.map(i => {
+      const cls = i.t === 'good' ? 'insight-good' : i.t === 'warning' ? 'insight-warning' : i.t === 'danger' ? 'insight-danger' : 'insight-info';
+      return `<div class="insight-row ${cls}">${i.m}</div>`;
+    }).join('');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  REBALANCING CALCULATOR
+// ═══════════════════════════════════════════════
+function openRebalancer() {
+  const rs = _qpRows.filter(r => r.price > 0);
+  if (!rs.length) { showToast('No priced holdings to rebalance', 'warning'); return; }
+  const tv = rs.reduce((s, r) => s + r.value, 0);
+  const eqPct = (100 / rs.length).toFixed(1);
+  const rows = rs.sort((a, b) => b.value - a.value).map(r => {
+    const curPct = tv ? (r.value / tv * 100).toFixed(1) : '0.0';
+    return `<tr data-ticker="${r.ticker}" data-price="${r.price}" data-shares="${r.shares}" data-value="${r.value}">
+      <td><span class="qp-ticker" data-qticker="${r.ticker}">${r.ticker}</span></td>
+      <td class="r">${f.usd(r.value)}</td>
+      <td class="r">${curPct}%</td>
+      <td class="r"><input type="number" class="rebal-inp" min="0" max="100" step="0.1" value="${curPct}"
+        style="width:62px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:3px 6px;font-size:.8rem;text-align:right"
+        oninput="updateRebalancer()"></td>
+      <td class="r" id="rdiff-${r.ticker}">—</td>
+      <td class="r" id="ract-${r.ticker}">—</td>
+    </tr>`;
+  }).join('');
+
+  openQPanel('⚖️ Rebalancing Calculator',
+    `<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px">
+       <button class="btn btn-outline btn-sm" onclick="setEqualWeight()">= Equal Weight (${eqPct}% each)</button>
+       <span id="rebal-total" style="font-size:.78rem;color:var(--muted)">Total: 100%</span>
+     </div>
+     <div style="overflow-x:auto">
+     <table class="qp-table">
+       <thead><tr><th>Ticker</th><th class="r">Value</th><th class="r">Current</th><th class="r">Target %</th><th class="r">Diff</th><th class="r">Action</th></tr></thead>
+       <tbody>${rows}</tbody>
+     </table></div>
+     <div style="margin-top:10px;font-size:.73rem;color:var(--muted)">💡 Action = $ to buy (+) or sell (−) to hit your target. Portfolio value: <strong>${f.usd(tv)}</strong></div>`
+  );
+  updateRebalancer();
+}
+
+function setEqualWeight() {
+  const inputs = document.querySelectorAll('.rebal-inp');
+  const eq = (100 / inputs.length).toFixed(1);
+  inputs.forEach(inp => inp.value = eq);
+  updateRebalancer();
+}
+
+function updateRebalancer() {
+  const trs = document.querySelectorAll('#qp-body tr[data-ticker]');
+  if (!trs.length) return;
+  const tv = [...trs].reduce((s, tr) => s + parseFloat(tr.dataset.value), 0);
+  let total = 0;
+  trs.forEach(tr => {
+    const ticker = tr.dataset.ticker;
+    const price  = parseFloat(tr.dataset.price);
+    const curVal = parseFloat(tr.dataset.value);
+    const curPct = tv ? curVal / tv * 100 : 0;
+    const inp    = tr.querySelector('.rebal-inp');
+    const tgtPct = parseFloat(inp?.value) || 0;
+    total += tgtPct;
+    const tgtVal = tv * tgtPct / 100;
+    const diff   = tgtVal - curVal;
+    const shares = price > 0 ? Math.abs(diff) / price : 0;
+    const diffPct = tgtPct - curPct;
+    const dEl = g('rdiff-' + ticker);
+    const aEl = g('ract-' + ticker);
+    if (dEl) dEl.innerHTML = `<span class="${diffPct >= 0 ? 'green' : 'red'}">${diffPct >= 0 ? '+' : ''}${diffPct.toFixed(1)}%</span>`;
+    if (aEl) {
+      if (Math.abs(diff) < 1) { aEl.innerHTML = '<span style="color:var(--muted)">Hold</span>'; return; }
+      aEl.innerHTML = `<span class="${diff > 0 ? 'green' : 'red'}" style="font-size:.78rem">${diff > 0 ? '▲ Buy' : '▼ Sell'}<br>${shares.toFixed(2)} sh<br><small style="font-size:.7rem">${diff > 0 ? '+' : ''}${f.usd(diff)}</small></span>`;
+    }
+  });
+  const tEl = g('rebal-total');
+  if (tEl) {
+    const off = Math.abs(total - 100) > 0.5;
+    tEl.innerHTML = `Total: <strong style="color:${off ? 'var(--red)' : 'var(--green)'}">${total.toFixed(1)}%</strong>${off ? ' ⚠️ must equal 100%' : ' ✓'}`;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  WHAT-IF SIMULATOR
+// ═══════════════════════════════════════════════
+function openWhatIf() {
+  const rs = _qpRows;
+  const tv = rs.reduce((s, r) => s + r.value, 0);
+  openQPanel('🧪 What-if Simulator',
+    `<p style="font-size:.82rem;color:var(--muted);margin-bottom:14px">Simulate adding a position and see the impact on your portfolio instantly.</p>
+     <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px">
+       <div><div style="font-size:.67rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Ticker</div>
+         <input id="wi-ticker" type="text" placeholder="NVDA" style="width:80px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:.88rem;text-transform:uppercase"></div>
+       <div><div style="font-size:.67rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Shares</div>
+         <input id="wi-shares" type="number" placeholder="10" min="1" style="width:75px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:.88rem"></div>
+       <div><div style="font-size:.67rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">Price ($)</div>
+         <input id="wi-price" type="number" placeholder="auto" min="0" step="any" style="width:95px;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:6px 10px;font-size:.88rem"></div>
+       <button class="btn btn-green btn-sm" onclick="runWhatIf()" style="padding:7px 14px">Simulate →</button>
+     </div>
+     <div id="wi-result"></div>
+     <div style="margin-top:8px;font-size:.72rem;color:var(--muted)">Current: <strong>${f.usd(tv)}</strong> across ${rs.length} positions. Leave price blank to fetch live price.</div>`
+  );
+  const tkInp = g('wi-ticker');
+  if (tkInp) { tkInp.focus(); tkInp.addEventListener('keydown', e => { if (e.key === 'Enter') runWhatIf(); }); }
+}
+
+async function runWhatIf() {
+  const ticker = (g('wi-ticker')?.value || '').toUpperCase().trim();
+  const shares = parseFloat(g('wi-shares')?.value) || 0;
+  let   price  = parseFloat(g('wi-price')?.value)  || 0;
+  const resEl  = g('wi-result');
+  if (!ticker) { if (resEl) resEl.innerHTML = '<div style="color:var(--red);font-size:.82rem">Enter a ticker symbol.</div>'; return; }
+  if (!shares || shares <= 0) { if (resEl) resEl.innerHTML = '<div style="color:var(--red);font-size:.82rem">Enter a valid share count.</div>'; return; }
+  if (resEl) resEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:10px 0">⏳ Fetching price…</div>';
+  if (!price && IS_SERVER) {
+    try {
+      const r = await fetch('/api/quotes?symbols=' + ticker);
+      const d = await r.json();
+      if (d[ticker]) price = d[ticker].price || 0;
+    } catch(e) {}
+  }
+  if (!price) { if (resEl) resEl.innerHTML = '<div style="color:var(--red);font-size:.82rem">Could not fetch price — enter it manually.</div>'; return; }
+
+  const rs = _qpRows;
+  const addVal = price * shares;
+  const tv     = rs.reduce((s, r) => s + r.value, 0);
+  const newTv  = tv + addVal;
+  const existing = rs.find(r => r.ticker === ticker);
+  const effVal = existing ? existing.value + addVal : addVal;
+  const newPct = effVal / newTv * 100;
+
+  const newAlloc = rs.map(r => ({ ticker: r.ticker, value: r.ticker === ticker ? effVal : r.value, pct: (r.ticker === ticker ? effVal : r.value) / newTv * 100 }));
+  if (!existing) newAlloc.push({ ticker, value: addVal, pct: addVal / newTv * 100 });
+  newAlloc.sort((a, b) => b.value - a.value);
+  const top3 = newAlloc.slice(0, 3).reduce((s, r) => s + r.pct, 0);
+
+  if (resEl) resEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:14px">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+        <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Added Cost</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--blue)">${f.usd(addVal)}</div>
+        <div style="font-size:.75rem;color:var(--muted)">${f.num(shares)} × ${f.usd(price)}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+        <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:3px">New Total</div>
+        <div style="font-size:1rem;font-weight:700">${f.usd(newTv)}</div>
+        <div style="font-size:.75rem;color:var(--muted)">+${f.usd(addVal)}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+        <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:3px">${ticker} Weight</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--blue)">${newPct.toFixed(1)}%</div>
+        <div style="font-size:.75rem;color:var(--muted)">${existing ? `was ${(existing.value/tv*100).toFixed(1)}%` : 'new position'}</div>
+      </div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+        <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:3px">Positions</div>
+        <div style="font-size:1rem;font-weight:700">${existing ? rs.length : rs.length + 1}</div>
+        <div style="font-size:.75rem;color:var(--muted)">${existing ? 'updated' : '+1 new'}</div>
+      </div>
+    </div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:6px;font-weight:600">📊 New Top Holdings</div>
+    <table class="qp-table" style="margin-bottom:12px">
+      <thead><tr><th>Ticker</th><th class="r">New Value</th><th class="r">New %</th><th class="r">Change</th></tr></thead>
+      <tbody>${newAlloc.slice(0, 6).map(r => {
+        const old = rs.find(x => x.ticker === r.ticker);
+        const oldPct = old ? old.value / tv * 100 : 0;
+        const delta = r.pct - oldPct;
+        return `<tr>
+          <td style="font-family:monospace;font-weight:${r.ticker === ticker ? '700' : '400'};color:${r.ticker === ticker ? 'var(--blue)' : 'inherit'}">${r.ticker}${r.ticker === ticker && !existing ? ' ✦' : ''}</td>
+          <td class="r">${f.usd(r.value)}</td>
+          <td class="r">${r.pct.toFixed(1)}%</td>
+          <td class="r ${delta > 0 ? 'green' : delta < 0 ? 'red' : ''}">${delta !== 0 ? (delta > 0 ? '+' : '') + delta.toFixed(1) + '%' : '—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    <div style="background:${top3 > 65 ? 'var(--yellow-bg)' : 'var(--green-bg)'};border:1px solid ${top3 > 65 ? 'var(--yellow)' : 'var(--green)'};border-radius:6px;padding:8px 12px;font-size:.8rem;color:${top3 > 65 ? 'var(--yellow)' : 'var(--green)'}">
+      ${top3 > 65 ? `⚠️ Top 3 positions = ${top3.toFixed(0)}% — watch concentration.` : `✅ Concentration healthy — top 3 = ${top3.toFixed(0)}%`}
+    </div>`;
+}
+
 function openQPanel(title, html) {
   g('qp-title').innerHTML = title;
   g('qp-body').innerHTML  = html;
@@ -1458,7 +1863,7 @@ async function refresh() {
   Object.assign(quotes, q);
   const rs = rows();
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart(); renderNews(n);
-  renderAnalytics(rs);
+  renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
   g('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   btn.innerHTML = '↻ Refresh';
@@ -2085,6 +2490,35 @@ async function loadJournal(force=false) {
   } catch(e) { showToast('⚠️ Failed to load journal', 'error', 4000); }
 }
 
+function _computeJournalPnL(entries) {
+  // FIFO realized P&L per ticker from BUY/SELL entries
+  const lots = {};   // ticker -> [{shares, cost}]
+  const realized = {}; // ticker -> total realized P&L
+  // Process in chronological order (entries are newest-first, so reverse)
+  [...entries].reverse().forEach(e => {
+    const t = e.ticker?.toUpperCase();
+    if (!t) return;
+    if (e.action === 'BUY' && e.shares > 0 && e.price > 0) {
+      if (!lots[t]) lots[t] = [];
+      lots[t].push({ shares: e.shares, cost: e.price });
+    } else if (e.action === 'SELL' && e.shares > 0 && e.price > 0) {
+      if (!lots[t] || !lots[t].length) return;
+      let remaining = e.shares;
+      let pnl = 0;
+      while (remaining > 0 && lots[t].length) {
+        const lot = lots[t][0];
+        const sold = Math.min(remaining, lot.shares);
+        pnl += sold * (e.price - lot.cost);
+        lot.shares -= sold;
+        remaining  -= sold;
+        if (lot.shares <= 0) lots[t].shift();
+      }
+      realized[t] = (realized[t] || 0) + pnl;
+    }
+  });
+  return realized;
+}
+
 function renderJournal() {
   const el = g('journal-entries');
   const cnt = g('j-count');
@@ -2094,19 +2528,47 @@ function renderJournal() {
     return;
   }
   if (cnt) cnt.textContent = `(${_journalEntries.length} entr${_journalEntries.length !== 1 ? 'ies' : 'y'})`;
-  el.innerHTML = _journalEntries.map(e => {
+
+  // Compute realized P&L summary
+  const realized = _computeJournalPnL(_journalEntries);
+  const tickers  = Object.keys(realized);
+  const totalPnl = tickers.reduce((s, t) => s + realized[t], 0);
+  const wins     = tickers.filter(t => realized[t] > 0).length;
+  const losses   = tickers.filter(t => realized[t] < 0).length;
+
+  const summaryHTML = tickers.length ? `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+      <div>
+        <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px">Realized P&L</div>
+        <div style="font-size:1.1rem;font-weight:700" class="${totalPnl >= 0 ? 'green' : 'red'}">${totalPnl >= 0 ? '+' : ''}${f.usd(totalPnl)}</div>
+      </div>
+      <div style="color:var(--border)">|</div>
+      <div style="display:flex;gap:14px">
+        <div><div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:2px">Win Rate</div>
+          <div style="font-size:.9rem;font-weight:600">${tickers.length ? ((wins/tickers.length)*100).toFixed(0) : 0}%  <span style="color:var(--muted);font-size:.75rem">(${wins}W / ${losses}L)</span></div></div>
+      </div>
+      ${tickers.map(t => `<div style="font-size:.75rem"><span style="font-family:monospace;font-weight:700;color:var(--blue)">${t}</span> <span class="${realized[t] >= 0 ? 'green' : 'red'}">${realized[t] >= 0 ? '+' : ''}${f.usd(realized[t])}</span></div>`).join('')}
+    </div>` : '';
+
+  el.innerHTML = summaryHTML + _journalEntries.map(e => {
     const ac = e.action.toLowerCase();
     const acClass = ac === 'buy' ? 'je-buy' : ac === 'sell' ? 'je-sell' : ac === 'watch' ? 'je-watch' : 'je-note';
     const meta = [];
-    if (e.ticker) meta.push(`<span class="je-ticker">${e.ticker}</span>`);
-    if (e.shares) meta.push(`${e.shares.toLocaleString()} shares`);
-    if (e.price)  meta.push(`@ $${e.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4})}`);
-    if (e.shares && e.price) meta.push(`· Total: $${(e.shares * e.price).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`);
+    if (e.ticker) meta.push(`<span class="je-ticker" style="cursor:pointer" onclick="openDrawer('${e.ticker}')">${e.ticker}</span>`);
+    if (e.shares) meta.push(`${e.shares.toLocaleString()} sh`);
+    if (e.price)  meta.push(`@ ${f.usd(e.price)}`);
+    if (e.shares && e.price) meta.push(`<span style="color:var(--muted)">= ${f.usd(e.shares * e.price)}</span>`);
+    // Show realized P&L inline on SELL entries
+    let pnlTag = '';
+    if (ac === 'sell' && e.ticker && e.shares && e.price) {
+      const tickerPnl = realized[e.ticker.toUpperCase()];
+      if (tickerPnl != null) pnlTag = `<span style="margin-left:8px;padding:1px 6px;border-radius:4px;font-size:.72rem;font-weight:700;background:${tickerPnl >= 0 ? 'var(--green-bg)' : 'var(--red-bg)'};color:${tickerPnl >= 0 ? 'var(--green)' : 'var(--red)'}">${tickerPnl >= 0 ? '+' : ''}${f.usd(tickerPnl)} realized</span>`;
+    }
     return `<div class="journal-entry">
       <div class="je-date">${e.date}</div>
       <div style="padding-top:2px"><span class="je-action ${acClass}">${e.action}</span></div>
       <div class="je-body">
-        ${meta.length ? `<div class="je-meta">${meta.join(' ')}</div>` : ''}
+        ${meta.length ? `<div class="je-meta">${meta.join(' ')}${pnlTag}</div>` : ''}
         ${e.notes ? `<div class="je-notes">${e.notes}</div>` : ''}
       </div>
       <button class="je-del" onclick="deleteJournalEntry(${e.id})" title="Delete entry">✕</button>
@@ -3096,7 +3558,7 @@ async function init() {
   setInterval(updateBadge, 60000);
   const rs = rows();
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart();
-  renderAnalytics(rs);
+  renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
 
   // 4. Fetch live prices for portfolio (background — market is default tab)
@@ -3120,6 +3582,15 @@ async function init() {
 }
 
 init();
+
+// ── Service Worker registration (PWA) ─────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[SW] registered, scope:', reg.scope))
+      .catch(err => console.warn('[SW] registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>

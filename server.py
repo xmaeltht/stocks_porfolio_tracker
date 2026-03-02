@@ -839,6 +839,17 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                 self.send_file(os.path.join(BASE_DIR, "login.html"))
                 return
 
+            # ── PWA static files (public, no auth needed)
+            if path == "/manifest.json":
+                self.send_file(os.path.join(BASE_DIR, "manifest.json"), "application/manifest+json")
+                return
+            if path == "/sw.js":
+                self.send_file(os.path.join(BASE_DIR, "sw.js"), "text/javascript")
+                return
+            if path.startswith("/icon.png"):
+                self.send_file(os.path.join(BASE_DIR, "icon.png"), "image/png")
+                return
+
             if path == "/api/health":
                 self.send_json({"status": "ok", "version": VERSION, "ts": time.time()})
                 return
