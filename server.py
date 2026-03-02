@@ -759,112 +759,155 @@ def get_stock_history(symbol, period='1mo'):
     return _from_cache(key, fetch, ttl=ttl_map.get(period, 3600))
 
 def get_market_data():
+    """Fetch indices, sector ETFs, and crypto in parallel using individual Ticker calls.
+    Replaces the unreliable yf.Tickers() batch approach which frequently silently fails."""
     key = "market_overview"
     def fetch():
-        result = {"indices": {}, "sectors": {}, "crypto": {}}
-        all_syms = MARKET_SYMBOLS + list(SECTOR_ETFS.keys()) + list(CRYPTO_SYMBOLS.keys())
-        print(f"\n📡 Fetching market overview ({len(all_syms)} symbols)…")
         NAME_MAP = {"^GSPC":"S&P 500","^IXIC":"NASDAQ","^DJI":"DOW Jones","^RUT":"Russell 2000","^VIX":"VIX"}
-        def _fetch_market():
-            batch = yf.Tickers(" ".join(all_syms))
-            for sym in MARKET_SYMBOLS:
-                try:
-                    info = batch.tickers[sym].info
-                    result["indices"][sym] = {
-                        "name":       NAME_MAP.get(sym, sym),
-                        "price":      float(info.get("regularMarketPrice") or info.get("currentPrice") or 0),
-                        "change":     float(info.get("regularMarketChange") or 0),
-                        "change_pct": float(info.get("regularMarketChangePercent") or 0),
-                        "day_high":   float(info.get("dayHigh") or 0),
-                        "day_low":    float(info.get("dayLow") or 0),
-                        "prev_close": float(info.get("previousClose") or 0),
-                    }
-                except: result["indices"][sym] = {"name": NAME_MAP.get(sym,sym), "price":0,"change":0,"change_pct":0,"day_high":0,"day_low":0,"prev_close":0}
-            for sym, name in SECTOR_ETFS.items():
-                try:
-                    info = batch.tickers[sym].info
-                    result["sectors"][sym] = {
-                        "name":       name,
-                        "price":      float(info.get("regularMarketPrice") or 0),
-                        "change_pct": float(info.get("regularMarketChangePercent") or 0),
-                    }
-                except: result["sectors"][sym] = {"name": name, "price": 0, "change_pct": 0}
-            for sym, name in CRYPTO_SYMBOLS.items():
-                try:
-                    info = batch.tickers[sym].info
-                    price = float(info.get("regularMarketPrice") or info.get("currentPrice") or 0)
-                    result["crypto"][sym] = {
-                        "name":       name,
-                        "price":      price,
-                        "change":     float(info.get("regularMarketChange") or 0),
-                        "change_pct": float(info.get("regularMarketChangePercent") or 0),
-                        "market_cap": float(info.get("marketCap") or 0),
-                        "volume":     float(info.get("regularMarketVolume") or 0),
-                    }
-                except: result["crypto"][sym] = {"name": name, "price":0,"change":0,"change_pct":0,"market_cap":0,"volume":0}
-        try:
-            _yf_retry(_fetch_market)
-        except Exception as e:
-            print(f"  Market data error after retries: {e}")
-            if key in _cache:
-                print("  ↩ Returning stale market cache")
-                return _cache[key]["data"]
+        all_syms = MARKET_SYMBOLS + list(SECTOR_ETFS.keys()) + list(CRYPTO_SYMBOLS.keys())
+        print(f"\n📡 Fetching market overview — {len(all_syms)} symbols in parallel…")
+
+        def _fetch_one(sym):
+            try:
+                fi = yf.Ticker(sym).fast_info
+                price      = float(fi.last_price      or 0)
+                prev_close = float(fi.previous_close  or price or 1)
+                change     = price - prev_close
+                change_pct = (change / prev_close * 100) if prev_close else 0
+                return sym, {
+                    "price":      round(price, 4),
+                    "change":     round(change, 4),
+                    "change_pct": round(change_pct, 4),
+                    "prev_close": round(prev_close, 4),
+                    "day_high":   round(float(fi.day_high  or 0), 4),
+                    "day_low":    round(float(fi.day_low   or 0), 4),
+                    "market_cap": round(float(fi.market_cap or 0), 0),
+                    "volume":     round(float(fi.three_month_average_volume or 0), 0),
+                }
+            except Exception as e:
+                print(f"  ⚠️ market {sym}: {e}")
+                return sym, {"price":0,"change":0,"change_pct":0,"prev_close":0,
+                             "day_high":0,"day_low":0,"market_cap":0,"volume":0}
+
+        with ThreadPoolExecutor(max_workers=min(len(all_syms), 20)) as pool:
+            raw = dict(pool.map(_fetch_one, all_syms))
+
+        result = {"indices": {}, "sectors": {}, "crypto": {}}
+        for sym in MARKET_SYMBOLS:
+            d = raw[sym]
+            result["indices"][sym] = {"name": NAME_MAP.get(sym, sym), **d}
+        for sym, name in SECTOR_ETFS.items():
+            d = raw[sym]
+            result["sectors"][sym] = {"name": name, "price": d["price"], "change_pct": d["change_pct"]}
+        for sym, name in CRYPTO_SYMBOLS.items():
+            d = raw[sym]
+            result["crypto"][sym] = {"name": name, "price": d["price"], "change": d["change"],
+                                     "change_pct": d["change_pct"], "market_cap": d["market_cap"],
+                                     "volume": d["volume"]}
         return result
-    return _from_cache(key, fetch, ttl=60)
+
+    try:
+        return _from_cache(key, fetch, ttl=60)
+    except Exception as e:
+        print(f"⚠️ get_market_data failed: {e}")
+        if key in _cache:
+            print("  ↩ Returning stale market cache")
+            return _cache[key]["data"]
+        return {"indices": {}, "sectors": {}, "crypto": {}}
 
 def get_movers():
+    """Scan MOVER_WATCHLIST using parallel individual Ticker calls.
+    Uses fast_info for live prices + cached slow metadata (name/sector/52w)."""
     key = "market_movers"
-    def fetch():
-        print(f"\n📡 Scanning movers ({len(MOVER_WATCHLIST)} stocks)…")
-        results = []
-        def _scan():
-            batch = yf.Tickers(" ".join(MOVER_WATCHLIST))
-            for sym in MOVER_WATCHLIST:
-                try:
-                    info  = batch.tickers[sym].info
-                    price = float(info.get("regularMarketPrice") or info.get("currentPrice") or 0)
-                    if price > 0:
-                        vol   = int(info.get("regularMarketVolume") or 0)
-                        avol  = int(info.get("averageVolume") or 0)
-                        mcap  = float(info.get("marketCap") or 0)
-                        chg   = float(info.get("regularMarketChange") or 0)
-                        pct   = float(info.get("regularMarketChangePercent") or 0)
-                        open_ = float(info.get("regularMarketOpen") or 0)
-                        hi    = float(info.get("dayHigh") or 0)
-                        lo    = float(info.get("dayLow") or 0)
-                        w52h  = float(info.get("fiftyTwoWeekHigh") or 0)
-                        w52l  = float(info.get("fiftyTwoWeekLow") or 0)
-                        results.append({
-                            "symbol":     sym,
-                            "name":       info.get("shortName", sym),
-                            "sector":     info.get("sector", ""),
-                            "price":      price,
-                            "change":     chg,
-                            "change_pct": pct,
-                            "open":       open_,
-                            "day_high":   hi,
-                            "day_low":    lo,
-                            "volume":     vol,
-                            "avg_volume": avol,
-                            "market_cap": mcap,
-                            "week52_high": w52h,
-                            "week52_low":  w52l,
-                            "vol_ratio":  round(vol / avol, 2) if avol else 0,
-                        })
-                except: pass
+    # Slow metadata cache: symbol → {name, sector, week52_high, week52_low, avg_volume}
+    # Populated lazily and kept for 24h so we don't slow down every movers refresh.
+    _meta_ttl = 3600 * 24
+
+    def _get_meta(sym):
+        mk = f"meta:{sym}"
+        if mk in _cache and time.time() - _cache[mk]["ts"] < _meta_ttl:
+            return _cache[mk]["data"]
         try:
-            _yf_retry(_scan)
-        except Exception as e:
-            print(f"  Movers error: {e}")
-            # Return stale cache if available rather than empty
-            if key in _cache:
-                print("  ↩ Returning stale movers cache")
-                return _cache[key]["data"]
+            info = yf.Ticker(sym).info
+            meta = {
+                "name":        info.get("shortName", sym),
+                "sector":      info.get("sector", ""),
+                "week52_high": float(info.get("fiftyTwoWeekHigh") or 0),
+                "week52_low":  float(info.get("fiftyTwoWeekLow")  or 0),
+                "avg_volume":  int(info.get("averageVolume")       or 0),
+            }
+        except:
+            meta = {"name": sym, "sector": "", "week52_high": 0, "week52_low": 0, "avg_volume": 0}
+        _cache[mk] = {"ts": time.time(), "data": meta}
+        return meta
+
+    def fetch():
+        print(f"\n📡 Scanning movers — {len(MOVER_WATCHLIST)} stocks in parallel…")
+
+        def _scan_one(sym):
+            try:
+                fi    = yf.Ticker(sym).fast_info
+                price = float(fi.last_price     or 0)
+                prev  = float(fi.previous_close or price or 1)
+                if price <= 0:
+                    return None
+                chg   = price - prev
+                pct   = (chg / prev * 100) if prev else 0
+                vol   = int(fi.last_volume or 0)
+                mcap  = float(fi.market_cap or 0)
+                hi    = float(fi.day_high   or 0)
+                lo    = float(fi.day_low    or 0)
+                # Slow metadata from cache (non-blocking — uses stale if available)
+                mk = f"meta:{sym}"
+                meta = _cache[mk]["data"] if mk in _cache else {"name": sym, "sector": "",
+                       "week52_high": 0, "week52_low": 0, "avg_volume": 0}
+                return {
+                    "symbol":      sym,
+                    "name":        meta["name"],
+                    "sector":      meta["sector"],
+                    "price":       round(price, 4),
+                    "change":      round(chg,   4),
+                    "change_pct":  round(pct,   4),
+                    "open":        round(float(fi.open or 0), 4),
+                    "day_high":    round(hi, 4),
+                    "day_low":     round(lo, 4),
+                    "volume":      vol,
+                    "avg_volume":  meta["avg_volume"],
+                    "market_cap":  mcap,
+                    "week52_high": meta["week52_high"],
+                    "week52_low":  meta["week52_low"],
+                    "vol_ratio":   round(vol / meta["avg_volume"], 2) if meta["avg_volume"] else 0,
+                }
+            except Exception as e:
+                print(f"  ⚠️ movers {sym}: {e}")
+                return None
+
+        with ThreadPoolExecutor(max_workers=min(len(MOVER_WATCHLIST), 20)) as pool:
+            raw = list(pool.map(_scan_one, MOVER_WATCHLIST))
+
+        # Kick off slow-metadata refresh in background (non-blocking)
+        def _refresh_meta():
+            syms_no_meta = [s for s in MOVER_WATCHLIST
+                            if f"meta:{s}" not in _cache
+                            or time.time() - _cache[f"meta:{s}"]["ts"] > _meta_ttl]
+            if syms_no_meta:
+                with ThreadPoolExecutor(max_workers=10) as pool:
+                    list(pool.map(_get_meta, syms_no_meta[:20]))
+        threading.Thread(target=_refresh_meta, daemon=True).start()
+
+        results = [r for r in raw if r is not None]
         results.sort(key=lambda x: x["change_pct"], reverse=True)
         top = [r for r in results if r["change_pct"] > 0][:15]
         bot = sorted([r for r in results if r["change_pct"] < 0], key=lambda x: x["change_pct"])[:15]
         return {"gainers": top, "losers": bot}
-    return _from_cache(key, fetch, ttl=300)
+
+    try:
+        return _from_cache(key, fetch, ttl=300)
+    except Exception as e:
+        print(f"⚠️ get_movers failed: {e}")
+        if key in _cache:
+            return _cache[key]["data"]
+        return {"gainers": [], "losers": []}
 
 
 # ── HTTP Handler ───────────────────────────────────────────────────────────────
