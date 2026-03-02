@@ -412,6 +412,18 @@ EARNINGS_WATCHLIST = [
 
 ADMIN_USER = "ismael"
 
+# Futures / overnight market symbols
+FUTURES_SYMBOLS = [
+    {'symbol': 'ES=F',    'name': 'S&P 500 Futures',     'icon': '📈', 'group': 'equity'},
+    {'symbol': 'NQ=F',    'name': 'Nasdaq 100 Futures',   'icon': '💻', 'group': 'equity'},
+    {'symbol': 'YM=F',    'name': 'Dow Jones Futures',    'icon': '🏭', 'group': 'equity'},
+    {'symbol': 'RTY=F',   'name': 'Russell 2000 Futures', 'icon': '📊', 'group': 'equity'},
+    {'symbol': 'GC=F',    'name': 'Gold',                 'icon': '🥇', 'group': 'commodity'},
+    {'symbol': 'CL=F',    'name': 'Crude Oil (WTI)',      'icon': '🛢️', 'group': 'commodity'},
+    {'symbol': 'ZB=F',    'name': '30Y Treasury Bond',    'icon': '🏦', 'group': 'bond'},
+    {'symbol': 'BTC-USD', 'name': 'Bitcoin',              'icon': '₿',  'group': 'crypto'},
+]
+
 def get_admin_stats():
     with sqlite3.connect(DB_PATH) as c:
         users      = c.execute("SELECT id, username, email, created_at FROM users ORDER BY created_at DESC").fetchall()
@@ -563,6 +575,71 @@ def get_quotes(symbols):
                 print(f"  {'🚨' if abs(pct)>=5 else '✅'} {sym:6s}  ${p:>9.4f}  {'↑' if pct>=0 else '↓'} {pct:+.2f}%")
         return results
     return _from_cache(key, fetch)
+
+# ── Extended hours (pre-market / after-hours) ─────────────────────────────────
+def _fetch_one_extended(sym):
+    """Fetch pre-market and after-hours prices from yfinance .info for a single symbol."""
+    try:
+        info = yf.Ticker(sym).info
+        def _pct(raw):
+            # yfinance sometimes returns as decimal fraction (0.015), sometimes as % (1.5)
+            v = float(raw or 0)
+            return round(v * 100 if abs(v) < 1 and v != 0 else v, 3)
+        pre_price  = float(info.get('preMarketPrice')         or 0)
+        pre_change = float(info.get('preMarketChange')        or 0)
+        pre_pct    = _pct(info.get('preMarketChangePercent'))
+        post_price = float(info.get('postMarketPrice')        or 0)
+        post_change= float(info.get('postMarketChange')       or 0)
+        post_pct   = _pct(info.get('postMarketChangePercent'))
+        return sym, {
+            'pre_price':  round(pre_price,  4),
+            'pre_change': round(pre_change, 4),
+            'pre_pct':    pre_pct,
+            'post_price': round(post_price,  4),
+            'post_change':round(post_change, 4),
+            'post_pct':   post_pct,
+        }
+    except Exception as e:
+        print(f"  ⚠️ ext-hours {sym}: {e}")
+        return sym, {'pre_price': 0, 'pre_change': 0, 'pre_pct': 0,
+                     'post_price': 0, 'post_change': 0, 'post_pct': 0}
+
+def get_extended_hours(symbols):
+    if not symbols: return {}
+    symbols = [s.strip().upper() for s in symbols if s.strip()]
+    key = 'exthours:' + ','.join(sorted(symbols))
+    def fetch():
+        print(f"⏰ Fetching extended hours for {len(symbols)} symbols in parallel…")
+        with ThreadPoolExecutor(max_workers=min(len(symbols), 10)) as pool:
+            return dict(pool.map(_fetch_one_extended, symbols))
+    return _from_cache(key, fetch, ttl=60)
+
+# ── Futures / overnight market ────────────────────────────────────────────────
+def get_futures():
+    key = 'futures'
+    def fetch():
+        syms = [f['symbol'] for f in FUTURES_SYMBOLS]
+        meta = {f['symbol']: f for f in FUTURES_SYMBOLS}
+        print(f"🌙 Fetching {len(syms)} futures in parallel…")
+        def _one(sym):
+            try:
+                fi   = yf.Ticker(sym).fast_info
+                price = float(fi.last_price    or 0)
+                prev  = float(fi.previous_close or price or 1)
+                change = price - prev
+                pct    = (change / prev * 100) if prev else 0
+                m = meta[sym]
+                return {'symbol': sym, 'name': m['name'], 'icon': m['icon'],
+                        'group': m['group'], 'price': round(price, 2),
+                        'change': round(change, 2), 'change_pct': round(pct, 3)}
+            except Exception as e:
+                print(f"  ⚠️ futures {sym}: {e}")
+                m = meta[sym]
+                return {'symbol': sym, 'name': m['name'], 'icon': m['icon'],
+                        'group': m['group'], 'price': 0, 'change': 0, 'change_pct': 0}
+        with ThreadPoolExecutor(max_workers=len(syms)) as pool:
+            return list(pool.map(_one, syms))
+    return _from_cache(key, fetch, ttl=60)
 
 def _parse_news_item(item, tag):
     content   = item.get("content") if isinstance(item.get("content"), dict) else {}
@@ -1003,6 +1080,13 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                 extra = [s for s in qs.get("tickers", [""])[0].split(",") if s.strip()]
                 tickers = list(dict.fromkeys(extra + EARNINGS_WATCHLIST))  # dedup, preserve order
                 self.send_json(get_earnings_calendar(tickers))
+
+            elif path == "/api/futures":
+                self.send_json(get_futures())
+
+            elif path == "/api/extended-hours":
+                syms = [s for s in qs.get("symbols", [""])[0].split(",") if s.strip()]
+                self.send_json(get_extended_hours(syms))
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
