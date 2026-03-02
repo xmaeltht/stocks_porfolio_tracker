@@ -193,6 +193,66 @@ code{background:rgba(255,255,255,.07);border-radius:4px;padding:1px 5px;font-fam
 
 footer{text-align:center;padding:20px;color:var(--muted);font-size:.74rem;border-top:1px solid var(--border);}
 
+/* ── TOP LOADING BAR ──────────────────────────────────────────────────────── */
+#top-bar{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--blue),#58a6ff);z-index:9999;transition:width .3s ease,opacity .4s ease;opacity:0;pointer-events:none;}
+#top-bar.running{opacity:1;}
+#top-bar.done{width:100%!important;opacity:0;transition:width .1s,opacity .6s ease .1s;}
+
+/* ── SHIMMER SKELETON ─────────────────────────────────────────────────────── */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.skeleton{border-radius:4px;background:linear-gradient(90deg,var(--border) 25%,rgba(255,255,255,.07) 50%,var(--border) 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;}
+[data-theme="light"] .skeleton{background:linear-gradient(90deg,#e0e4ea 25%,#f0f3f7 50%,#e0e4ea 75%);background-size:400px 100%;}
+.card-skeleton{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
+.card-skeleton .sk-label{height:9px;width:55%;margin-bottom:10px;}
+.card-skeleton .sk-value{height:24px;width:75%;margin-bottom:8px;}
+.card-skeleton .sk-sub{height:8px;width:40%;}
+
+/* ── CARD ACCENT (coloured left border based on +/-) ─────────────────────── */
+.card{position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:transparent;border-radius:2px 0 0 2px;transition:background .4s;}
+.card.accent-green::before{background:var(--green);}
+.card.accent-red::before  {background:var(--red);}
+.card.accent-blue::before {background:var(--blue);}
+
+/* ── NUMBER FLASH ANIMATION ───────────────────────────────────────────────── */
+@keyframes flashUp  {0%{color:var(--green);transform:scale(1.05)}60%{color:var(--green)}100%{transform:scale(1)}}
+@keyframes flashDown{0%{color:var(--red);  transform:scale(1.05)}60%{color:var(--red)}100%{transform:scale(1)}}
+.flash-up  {animation:flashUp   .7s ease forwards;}
+.flash-down{animation:flashDown .7s ease forwards;}
+
+/* ── HEADER IMPROVEMENTS ─────────────────────────────────────────────────── */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px;flex-wrap:wrap;}
+.logo h1{font-size:1.08rem;font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,#58a6ff,#388bfd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#username-display{font-size:.72rem;color:var(--muted);padding:3px 10px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;}
+[data-theme="light"] #username-display{background:#f0f3f7;}
+
+/* ── IMPROVED TAB NAV ─────────────────────────────────────────────────────── */
+.tab-nav{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:20px;width:fit-content;}
+.tab-btn{flex:0 0 auto;padding:7px 20px;border:none;background:none;color:var(--muted);font-size:.82rem;font-weight:600;border-radius:6px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:6px;}
+.tab-btn.active{background:linear-gradient(135deg,rgba(56,139,253,.18),rgba(56,139,253,.08));color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.05);}
+.tab-btn:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04);}
+[data-theme="light"] .tab-btn.active{background:linear-gradient(135deg,rgba(9,105,218,.12),rgba(9,105,218,.06));box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+/* ── IMPROVED BUTTONS ─────────────────────────────────────────────────────── */
+.btn{padding:6px 14px;border-radius:var(--radius);border:none;cursor:pointer;font-size:.8rem;font-weight:600;transition:all .15s;white-space:nowrap;}
+.btn-primary{background:linear-gradient(135deg,#388bfd,#1a6fdb);color:#fff;box-shadow:0 1px 4px rgba(56,139,253,.3);}
+.btn-primary:hover{background:linear-gradient(135deg,#58a6ff,#388bfd);box-shadow:0 3px 10px rgba(56,139,253,.4);transform:translateY(-1px);}
+.btn-primary:active{transform:translateY(0);}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--blue);color:var(--blue);background:rgba(56,139,253,.06);}
+.btn-sm{padding:4px 11px;font-size:.76rem;}
+
+/* ── IMPROVED TABLE ROWS ──────────────────────────────────────────────────── */
+tbody tr:hover{background:rgba(56,139,253,.05);}
+[data-theme="light"] tbody tr:hover{background:rgba(9,105,218,.04);}
+
+/* ── IMPROVED CARDS ───────────────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;transition:border-color .18s,transform .15s,box-shadow .18s;}
+.card.clickable:hover{border-color:var(--blue);box-shadow:0 4px 20px rgba(56,139,253,.15);transform:translateY(-2px);}
+.card-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px;}
+.card-value{font-size:1.5rem;font-weight:800;line-height:1.2;letter-spacing:-.01em;}
+.card-sub{font-size:.74rem;color:var(--muted);margin-top:3px;}
+
 /* DETAIL DRAWER */
 #drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;}
 #drawer-overlay.open{opacity:1;pointer-events:all;}
@@ -535,6 +595,9 @@ tbody tr.clickable{cursor:pointer;}
 </style>
 </head>
 <body>
+
+<!-- Top loading progress bar -->
+<div id="top-bar"></div>
 
 <header>
   <div class="logo">
@@ -1700,6 +1763,7 @@ function renderCards(rs) {
 
   g('c-value').textContent  = hasPrices ? f.usd(tv)  : '—';
   g('c-count').textContent  = `${rs.length} holding${rs.length !== 1 ? 's' : ''}`;
+  if (hasPrices) _flashIfChanged('c-value', tv);
 
   // Invested capital
   const invEl = g('c-invested');
@@ -1711,10 +1775,13 @@ function renderCards(rs) {
   de.textContent  = hasPrices ? (dp >= 0 ? '+' : '') + f.usd(dp) : '—';
   de.className    = 'card-value ' + (hasPrices ? cc(dp) : '');
   g('c-daypct').textContent = hasPrices ? f.pct(dpPct) : '—';
+  if (hasPrices) _flashIfChanged('c-day', dp);
+
   const te = g('c-tot');
   te.textContent  = hasPrices && tp ? (tp >= 0 ? '+' : '') + f.usd(tp) : '—';
   te.className    = 'card-value ' + cc(tp);
   g('c-totpct').textContent = (tpPct != null && hasPrices) ? f.pct(tpPct) : '—';
+  if (hasPrices) _flashIfChanged('c-tot', tp);
 
   // Up/Down counts
   const udEl = g('c-updown');
@@ -1728,6 +1795,14 @@ function renderCards(rs) {
   g('c-worst').textContent  = worst ? worst.ticker : '—';
   g('c-worst-s').textContent= worst ? f.pct(worst.change_pct) : '—';
   g('c-alerts').textContent = alc;
+
+  // Coloured left accent borders based on values
+  const dayCard = g('c-day')?.closest('.card');
+  const totCard = g('c-tot')?.closest('.card');
+  if (dayCard) { dayCard.classList.remove('accent-green','accent-red','accent-blue'); if (hasPrices) dayCard.classList.add(dp >= 0 ? 'accent-green' : 'accent-red'); }
+  if (totCard) { totCard.classList.remove('accent-green','accent-red','accent-blue'); if (hasPrices) totCard.classList.add(tp >= 0 ? 'accent-green' : 'accent-red'); }
+  const valCard = g('c-value')?.closest('.card');
+  if (valCard) { valCard.classList.remove('accent-green','accent-red'); valCard.classList.add('accent-blue'); }
 }
 
 // ═══════════════════════════════════════════════
@@ -1833,12 +1908,61 @@ function renderNews(arts) {
 }
 
 // ═══════════════════════════════════════════════
+//  SKELETON CARDS  (shown instantly before quotes arrive)
+// ═══════════════════════════════════════════════
+function _showSkeletonCards() {
+  const ids = ['c-value','c-invested','c-day','c-tot','c-updown','c-best','c-worst','c-alerts'];
+  ids.forEach(id => {
+    const el = g(id);
+    if (el && el.textContent === '—' || (el && el.textContent === '0')) {
+      el.innerHTML = '<span class="skeleton sk-value" style="display:block;height:24px;width:70%;border-radius:4px;">&nbsp;</span>';
+    }
+  });
+  ['c-count','c-invested-sub','c-daypct','c-totpct','c-updown-sub','c-best-s','c-worst-s'].forEach(id => {
+    const el = g(id);
+    if (el) el.innerHTML = '<span class="skeleton" style="display:inline-block;height:8px;width:50%;border-radius:3px;">&nbsp;</span>';
+  });
+}
+
+// Flash a number element up (green) or down (red) when it changes
+const _prevVals = {};
+function _flashIfChanged(id, newVal) {
+  const el = g(id); if (!el) return;
+  const prev = _prevVals[id];
+  if (prev === undefined) { _prevVals[id] = newVal; return; }
+  if (newVal === prev) return;
+  el.classList.remove('flash-up','flash-down');
+  void el.offsetWidth; // reflow to restart animation
+  el.classList.add(newVal > prev ? 'flash-up' : 'flash-down');
+  _prevVals[id] = newVal;
+}
+
+// ═══════════════════════════════════════════════
 //  REFRESH (fetch live quotes + news)
 // ═══════════════════════════════════════════════
+// ── Top progress bar helpers ──────────────────────────────────────────────
+let _barTimer = null;
+function topBarStart() {
+  const b = g('top-bar');
+  if (!b) return;
+  clearTimeout(_barTimer);
+  b.className = 'running';
+  b.style.width = '0%';
+  requestAnimationFrame(() => { b.style.transition = 'width 3s ease'; b.style.width = '80%'; });
+}
+function topBarDone() {
+  const b = g('top-bar');
+  if (!b) return;
+  b.style.width = '100%';
+  b.className = 'done';
+  _barTimer = setTimeout(() => { b.className = ''; b.style.width = '0%'; b.style.transition = ''; }, 700);
+}
+
 let loading = false;
 async function refresh() {
   if (loading) return;
   loading = true;
+  topBarStart();
   const btn = g('refresh-btn');
   btn.innerHTML = '<span class="spinner"></span>';
   btn.disabled  = true;
@@ -1869,6 +1993,7 @@ async function refresh() {
   btn.innerHTML = '↻ Refresh';
   btn.disabled  = false;
   loading = false;
+  topBarDone();
 
   if (IS_SERVER) startCountdown(REFRESH_MS);
 }
@@ -3557,6 +3682,10 @@ async function init() {
   updateServerBadge(IS_SERVER);
   setInterval(updateBadge, 60000);
   const rs = rows();
+
+  // Show skeleton KPI cards instantly while quotes fetch in background
+  if (IS_SERVER && portfolio.length) _showSkeletonCards();
+
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart();
   renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
