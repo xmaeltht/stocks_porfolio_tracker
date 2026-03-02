@@ -309,6 +309,32 @@ tbody tr.clickable{cursor:pointer;}
 .tab-pane.active{display:block;}
 
 /* MARKET PAGE */
+/* ── FUTURES / OVERNIGHT ──────────────────────────────────────────────────── */
+.futures-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px;margin-bottom:18px;}
+.futures-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;transition:border-color .15s;}
+.futures-card:hover{border-color:var(--blue);}
+.futures-icon{font-size:1.1rem;margin-bottom:4px;}
+.futures-name{font-size:.67rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.futures-price{font-size:1.2rem;font-weight:800;line-height:1.1;}
+.futures-chg{font-size:.78rem;font-weight:600;margin-top:2px;}
+
+/* ── EXT HOURS HOLDINGS GRID ─────────────────────────────────────────────── */
+.ext-hours-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:18px;}
+.ext-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;display:flex;align-items:center;gap:12px;}
+.ext-ticker{font-weight:800;font-family:monospace;color:var(--blue);font-size:.95rem;min-width:52px;}
+.ext-detail{flex:1;}
+.ext-price{font-size:.88rem;font-weight:600;}
+.ext-pct{font-size:.8rem;font-weight:700;margin-top:1px;}
+.ext-label{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:1px 6px;border-radius:8px;margin-right:4px;}
+.ext-pre{background:#0d2244;color:var(--blue);border:1px solid var(--blue);}
+.ext-post{background:var(--yellow-bg);color:var(--yellow);border:1px solid var(--yellow);}
+.ext-empty{color:var(--muted);font-size:.82rem;padding:16px;text-align:center;grid-column:1/-1;}
+
+/* ── EXT HOURS BADGE (table column) ──────────────────────────────────────── */
+.eh-badge{display:inline-block;font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:8px;white-space:nowrap;}
+.eh-pre{background:#0d2244;color:var(--blue);border:1px solid rgba(56,139,253,.4);}
+.eh-post{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(227,179,65,.4);}
+
 .indices-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:18px;}
 .idx-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;cursor:default;}
 .idx-name{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
@@ -802,6 +828,7 @@ tbody tr.clickable{cursor:pointer;}
           <th data-col="price">Price ⇅</th>
           <th data-col="change">Day $ ⇅</th>
           <th data-col="change_pct">Day % ⇅</th>
+          <th data-col="ext_pct" id="th-ext-hrs" style="display:none">Ext. Hrs ⇅</th>
           <th data-col="value">Mkt Value ⇅</th>
           <th data-col="port_pct">% Port ⇅</th>
           <th data-col="pnl">P&amp;L $ ⇅</th>
@@ -828,6 +855,18 @@ tbody tr.clickable{cursor:pointer;}
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
       <div class="section-title">🌍 Live Market Overview</div>
       <button class="btn btn-primary btn-sm mkt-refresh-btn" onclick="loadMarket(true)">↻ Refresh Market</button>
+    </div>
+
+    <!-- Futures / Overnight -->
+    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">🌙 FUTURES &amp; OVERNIGHT</div>
+    <div class="futures-row" id="futures-row">
+      <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading futures… <span class="spinner"></span></div>
+    </div>
+
+    <!-- Pre / After-Hours Holdings -->
+    <div id="ext-hours-section" style="display:none;">
+      <div class="section-title" style="margin-bottom:8px;font-size:.72rem;" id="ext-hours-title">⏰ EXTENDED HOURS — YOUR HOLDINGS</div>
+      <div class="ext-hours-grid" id="ext-hours-grid"></div>
     </div>
 
     <!-- Indices -->
@@ -1086,6 +1125,7 @@ let quotes      = {};
 let sortCol     = null, sortDir = -1, filterQ = '';
 let _editTicker = null;
 let _prevAlerts = new Set();
+let _extHours   = {};  // { TICKER: { pre_price, pre_pct, post_price, post_pct, ... } }
 
 // ── Save to server ────────────────────────────────────
 function save() {
@@ -1876,6 +1916,7 @@ function renderTable(rs) {
       <td>${has ? f.usd(r.price) : spin}</td>
       <td class="${cc(r.change)}">${has ? (r.change >= 0 ? '+' : '') + f.usd(r.change) : '—'}</td>
       <td class="${cc(r.change_pct)}">${has ? f.pct(r.change_pct) : '—'}</td>
+      <td id="eh-${r.ticker}" style="${_extHours[r.ticker] ? '' : 'display:none'}">${_renderEhCell(r.ticker)}</td>
       <td>${has ? f.usd(r.value) : '—'}</td>
       <td style="font-size:.78rem">${has && r.port_pct ? r.port_pct.toFixed(1)+'%' : '—'}</td>
       <td class="${cc(r.pnl)}">${r.pnl != null && has ? (r.pnl >= 0 ? '+' : '') + f.usd(r.pnl) : '<span style="color:var(--muted)">—</span>'}</td>
@@ -2438,6 +2479,112 @@ function switchTab(name) {
 }
 
 // ═══════════════════════════════════════════════
+//  FUTURES & OVERNIGHT MARKET
+// ═══════════════════════════════════════════════
+async function loadFutures() {
+  try {
+    const r = await fetch('/api/futures');
+    if (!r.ok) return;
+    const data = await r.json();
+    const row  = g('futures-row');
+    if (!row || !data.length) return;
+    row.innerHTML = data.map(f => {
+      const hasData = f.price > 0;
+      const cls = f.change_pct > 0 ? 'green' : f.change_pct < 0 ? 'red' : '';
+      return `<div class="futures-card" onclick="openDrawer('${f.symbol}')" style="cursor:pointer" title="Click for details">
+        <div class="futures-icon">${f.icon}</div>
+        <div class="futures-name">${f.name}</div>
+        <div class="futures-price">${hasData ? f.price.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
+        <div class="futures-chg ${cls}">${hasData ? (f.change_pct >= 0 ? '▲ +' : '▼ ') + Math.abs(f.change_pct).toFixed(2) + '%' : '—'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    console.warn('loadFutures:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PRE-MARKET / AFTER-HOURS HOLDINGS
+// ═══════════════════════════════════════════════
+function _renderEhCell(ticker) {
+  const d = _extHours[ticker];
+  if (!d) return '';
+  const hasPost = d.post_price > 0;
+  const hasPre  = d.pre_price  > 0;
+  if (!hasPost && !hasPre) return '<span style="color:var(--muted)">—</span>';
+  if (hasPost) {
+    const cls = d.post_pct > 0 ? 'green' : d.post_pct < 0 ? 'red' : '';
+    return `<span class="eh-badge eh-post">AH</span><span class="${cls}">${d.post_pct >= 0 ? '+' : ''}${d.post_pct.toFixed(2)}%</span>`;
+  }
+  const cls = d.pre_pct > 0 ? 'green' : d.pre_pct < 0 ? 'red' : '';
+  return `<span class="eh-badge eh-pre">Pre</span><span class="${cls}">${d.pre_pct >= 0 ? '+' : ''}${d.pre_pct.toFixed(2)}%</span>`;
+}
+
+async function loadExtendedHours() {
+  const tickers = portfolio.map(h => h.ticker);
+  if (!tickers.length || !IS_SERVER) return;
+  try {
+    const r = await fetch('/api/extended-hours?symbols=' + tickers.join(','));
+    if (!r.ok) return;
+    const data = await r.json();
+    _extHours = data;
+
+    // Check if any extended hours data is actually present
+    const hasAny = Object.values(data).some(d => d.post_price > 0 || d.pre_price > 0);
+    const thExt  = g('th-ext-hrs');
+    if (thExt) thExt.style.display = hasAny ? '' : 'none';
+
+    // Show/hide ext hours section in Market tab
+    const sec = g('ext-hours-section');
+    if (sec) sec.style.display = hasAny ? '' : 'none';
+
+    // Determine session label
+    const hasPost = Object.values(data).some(d => d.post_price > 0);
+    const hasPre  = Object.values(data).some(d => d.pre_price > 0);
+    const titleEl = g('ext-hours-title');
+    if (titleEl) titleEl.textContent = hasPost
+      ? '🌆 AFTER-HOURS — YOUR HOLDINGS'
+      : '🌅 PRE-MARKET — YOUR HOLDINGS';
+
+    // Render ext hours cards in Market tab
+    const grid = g('ext-hours-grid');
+    if (grid && hasAny) {
+      const cards = tickers.map(tk => {
+        const d = data[tk]; if (!d) return '';
+        const active = d.post_price > 0 || d.pre_price > 0;
+        if (!active) return '';
+        const isPost = d.post_price > 0;
+        const price  = isPost ? d.post_price  : d.pre_price;
+        const pct    = isPost ? d.post_pct    : d.pre_pct;
+        const change = isPost ? d.post_change : d.pre_change;
+        const lbl    = isPost ? 'AH' : 'Pre';
+        const lblCls = isPost ? 'ext-post' : 'ext-pre';
+        const cls    = pct > 0 ? 'green' : pct < 0 ? 'red' : '';
+        return `<div class="ext-card" onclick="openDrawer('${tk}')" style="cursor:pointer">
+          <div class="ext-ticker">${tk}</div>
+          <div class="ext-detail">
+            <div class="ext-price"><span class="ext-label ${lblCls}">${lbl}</span>$${price.toFixed(2)}</div>
+            <div class="ext-pct ${cls}">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}% (${change >= 0 ? '+' : ''}$${Math.abs(change).toFixed(2)})</div>
+          </div>
+        </div>`;
+      }).filter(Boolean).join('');
+      grid.innerHTML = cards || `<div class="ext-empty">No extended hours data available right now.</div>`;
+    }
+
+    // Update table column cells live without full re-render
+    tickers.forEach(tk => {
+      const cell = document.getElementById('eh-' + tk);
+      if (cell) {
+        cell.style.display = (data[tk]?.post_price > 0 || data[tk]?.pre_price > 0) ? '' : 'none';
+        cell.innerHTML = _renderEhCell(tk);
+      }
+    });
+  } catch(e) {
+    console.warn('loadExtendedHours:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════
 //  MARKET DATA
 // ═══════════════════════════════════════════════
 let _marketLoaded = false;
@@ -2457,6 +2604,8 @@ async function loadMarket(force=false) {
     if (IS_SERVER) loadWatchlist();
     if (IS_SERVER) loadSparklines();
     if (IS_SERVER) loadEarningsCalendar();
+    if (IS_SERVER) loadFutures();
+    if (IS_SERVER) loadExtendedHours();
   } catch(e) { showToast('⚠️ Failed to load market data', 'error', 4000); }
 }
 
@@ -3694,7 +3843,7 @@ async function init() {
   refresh();
   setInterval(async () => {
     if (document.hidden) return;   // skip refresh when tab is not visible
-    if (IS_SERVER && portfolio.length) { await refresh(); checkPriceTargetAlerts(); }
+    if (IS_SERVER && portfolio.length) { await refresh(); checkPriceTargetAlerts(); loadExtendedHours(); }
   }, REFRESH_MS);
 
   // 5. Load performance chart
