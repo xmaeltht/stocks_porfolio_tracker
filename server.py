@@ -715,9 +715,13 @@ def get_stock_history(symbol, period='1mo'):
     def fetch():
         print(f"  📈 History: {symbol} ({period})")
         try:
-            interval_map = {'1d':'5m','5d':'15m','1mo':'1d','3mo':'1d','6mo':'1wk','1y':'1wk'}
-            interval = interval_map.get(period, '1d')
-            hist = yf.Ticker(symbol).history(period=period, interval=interval)
+            # 1-day: 1-min bars with prepost=True → full 24 h session (overnight + pre + regular + AH)
+            if period == '1d':
+                hist = yf.Ticker(symbol).history(period='1d', interval='1m', prepost=True)
+            else:
+                interval_map = {'5d':'15m','1mo':'1d','3mo':'1d','6mo':'1wk','1y':'1wk'}
+                interval = interval_map.get(period, '1d')
+                hist = yf.Ticker(symbol).history(period=period, interval=interval)
             if hist.empty:
                 return []
             pts = []
@@ -732,7 +736,7 @@ def get_stock_history(symbol, period='1mo'):
         except Exception as e:
             print(f"  History error {symbol}: {e}")
             return []
-    ttl_map = {'1d': 60, '5d': 300, '1mo': 3600, '3mo': 7200, '6mo': 14400, '1y': 86400}
+    ttl_map = {'1d': 30, '5d': 300, '1mo': 3600, '3mo': 7200, '6mo': 14400, '1y': 86400}
     return _from_cache(key, fetch, ttl=ttl_map.get(period, 3600))
 
 def get_market_data():
