@@ -77,6 +77,31 @@ for i in $(seq 1 $MAX_RETRIES); do
   echo "  …waiting ($i/${MAX_RETRIES})"
 done
 
+# ── 5. Verify Cloudflare Tunnel is running ────────────────
+info "Checking Cloudflare Tunnel…"
+CF_SERVICE="com.cloudflare.cloudflared"
+
+# Check if installed as system daemon
+if sudo launchctl list 2>/dev/null | grep -q "$CF_SERVICE"; then
+  CF_STATUS=$(sudo launchctl list 2>/dev/null | grep "$CF_SERVICE" | awk '{print $1}')
+  if [ "$CF_STATUS" = "0" ] || [ -n "$CF_STATUS" ]; then
+    success "Cloudflare Tunnel is running"
+  else
+    warn "Tunnel service found but may not be healthy — restarting…"
+    sudo launchctl stop "$CF_SERVICE" 2>/dev/null || true
+    sleep 1
+    sudo launchctl start "$CF_SERVICE" 2>/dev/null && success "Tunnel restarted" || warn "Could not restart tunnel — run: sudo launchctl start $CF_SERVICE"
+  fi
+elif command -v cloudflared &>/dev/null && [ -f "$HOME/.cloudflared/config.yml" ]; then
+  warn "Tunnel service not installed as daemon. Starting manually…"
+  pkill -f "cloudflared tunnel run" 2>/dev/null || true
+  sleep 1
+  nohup cloudflared tunnel run >> "$DEPLOY_DIR/cloudflared.log" 2>&1 &
+  success "Tunnel started manually (PID $!)"
+else
+  warn "Cloudflare Tunnel not set up — run: bash setup_https.sh"
+fi
+
 echo ""
 echo "  ✅  Deploy complete — commit ${COMMIT} is live at https://stocks.maelkloud.com"
 echo ""
