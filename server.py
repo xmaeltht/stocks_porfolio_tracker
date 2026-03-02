@@ -13,7 +13,7 @@ import json, os, sys, time, threading, webbrowser
 import sqlite3, hashlib, secrets
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, parse_qs as pqs
 
 # ── Auto-install dependencies ──────────────────────────────────────────────────
@@ -499,30 +499,68 @@ def _empty_quote(sym):
             "fiftyTwoWeekHigh": 0, "fiftyTwoWeekLow": 0, "trailingPE": 0,
             "beta": 0, "dividendRate": 0, "dividendYield": 0, "sector": ""}
 
+def _fetch_one_quote(sym):
+    """Fetch a single ticker using fast_info (lightweight) + cached metadata."""
+    try:
+        fi = yf.Ticker(sym).fast_info
+        price = float(fi.last_price   or 0)
+        prev  = float(fi.previous_close or price or 1)
+        change     = price - prev
+        change_pct = (change / prev * 100) if prev else 0
+
+        # Slow metadata (name, sector, PE…) cached separately for 24 h
+        meta_key = f"meta:{sym}"
+        meta = _cache.get(meta_key, {}).get("data")
+        if not meta or (time.time() - _cache[meta_key]["ts"]) > 86400:
+            try:
+                info = yf.Ticker(sym).info
+                meta = {
+                    "shortName":     info.get("shortName", sym),
+                    "sector":        info.get("sector", ""),
+                    "trailingPE":    float(info.get("trailingPE")    or 0),
+                    "beta":          float(info.get("beta")           or 0),
+                    "dividendRate":  float(info.get("dividendRate")   or 0),
+                    "dividendYield": float(info.get("dividendYield")  or 0),
+                }
+                _cache[meta_key] = {"ts": time.time(), "data": meta}
+            except:
+                meta = {"shortName": sym, "sector": "", "trailingPE": 0,
+                        "beta": 0, "dividendRate": 0, "dividendYield": 0}
+
+        return sym, {
+            "symbol":                     sym,
+            "shortName":                  meta["shortName"],
+            "regularMarketPrice":         round(price, 4),
+            "regularMarketChange":        round(change, 4),
+            "regularMarketChangePercent": round(change_pct, 4),
+            "regularMarketPreviousClose": round(prev, 4),
+            "regularMarketVolume":        int(getattr(fi, "last_volume", 0) or 0),
+            "averageVolume":              int(getattr(fi, "three_month_average_volume", 0) or 0),
+            "marketCap":                  float(getattr(fi, "market_cap", 0) or 0),
+            "fiftyTwoWeekHigh":           float(getattr(fi, "fifty_two_week_high", 0) or 0),
+            "fiftyTwoWeekLow":            float(getattr(fi, "fifty_two_week_low",  0) or 0),
+            "trailingPE":                 meta["trailingPE"],
+            "beta":                       meta["beta"],
+            "dividendRate":               meta["dividendRate"],
+            "dividendYield":              meta["dividendYield"],
+            "sector":                     meta["sector"],
+        }
+    except Exception as e:
+        print(f"  ⚠️  {sym}: {e}")
+        return sym, _empty_quote(sym)
+
 def get_quotes(symbols):
     if not symbols: return {}
     symbols = [s.strip().upper() for s in symbols if s.strip()]
     key = "quotes:" + ",".join(sorted(symbols))
     def fetch():
+        print(f"\n📡 Fetching {len(symbols)} quotes in parallel…")
         results = {}
-        print(f"\n📡 Fetching {len(symbols)} quotes…")
-        try:
-            batch = yf.Tickers(" ".join(symbols))
-            for sym in symbols:
-                try:
-                    info = batch.tickers[sym].info
-                    results[sym] = _parse_quote(sym, info)
-                    p, pct = results[sym]["regularMarketPrice"], results[sym]["regularMarketChangePercent"]
-                    print(f"  {'🚨' if abs(pct)>=5 else '✅'} {sym:6s}  ${p:>9.4f}  {'↑' if pct>=0 else '↓'} {pct:+.2f}%")
-                except Exception as e:
-                    print(f"  ⚠️  {sym}: {e}"); results[sym] = _empty_quote(sym)
-        except Exception as e:
-            print(f"  Batch error ({e}) — individual fetch…")
-            for sym in symbols:
-                try:
-                    info = yf.Ticker(sym).info
-                    results[sym] = _parse_quote(sym, info)
-                except: results[sym] = _empty_quote(sym)
+        with ThreadPoolExecutor(max_workers=min(len(symbols), 10)) as pool:
+            for sym, data in pool.map(_fetch_one_quote, symbols):
+                results[sym] = data
+                p, pct = data["regularMarketPrice"], data["regularMarketChangePercent"]
+                print(f"  {'🚨' if abs(pct)>=5 else '✅'} {sym:6s}  ${p:>9.4f}  {'↑' if pct>=0 else '↓'} {pct:+.2f}%")
         return results
     return _from_cache(key, fetch)
 
@@ -1094,6 +1132,28 @@ if __name__ == "__main__":
 
     threading.Thread(target=_snapshot_loop, daemon=True).start()
 
+    # ── Background cache pre-warm ──────────────────────────────────────────
+    # Fetch quotes + market data right after startup so the first page load
+    # hits the cache instead of waiting on Yahoo Finance.
+    def _prewarm():
+        import time as _t
+        _t.sleep(3)  # let server socket bind first
+        print("🔥 Pre-warming cache…")
+        try:
+            all_tickers = []
+            with sqlite3.connect(DB_PATH) as c:
+                rows = c.execute("SELECT DISTINCT ticker FROM portfolios").fetchall()
+                all_tickers = [r[0] for r in rows if r[0]]
+            if all_tickers:
+                get_quotes(all_tickers)
+                print(f"  ✅ Quotes cached for {len(all_tickers)} tickers")
+            get_market_data()
+            print("  ✅ Market data cached")
+        except Exception as e:
+            print(f"  ⚠️  Pre-warm error: {e}")
+
+    threading.Thread(target=_prewarm, daemon=True).start()
+
     host = "0.0.0.0" if PROD else "localhost"
     url  = f"http://localhost:{PORT}"
 
@@ -1107,7 +1167,7 @@ if __name__ == "__main__":
     print(f"{'═'*54}\n")
 
     try:
-        server = HTTPServer((host, PORT), Handler)
+        server = ThreadingHTTPServer((host, PORT), Handler)
     except OSError as e:
         if "Address already in use" in str(e) or "10048" in str(e):
             print(f"⚠️  Port {PORT} already in use — opening browser…\n")
