@@ -581,28 +581,39 @@ def _fetch_one_extended(sym):
     """Fetch pre-market and after-hours prices from yfinance .info for a single symbol."""
     try:
         info = yf.Ticker(sym).info
-        def _pct(raw):
-            # yfinance sometimes returns as decimal fraction (0.015), sometimes as % (1.5)
-            v = float(raw or 0)
-            return round(v * 100 if abs(v) < 1 and v != 0 else v, 3)
-        pre_price  = float(info.get('preMarketPrice')         or 0)
-        pre_change = float(info.get('preMarketChange')        or 0)
-        pre_pct    = _pct(info.get('preMarketChangePercent'))
-        post_price = float(info.get('postMarketPrice')        or 0)
-        post_change= float(info.get('postMarketChange')       or 0)
-        post_pct   = _pct(info.get('postMarketChangePercent'))
+
+        # Use regularMarketPrice as the reference close so dollar change and %
+        # are always consistent with each other.
+        reg_close = float(info.get('regularMarketPrice') or info.get('previousClose') or 0)
+
+        def _calc(ext_price):
+            """Return (change, pct) relative to the regular-session close."""
+            if ext_price <= 0 or reg_close <= 0:
+                return 0.0, 0.0
+            chg = ext_price - reg_close
+            pct = chg / reg_close * 100
+            return round(chg, 4), round(pct, 3)
+
+        pre_price  = float(info.get('preMarketPrice')  or 0)
+        post_price = float(info.get('postMarketPrice') or 0)
+
+        pre_change,  pre_pct  = _calc(pre_price)
+        post_change, post_pct = _calc(post_price)
+
         return sym, {
-            'pre_price':  round(pre_price,  4),
-            'pre_change': round(pre_change, 4),
-            'pre_pct':    pre_pct,
-            'post_price': round(post_price,  4),
-            'post_change':round(post_change, 4),
-            'post_pct':   post_pct,
+            'pre_price':   round(pre_price,  4),
+            'pre_change':  pre_change,
+            'pre_pct':     pre_pct,
+            'post_price':  round(post_price,  4),
+            'post_change': post_change,
+            'post_pct':    post_pct,
+            'reg_close':   round(reg_close, 4),
         }
     except Exception as e:
         print(f"  ⚠️ ext-hours {sym}: {e}")
         return sym, {'pre_price': 0, 'pre_change': 0, 'pre_pct': 0,
-                     'post_price': 0, 'post_change': 0, 'post_pct': 0}
+                     'post_price': 0, 'post_change': 0, 'post_pct': 0,
+                     'reg_close': 0}
 
 def get_extended_hours(symbols):
     if not symbols: return {}
