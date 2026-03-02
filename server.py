@@ -623,7 +623,7 @@ def get_futures():
         print(f"🌙 Fetching {len(syms)} futures in parallel…")
         def _one(sym):
             try:
-                fi   = yf.Ticker(sym).fast_info
+                fi    = yf.Ticker(sym).fast_info
                 price = float(fi.last_price    or 0)
                 prev  = float(fi.previous_close or price or 1)
                 change = price - prev
@@ -638,8 +638,16 @@ def get_futures():
                 return {'symbol': sym, 'name': m['name'], 'icon': m['icon'],
                         'group': m['group'], 'price': 0, 'change': 0, 'change_pct': 0}
         with ThreadPoolExecutor(max_workers=len(syms)) as pool:
-            return list(pool.map(_one, syms))
-    return _from_cache(key, fetch, ttl=60)
+            results = list(pool.map(_one, syms))
+        return results
+    try:
+        return _from_cache(key, fetch, ttl=60)
+    except Exception as e:
+        print(f"⚠️ get_futures failed: {e}")
+        # Return stub list so client always gets valid JSON (price=0 cards)
+        return [{'symbol': f['symbol'], 'name': f['name'], 'icon': f['icon'],
+                 'group': f['group'], 'price': 0, 'change': 0, 'change_pct': 0}
+                for f in FUTURES_SYMBOLS]
 
 def _parse_news_item(item, tag):
     content   = item.get("content") if isinstance(item.get("content"), dict) else {}
