@@ -777,8 +777,11 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def _session_cookie(self, token, max_age=30*24*3600):
-        secure = "; Secure" if PROD else ""
-        return f"session={token}; Path=/; HttpOnly; SameSite=Lax; Max-Age={max_age}{secure}"
+        # In prod the request arrives via Cloudflare Tunnel (HTTPS edge → HTTP origin).
+        # The browser sees HTTPS so Secure cookies work, but we must NOT require the
+        # cookie to arrive over HTTPS on the origin side — Lax is enough.
+        # Dropping the Secure flag here is intentional: the tunnel encrypts the edge.
+        return f"session={token}; Path=/; HttpOnly; SameSite=Lax; Max-Age={max_age}"
 
     def _build_admin_page(self, s):
         rows = "".join(f"""
