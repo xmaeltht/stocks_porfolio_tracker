@@ -10,11 +10,33 @@ Usage:
 """
 
 import json, os, sys, time, threading, webbrowser
-import sqlite3, hashlib, secrets
+import sqlite3, hashlib, secrets, resource
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, parse_qs as pqs
+
+# ── Raise OS file-descriptor limit early ─────────────────────────────────────
+# macOS default is 256, which is easily exhausted when many parallel yfinance
+# HTTP connections are open simultaneously.  Push to 8192 (soft) / keep hard.
+try:
+    _soft, _hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+    _target = min(8192, _hard) if _hard > 0 else 8192
+    if _soft < _target:
+        resource.setrlimit(resource.RLIMIT_NOFILE, (_target, _hard))
+        print(f"📂 FD limit raised: {_soft} → {_target}")
+except Exception as _e:
+    print(f"⚠️  Could not raise FD limit: {_e}")
+
+# Max workers for parallel yfinance fetches — keep low to avoid FD storms.
+# Each yfinance call uses ~3 file descriptors (TCP socket + SSL + internal).
+# With 5 workers: at most ~15 FDs per fetch batch.
+_YF_WORKERS = 5
+
+# Global semaphore: at most 2 concurrent yfinance fetch batches at any time.
+# Prevents FD exhaustion when market refresh + portfolio refresh + movers
+# all fire simultaneously (each with _YF_WORKERS threads).
+_YF_SEM = threading.Semaphore(2)
 
 # ── Auto-install dependencies ──────────────────────────────────────────────────
 def _ensure(pkg, import_as=None):
@@ -70,7 +92,13 @@ def _from_cache(key, fn, ttl=None):
     t = ttl if ttl is not None else CACHE_TTL
     if key in _cache and now - _cache[key]["ts"] < t:
         return _cache[key]["data"]
-    data = fn()
+    # Throttle concurrent network fetches to avoid FD exhaustion
+    with _YF_SEM:
+        # Re-check cache after acquiring semaphore (another thread may have filled it)
+        now = time.time()
+        if key in _cache and now - _cache[key]["ts"] < t:
+            return _cache[key]["data"]
+        data = fn()
     _cache[key] = {"ts": now, "data": data}
     _evict_cache()
     return data
@@ -393,7 +421,7 @@ def get_earnings_calendar(tickers):
     key = "earnings:" + ",".join(sorted(tickers))
     def fetch():
         results = []
-        with ThreadPoolExecutor(max_workers=8) as pool:
+        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
             futures = {pool.submit(_fetch_one_earnings, sym): sym for sym in tickers}
             for fut in as_completed(futures):
                 item = fut.result()
@@ -568,7 +596,7 @@ def get_quotes(symbols):
     def fetch():
         print(f"\n📡 Fetching {len(symbols)} quotes in parallel…")
         results = {}
-        with ThreadPoolExecutor(max_workers=min(len(symbols), 10)) as pool:
+        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
             for sym, data in pool.map(_fetch_one_quote, symbols):
                 results[sym] = data
                 p, pct = data["regularMarketPrice"], data["regularMarketChangePercent"]
@@ -621,7 +649,7 @@ def get_extended_hours(symbols):
     key = 'exthours:' + ','.join(sorted(symbols))
     def fetch():
         print(f"⏰ Fetching extended hours for {len(symbols)} symbols in parallel…")
-        with ThreadPoolExecutor(max_workers=min(len(symbols), 10)) as pool:
+        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
             return dict(pool.map(_fetch_one_extended, symbols))
     return _from_cache(key, fetch, ttl=60)
 
@@ -648,7 +676,7 @@ def get_futures():
                 m = meta[sym]
                 return {'symbol': sym, 'name': m['name'], 'icon': m['icon'],
                         'group': m['group'], 'price': 0, 'change': 0, 'change_pct': 0}
-        with ThreadPoolExecutor(max_workers=len(syms)) as pool:
+        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
             results = list(pool.map(_one, syms))
         return results
     try:
@@ -789,7 +817,7 @@ def get_market_data():
                 return sym, {"price":0,"change":0,"change_pct":0,"prev_close":0,
                              "day_high":0,"day_low":0,"market_cap":0,"volume":0}
 
-        with ThreadPoolExecutor(max_workers=min(len(all_syms), 20)) as pool:
+        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
             raw = dict(pool.map(_fetch_one, all_syms))
 
         result = {"indices": {}, "sectors": {}, "crypto": {}}
@@ -882,7 +910,7 @@ def get_movers():
                 print(f"  ⚠️ movers {sym}: {e}")
                 return None
 
-        with ThreadPoolExecutor(max_workers=min(len(MOVER_WATCHLIST), 20)) as pool:
+        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
             raw = list(pool.map(_scan_one, MOVER_WATCHLIST))
 
         # Kick off slow-metadata refresh in background (non-blocking)
@@ -891,7 +919,7 @@ def get_movers():
                             if f"meta:{s}" not in _cache
                             or time.time() - _cache[f"meta:{s}"]["ts"] > _meta_ttl]
             if syms_no_meta:
-                with ThreadPoolExecutor(max_workers=10) as pool:
+                with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
                     list(pool.map(_get_meta, syms_no_meta[:20]))
         threading.Thread(target=_refresh_meta, daemon=True).start()
 
