@@ -707,6 +707,61 @@ tbody tr.clickable{cursor:pointer;}
 .chip-past{background:var(--border);color:var(--muted);}
 
 /* ════════════════════════════════════════════════════════
+   PRICE LADDER  —  entry / exit / stop-loss panel
+   ════════════════════════════════════════════════════════ */
+.price-ladder{border-radius:10px;margin-bottom:10px;overflow:hidden;border:1px solid rgba(255,255,255,.08);}
+.pl-hd{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:space-between;}
+.pl-rung{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+.pl-rung:last-child{border-bottom:none;}
+.pl-rung.exit   {background:rgba(248,81,73,.07);}
+.pl-rung.current{background:rgba(56,139,253,.09);border-left:3px solid rgba(56,139,253,.7);}
+.pl-rung.entry  {background:rgba(38,166,65,.07);}
+.pl-rung.stop   {background:rgba(255,255,255,.02);}
+.pl-rung.zone-active{outline:1px solid rgba(56,139,253,.4);outline-offset:-1px;}
+.pl-icon{font-size:.95rem;flex-shrink:0;width:20px;text-align:center;}
+.pl-body{flex:1;}
+.pl-label{font-size:.61rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+.pl-rung.exit    .pl-label{color:#f85149;}
+.pl-rung.current .pl-label{color:#79c0ff;}
+.pl-rung.entry   .pl-label{color:#3fb950;}
+.pl-rung.stop    .pl-label{color:var(--muted);}
+.pl-price{font-size:.93rem;font-weight:800;color:var(--text);}
+.pl-note{font-size:.62rem;color:var(--muted);margin-top:1px;}
+.pl-pct{font-size:.75rem;font-weight:700;white-space:nowrap;padding:2px 8px;border-radius:8px;flex-shrink:0;}
+.pl-pct.up {background:rgba(38,166,65,.13);color:#3fb950;}
+.pl-pct.dn {background:rgba(248,81,73,.13);color:#f85149;}
+.pl-pct.neu{background:rgba(255,255,255,.07);color:var(--muted);}
+.pl-gap{display:flex;align-items:center;padding:3px 14px;gap:0;}
+.pl-gap-line{flex:1;border-top:1px dashed rgba(255,255,255,.08);}
+.pl-gap-lbl{font-size:.63rem;color:var(--muted);padding:0 8px;white-space:nowrap;}
+.pl-action{font-size:.74rem;font-weight:700;text-align:center;padding:7px 12px;border-radius:7px;margin-bottom:8px;}
+.pl-action.buy {background:rgba(38,166,65,.12);color:#3fb950;border:1px solid rgba(38,166,65,.25);}
+.pl-action.sell{background:rgba(248,81,73,.12);color:#f85149;border:1px solid rgba(248,81,73,.25);}
+.pl-action.hold{background:rgba(240,136,62,.10);color:#f0883e;border:1px solid rgba(240,136,62,.25);}
+[data-theme="light"] .price-ladder{border-color:rgba(0,0,0,.09);}
+[data-theme="light"] .pl-hd{background:rgba(0,0,0,.03);border-bottom-color:rgba(0,0,0,.06);}
+[data-theme="light"] .pl-rung.exit   {background:rgba(248,81,73,.04);}
+[data-theme="light"] .pl-rung.entry  {background:rgba(38,166,65,.04);}
+[data-theme="light"] .pl-rung.current{background:rgba(9,105,218,.05);border-left-color:rgba(9,105,218,.6);}
+[data-theme="light"] .pl-rung.stop   {background:rgba(0,0,0,.02);}
+[data-theme="light"] .pl-gap-line    {border-top-color:rgba(0,0,0,.08);}
+[data-theme="light"] .pl-pct.up {background:rgba(26,127,55,.12);}
+[data-theme="light"] .pl-pct.dn {background:rgba(209,36,47,.1);}
+
+/* ── PORTFOLIO TABLE: SIGNAL CELL ───────────────────── */
+.sig-cell{display:flex;flex-direction:column;gap:3px;min-width:115px;}
+.sig-cell-badge{display:inline-flex;align-items:center;font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:8px;letter-spacing:.02em;width:fit-content;white-space:nowrap;}
+.sig-cell-badge.sig-sb{background:rgba(38,166,65,.15);color:#3fb950;border:1px solid rgba(38,166,65,.3);}
+.sig-cell-badge.sig-b {background:rgba(38,166,65,.08);color:#56d364;border:1px solid rgba(56,211,100,.25);}
+.sig-cell-badge.sig-h {background:rgba(240,136,62,.10);color:#f0883e;border:1px solid rgba(240,136,62,.25);}
+.sig-cell-badge.sig-s {background:rgba(248,81,73,.08);color:#f85149;border:1px solid rgba(248,81,73,.25);}
+.sig-cell-badge.sig-ss{background:rgba(248,81,73,.15);color:#ff7b72;border:1px solid rgba(248,81,73,.3);}
+.sig-targets{font-size:.63rem;white-space:nowrap;}
+.sig-targets .gt{color:#3fb950;font-weight:600;}
+.sig-targets .rt{color:#f85149;font-weight:600;}
+.sig-targets .sep{color:var(--border);margin:0 2px;}
+
+/* ════════════════════════════════════════════════════════
    MAELKLOUD  —  PREMIUM UI v4
    ════════════════════════════════════════════════════════ */
 
@@ -1228,6 +1283,7 @@ tbody tr:hover{background:rgba(56,139,253,.06)!important;}
           <th data-col="w52h">52W High ⇅</th>
           <th data-col="w52l">52W Low ⇅</th>
           <th data-col="pe">P/E ⇅</th>
+          <th>Signal</th>
           <th></th>
         </tr></thead>
         <tbody id="tbody"></tbody>
@@ -2391,12 +2447,15 @@ function renderTable(rs) {
       <td>${r.w52h ? f.usd(r.w52h) : '—'}</td>
       <td>${r.w52l ? f.usd(r.w52l) : '—'}</td>
       <td>${r.pe ? r.pe.toFixed(1) + 'x' : '—'}</td>
+      <td id="sig-${r.ticker}" style="min-width:115px"><span class="spinner"></span></td>
       <td style="white-space:nowrap">
         <button class="edit-btn" onclick="event.stopPropagation();editStock('${r.ticker}')" title="Edit ${r.ticker}">✏</button>
         <button class="del-btn"  onclick="event.stopPropagation();removeStock('${r.ticker}')" title="Remove ${r.ticker}">✕</button>
       </td>
     </tr>`;
   }).join('');
+  // Fill cached signals immediately, then background-load the rest
+  setTimeout(() => { _fillCachedSigCells(); loadPortfolioSignals(); }, 0);
 }
 
 // ═══════════════════════════════════════════════
@@ -3758,26 +3817,111 @@ function calcTASignals(prices, highs, lows) {
 function renderTAPanel(sig) {
   const el = g('ta-panel-container');
   if (!el || !sig) return;
-  const fp = v => v > 0 ? `$${v.toFixed(2)}` : '—';
+
+  const fp  = v => v > 0 ? `$${v.toFixed(2)}` : '—';
+  const pct = (target, ref) => ref > 0 ? (target - ref) / ref * 100 : 0;
+  const pctEl = (target, ref) => {
+    const p = pct(target, ref);
+    const cls = p > 0.1 ? 'up' : p < -0.1 ? 'dn' : 'neu';
+    const sign = p > 0 ? '+' : '';
+    return `<span class="pl-pct ${cls}">${sign}${p.toFixed(1)}%</span>`;
+  };
+
+  const cur      = sig.last;
+  const entryMid = (sig.entryLow  + sig.entryHigh) / 2;
+  const exitMid  = (sig.exitLow   + sig.exitHigh)  / 2;
+  const stopLoss = parseFloat((sig.entryLow * 0.94).toFixed(2));
+
+  // Where is current price?
+  const aboveExit  = cur > sig.exitHigh;
+  const inExit     = cur >= sig.exitLow  && cur <= sig.exitHigh;
+  const inEntry    = cur >= sig.entryLow && cur <= sig.entryHigh;
+  const belowEntry = cur < sig.entryLow;
+
+  let actionMsg, actionCls;
+  if      (aboveExit)  { actionMsg = '⚠️ Price above exit zone — consider taking profit now'; actionCls = 'sell'; }
+  else if (inExit)     { actionMsg = '📤 Price is in the exit zone — watch for reversal';     actionCls = 'sell'; }
+  else if (inEntry)    { actionMsg = '📥 Price is in the entry zone — potential buy here';    actionCls = 'buy';  }
+  else if (belowEntry) { actionMsg = '✅ Price below entry zone — strong buy opportunity';    actionCls = 'buy';  }
+  else                 { actionMsg = '⏸ Price between zones — hold and monitor';              actionCls = 'hold'; }
+
+  // Gap labels
+  const exitGapPct  = pct(exitMid,  cur);
+  const entryGapPct = pct(entryMid, cur);
+  const stopGapPct  = pct(stopLoss, cur);
+  const exitGapStr  = `${exitGapPct  >= 0 ? '+' : ''}${exitGapPct.toFixed(1)}% to exit midpoint`;
+  const entryGapStr = `${entryGapPct >= 0 ? '+' : ''}${entryGapPct.toFixed(1)}% to entry midpoint`;
+
   el.innerHTML = `
     <div class="ta-panel">
       <div class="ta-header">
         <div class="ta-title">📊 Technical Analysis</div>
         <div class="ta-signal ${sig.sigCls}">${sig.overall}</div>
       </div>
-      <div class="ta-zones">
-        <div class="ta-zone entry-zone">
-          <div class="ta-zone-title">🟢 Entry Zone</div>
-          <div class="ta-zone-range">${fp(sig.entryLow)} – ${fp(sig.entryHigh)}</div>
-          <div class="ta-zone-note">Near support / lower BB</div>
+
+      <div class="pl-action ${actionCls}">${actionMsg}</div>
+
+      <div class="price-ladder">
+        <div class="pl-hd"><span>Price Levels</span><span style="font-weight:400;text-transform:none;letter-spacing:0">vs current $${cur.toFixed(2)}</span></div>
+
+        <!-- EXIT ZONE -->
+        <div class="pl-rung exit ${inExit || aboveExit ? 'zone-active' : ''}">
+          <div class="pl-icon">🔴</div>
+          <div class="pl-body">
+            <div class="pl-label">Exit / Take Profit</div>
+            <div class="pl-price">${fp(sig.exitLow)} – ${fp(sig.exitHigh)}</div>
+            <div class="pl-note">Resistance zone · upper Bollinger Band</div>
+          </div>
+          ${pctEl(exitMid, cur)}
         </div>
-        <div class="ta-zone exit-zone">
-          <div class="ta-zone-title">🔴 Exit / Target Zone</div>
-          <div class="ta-zone-range">${fp(sig.exitLow)} – ${fp(sig.exitHigh)}</div>
-          <div class="ta-zone-note">Near resistance / upper BB</div>
+
+        <div class="pl-gap">
+          <div class="pl-gap-line"></div>
+          <div class="pl-gap-lbl">${exitGapStr}</div>
+          <div class="pl-gap-line"></div>
+        </div>
+
+        <!-- CURRENT PRICE -->
+        <div class="pl-rung current">
+          <div class="pl-icon">◆</div>
+          <div class="pl-body">
+            <div class="pl-label">Current Price</div>
+            <div class="pl-price">${fp(cur)}</div>
+          </div>
+          <span class="pl-pct neu">NOW</span>
+        </div>
+
+        <div class="pl-gap">
+          <div class="pl-gap-line"></div>
+          <div class="pl-gap-lbl">${entryGapStr}</div>
+          <div class="pl-gap-line"></div>
+        </div>
+
+        <!-- ENTRY ZONE -->
+        <div class="pl-rung entry ${inEntry || belowEntry ? 'zone-active' : ''}">
+          <div class="pl-icon">🟢</div>
+          <div class="pl-body">
+            <div class="pl-label">Entry / Buy Zone</div>
+            <div class="pl-price">${fp(sig.entryLow)} – ${fp(sig.entryHigh)}</div>
+            <div class="pl-note">Support zone · lower Bollinger Band</div>
+          </div>
+          ${pctEl(entryMid, cur)}
+        </div>
+
+        <!-- STOP LOSS -->
+        <div class="pl-rung stop">
+          <div class="pl-icon">🛑</div>
+          <div class="pl-body">
+            <div class="pl-label">Stop Loss</div>
+            <div class="pl-price">${fp(stopLoss)}</div>
+            <div class="pl-note">Cut losses if price falls here (${stopGapPct.toFixed(1)}%)</div>
+          </div>
+          ${pctEl(stopLoss, cur)}
         </div>
       </div>
-      <div style="margin-top:10px">
+
+      <!-- Indicator rows -->
+      <div>
         ${sig.rows.map(r => `
           <div class="ta-ind-row">
             <span class="ta-ind-name">${r.name}</span>
@@ -3786,6 +3930,63 @@ function renderTAPanel(sig) {
           </div>`).join('')}
       </div>
     </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  PORTFOLIO SIGNALS  (lazy TA per holding)
+// ═══════════════════════════════════════════════
+const _portSignals = {};   // ticker → calcTASignals result
+let   _portSigRunning = false;
+
+function _updateSigCell(ticker) {
+  const cell = g('sig-' + ticker);
+  if (!cell) return;
+  const sig = _portSignals[ticker];
+  if (!sig) { cell.innerHTML = '<span style="color:var(--muted);font-size:.72rem">—</span>'; return; }
+  const fp = v => v > 0 ? `$${v.toFixed(2)}` : '—';
+  const entryMid = (sig.entryLow  + sig.entryHigh) / 2;
+  const exitMid  = (sig.exitLow   + sig.exitHigh)  / 2;
+  const label = sig.overall.replace(/^[⬆↑→↓⬇]\s*/, '');
+  cell.innerHTML = `
+    <div class="sig-cell">
+      <span class="sig-cell-badge ${sig.sigCls}">${label}</span>
+      <div class="sig-targets">
+        <span class="gt">▲ ${fp(exitMid)}</span>
+        <span class="sep">·</span>
+        <span class="rt">▼ ${fp(entryMid)}</span>
+      </div>
+    </div>`;
+}
+
+function _fillCachedSigCells() {
+  portfolio.forEach(h => { if (_portSignals[h.ticker]) _updateSigCell(h.ticker); });
+}
+
+async function loadPortfolioSignals() {
+  if (_portSigRunning) return;
+  _portSigRunning = true;
+  try {
+    const tickers = portfolio.map(h => h.ticker);
+    for (let i = 0; i < tickers.length; i += 3) {
+      const batch = tickers.slice(i, i + 3);
+      await Promise.all(batch.map(async ticker => {
+        if (_portSignals[ticker]) { _updateSigCell(ticker); return; }
+        try {
+          const r = await fetch(`/api/history?symbol=${encodeURIComponent(ticker)}&period=3mo`,
+            { signal: AbortSignal.timeout(18000) });
+          if (!r.ok) return;
+          const d = await r.json();
+          const pts = d.points || [];
+          if (pts.length < 30) return;
+          const prices = pts.map(p => p.c);
+          const highs  = pts.map(p => p.h || p.c);
+          const lows   = pts.map(p => p.l || p.c);
+          const sig = calcTASignals(prices, highs, lows);
+          if (sig) { _portSignals[ticker] = sig; _updateSigCell(ticker); }
+        } catch(e) { /* skip on error */ }
+      }));
+    }
+  } finally { _portSigRunning = false; }
 }
 
 // ═══════════════════════════════════════════════
