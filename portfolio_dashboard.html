@@ -5076,7 +5076,7 @@ function renderEarningsCalendar(items) {
       const daysAway = Math.round((earnMs - todayMs) / 86400000);
       return { ...it, days_away: daysAway };
     })
-    .filter(it => it.days_away >= -3 && it.days_away <= 45)
+    .filter(it => it.days_away >= 0 && it.days_away <= 45)
     .sort((a, b) => a.days_away - b.days_away);
 
   if (!processed.length) {
