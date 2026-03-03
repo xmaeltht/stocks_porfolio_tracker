@@ -398,7 +398,7 @@ def _fetch_one_earnings(sym):
             earn_ts = earn_ts[0]
         earn_dt   = datetime.fromtimestamp(float(earn_ts))
         days_away = (earn_dt - datetime.now()).days
-        if -3 <= days_away <= 45:
+        if 0 <= days_away <= 45:
             return {
                 "ticker":           sym,
                 "name":             info.get("shortName", sym),
@@ -438,7 +438,7 @@ def get_earnings_calendar(tickers):
         try:
             earn_date = datetime.strptime(item["earnings_date"], "%Y-%m-%d").date()
             days_away = (earn_date - today).days
-            if -3 <= days_away <= 45:
+            if 0 <= days_away <= 45:
                 out.append({**item, "days_away": days_away})
         except Exception:
             pass
