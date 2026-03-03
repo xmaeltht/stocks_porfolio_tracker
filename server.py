@@ -777,6 +777,8 @@ def get_stock_history(symbol, period='1mo'):
                     't': int(dt.timestamp() * 1000),
                     'c': round(float(row['Close']), 4),
                     'o': round(float(row['Open']),  4),
+                    'h': round(float(row['High']),  4),
+                    'l': round(float(row['Low']),   4),
                     'v': int(row.get('Volume', 0)),
                 })
             return pts

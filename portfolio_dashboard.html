@@ -449,11 +449,56 @@ tbody tr.clickable{cursor:pointer;}
 .watchlist-empty{padding:20px;text-align:center;color:var(--muted);font-size:.82rem;}
 
 /* DRAWER CHART */
-.drawer-chart-wrap{position:relative;height:180px;margin-bottom:4px;}
-.drawer-chart-periods{display:flex;gap:4px;margin-bottom:10px;}
+.drawer-chart-wrap{position:relative;height:200px;margin-bottom:3px;}
+.drawer-subchart-wrap{position:relative;margin-bottom:3px;}
+.drawer-subchart-wrap.rsi-wrap{height:80px;}
+.drawer-subchart-wrap.macd-wrap{height:75px;}
+.drawer-subchart-wrap.vol-wrap{height:55px;}
+.drawer-chart-periods{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;align-items:center;}
 .dcp{padding:3px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;}
 .dcp.active{background:var(--blue);color:#fff;border-color:var(--blue);}
 .chart-loading{display:flex;align-items:center;justify-content:center;height:180px;color:var(--muted);font-size:.82rem;gap:8px;}
+/* Indicator toggles */
+.ind-toggles{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;}
+.ind-btn{padding:2px 7px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.65rem;font-weight:700;cursor:pointer;transition:all .12s;letter-spacing:.03em;}
+.ind-btn.on{color:#fff;}
+.ind-btn.on.ib-ma{background:#388bfd;border-color:#388bfd;}
+.ind-btn.on.ib-bb{background:#a78bfa;border-color:#a78bfa;}
+.ind-btn.on.ib-rsi{background:#f0883e;border-color:#f0883e;}
+.ind-btn.on.ib-macd{background:#3fb950;border-color:#3fb950;}
+.ind-btn.on.ib-vol{background:#6e7681;border-color:#6e7681;}
+.subchart-label{font-size:.6rem;font-weight:700;color:var(--muted);padding:2px 0 1px 2px;letter-spacing:.05em;text-transform:uppercase;}
+/* Technical Signals panel */
+.ta-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;}
+.ta-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ta-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+.ta-signal{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:800;letter-spacing:.04em;}
+.ta-signal.sig-sb{background:rgba(38,166,65,.15);color:#3fb950;border:1px solid rgba(38,166,65,.4);}
+.ta-signal.sig-b {background:rgba(38,166,65,.08);color:#56d364;border:1px solid rgba(56,211,100,.3);}
+.ta-signal.sig-h {background:rgba(240,136,62,.08);color:#f0883e;border:1px solid rgba(240,136,62,.3);}
+.ta-signal.sig-s {background:rgba(248,81,73,.08);color:#f85149;border:1px solid rgba(248,81,73,.3);}
+.ta-signal.sig-ss{background:rgba(248,81,73,.15);color:#ff7b72;border:1px solid rgba(248,81,73,.4);}
+.ta-rows{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ta-row{display:flex;flex-direction:column;gap:2px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;}
+.ta-row-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+.ta-row-val{font-size:.78rem;font-weight:700;}
+.ta-zones{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
+.ta-zone{border-radius:7px;padding:8px 11px;display:flex;flex-direction:column;gap:3px;}
+.ta-zone.entry-zone{background:rgba(38,166,65,.07);border:1px solid rgba(38,166,65,.3);}
+.ta-zone.exit-zone {background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.3);}
+.ta-zone-title{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;}
+.ta-zone.entry-zone .ta-zone-title{color:#3fb950;}
+.ta-zone.exit-zone  .ta-zone-title{color:#f85149;}
+.ta-zone-range{font-size:.82rem;font-weight:800;color:var(--text);}
+.ta-zone-note{font-size:.65rem;color:var(--muted);}
+.ta-ind-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);}
+.ta-ind-row:last-child{border-bottom:none;}
+.ta-ind-name{font-size:.7rem;color:var(--muted);}
+.ta-ind-badge{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:8px;}
+.ta-ind-badge.buy {background:rgba(38,166,65,.15);color:#3fb950;}
+.ta-ind-badge.sell{background:rgba(248,81,73,.15);color:#f85149;}
+.ta-ind-badge.hold{background:rgba(240,136,62,.12);color:#f0883e;}
+.ta-ind-val{font-size:.68rem;color:var(--muted);min-width:60px;text-align:right;}
 
 /* ALLOCATION CHART */
 .alloc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center;}
@@ -2490,7 +2535,7 @@ function renderDrawer(d, ticker) {
     ${hInfo}
     ${ptHtml}
     <div class="drawer-section">
-      <div class="drawer-section-title">Price Chart</div>
+      <div class="drawer-section-title">Price Chart &amp; Technicals</div>
       <div class="drawer-chart-periods">
         <button class="dcp active" onclick="loadDrawerChart('${d.symbol || ticker}','1d',this)">1D</button>
         <button class="dcp" onclick="loadDrawerChart('${d.symbol || ticker}','5d',this)">5D</button>
@@ -2498,13 +2543,25 @@ function renderDrawer(d, ticker) {
         <button class="dcp" onclick="loadDrawerChart('${d.symbol || ticker}','3mo',this)">3M</button>
         <button class="dcp" onclick="loadDrawerChart('${d.symbol || ticker}','6mo',this)">6M</button>
         <button class="dcp" onclick="loadDrawerChart('${d.symbol || ticker}','1y',this)">1Y</button>
+        <div class="ind-toggles">
+          <button class="ind-btn ib-ma on"  id="itog-ma"   onclick="toggleIndicator('ma')">MA</button>
+          <button class="ind-btn ib-bb on"  id="itog-bb"   onclick="toggleIndicator('bb')">BB</button>
+          <button class="ind-btn ib-rsi on" id="itog-rsi"  onclick="toggleIndicator('rsi')">RSI</button>
+          <button class="ind-btn ib-vol"    id="itog-vol"  onclick="toggleIndicator('vol')">VOL</button>
+          <button class="ind-btn ib-macd"   id="itog-macd" onclick="toggleIndicator('macd')">MACD</button>
+        </div>
       </div>
       <div class="drawer-chart-wrap"><canvas id="drawer-price-chart"></canvas></div>
+      <div id="drawer-vol-section"  style="display:none"><div class="subchart-label">Volume</div><div class="drawer-subchart-wrap vol-wrap"><canvas id="drawer-vol-chart"></canvas></div></div>
+      <div id="drawer-rsi-section"  style="display:block"><div class="subchart-label">RSI (14)</div><div class="drawer-subchart-wrap rsi-wrap"><canvas id="drawer-rsi-chart"></canvas></div></div>
+      <div id="drawer-macd-section" style="display:none"><div class="subchart-label">MACD (12,26,9)</div><div class="drawer-subchart-wrap macd-wrap"><canvas id="drawer-macd-chart"></canvas></div></div>
       <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted);margin-top:4px;">
         <span id="dpc-low">Low: —</span>
         <span id="dpc-high">High: —</span>
       </div>
     </div>
+    <!-- Technical Signals panel — populated by renderTAPanel() after chart loads -->
+    <div id="ta-panel-container"></div>
     ${rangeBar}
     <div class="drawer-section">
       <div class="drawer-section-title">Price Info</div>
@@ -3228,30 +3285,360 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════
-//  DRAWER PRICE CHART
+//  TECHNICAL INDICATORS  — math helpers
 // ═══════════════════════════════════════════════
-let _drawerChart = null;
+function calcSMA(arr, n) {
+  return arr.map((_, i) => i < n - 1 ? null : arr.slice(i - n + 1, i + 1).reduce((s, v) => s + v, 0) / n);
+}
+function calcEMA(arr, n) {
+  const k = 2 / (n + 1), out = Array(arr.length).fill(null);
+  let ema = arr.slice(0, n).reduce((s, v) => s + v, 0) / n;
+  out[n - 1] = ema;
+  for (let i = n; i < arr.length; i++) { ema = arr[i] * k + ema * (1 - k); out[i] = ema; }
+  return out;
+}
+function calcBB(arr, n = 20, mult = 2) {
+  const mid = calcSMA(arr, n);
+  const upper = mid.map((m, i) => {
+    if (m === null) return null;
+    const sl = arr.slice(i - n + 1, i + 1);
+    const std = Math.sqrt(sl.reduce((s, v) => s + (v - m) ** 2, 0) / n);
+    return m + mult * std;
+  });
+  const lower = mid.map((m, i) => {
+    if (m === null) return null;
+    const sl = arr.slice(i - n + 1, i + 1);
+    const std = Math.sqrt(sl.reduce((s, v) => s + (v - m) ** 2, 0) / n);
+    return m - mult * std;
+  });
+  return { mid, upper, lower };
+}
+function calcRSI(arr, n = 14) {
+  const out = Array(arr.length).fill(null);
+  if (arr.length < n + 1) return out;
+  let gains = 0, losses = 0;
+  for (let i = 1; i <= n; i++) {
+    const d = arr[i] - arr[i - 1];
+    if (d > 0) gains += d; else losses -= d;
+  }
+  let ag = gains / n, al = losses / n;
+  out[n] = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
+  for (let i = n + 1; i < arr.length; i++) {
+    const d = arr[i] - arr[i - 1];
+    const g2 = d > 0 ? d : 0, l2 = d < 0 ? -d : 0;
+    ag = (ag * (n - 1) + g2) / n;
+    al = (al * (n - 1) + l2) / n;
+    out[i] = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
+  }
+  return out;
+}
+function calcMACD(arr, fast = 12, slow = 26, sig = 9) {
+  const eFast = calcEMA(arr, fast), eSlow = calcEMA(arr, slow);
+  const macd  = arr.map((_, i) => eFast[i] !== null && eSlow[i] !== null ? eFast[i] - eSlow[i] : null);
+  const signal = calcEMA(macd.filter(v => v !== null), sig);
+  // Re-align signal to original length
+  const firstIdx = macd.findIndex(v => v !== null);
+  const sigAligned = Array(arr.length).fill(null);
+  signal.forEach((v, i) => { if (v !== null) sigAligned[firstIdx + i] = v; });
+  const hist = macd.map((v, i) => v !== null && sigAligned[i] !== null ? v - sigAligned[i] : null);
+  return { macd, signal: sigAligned, hist };
+}
+
+// ═══════════════════════════════════════════════
+//  TECHNICAL SIGNAL SCORING
+// ═══════════════════════════════════════════════
+function calcTASignals(prices, highs, lows) {
+  const n = prices.length;
+  if (n < 30) return null;
+
+  const rsi  = calcRSI(prices, 14);
+  const bb   = calcBB(prices, 20, 2);
+  const sma20 = calcSMA(prices, 20);
+  const sma50 = calcSMA(prices, Math.min(50, n));
+  const { macd, signal, hist } = calcMACD(prices);
+
+  const last     = prices[n - 1];
+  const rsiLast  = rsi[n - 1];
+  const bbUpper  = bb.upper[n - 1];
+  const bbMid    = bb.mid[n - 1];
+  const bbLower  = bb.lower[n - 1];
+  const sma20L   = sma20[n - 1];
+  const sma50L   = sma50[n - 1];
+  const macdL    = macd[n - 1];
+  const sigL     = signal[n - 1];
+  const histPrev = hist[n - 2];
+  const histLast = hist[n - 1];
+
+  let score = 0;
+  const rows = [];
+
+  // RSI
+  let rsiSig, rsiLabel;
+  if      (rsiLast < 25) { rsiSig = 'buy';  rsiLabel = 'Oversold';  score += 2; }
+  else if (rsiLast < 40) { rsiSig = 'buy';  rsiLabel = 'Weak';      score += 1; }
+  else if (rsiLast < 60) { rsiSig = 'hold'; rsiLabel = 'Neutral';   score += 0; }
+  else if (rsiLast < 75) { rsiSig = 'sell'; rsiLabel = 'High';      score -= 1; }
+  else                   { rsiSig = 'sell'; rsiLabel = 'Overbought'; score -= 2; }
+  rows.push({ name: 'RSI (14)', badge: rsiSig, label: rsiLabel, val: rsiLast ? rsiLast.toFixed(1) : '—' });
+
+  // MACD
+  let macdSig, macdLabel;
+  if (macdL !== null && sigL !== null && histPrev !== null && histLast !== null) {
+    const bullCross = histPrev < 0 && histLast >= 0;
+    const bearCross = histPrev > 0 && histLast <= 0;
+    if      (bullCross)           { macdSig = 'buy';  macdLabel = 'Bull Cross'; score += 2; }
+    else if (macdL > sigL)        { macdSig = 'buy';  macdLabel = 'Bullish';    score += 1; }
+    else if (bearCross)           { macdSig = 'sell'; macdLabel = 'Bear Cross'; score -= 2; }
+    else                          { macdSig = 'sell'; macdLabel = 'Bearish';    score -= 1; }
+  } else { macdSig = 'hold'; macdLabel = 'N/A'; }
+  rows.push({ name: 'MACD', badge: macdSig, label: macdLabel, val: macdL ? macdL.toFixed(3) : '—' });
+
+  // Bollinger Bands position
+  let bbSig, bbLabel;
+  if (bbLower !== null && bbUpper !== null) {
+    const bbRange = bbUpper - bbLower;
+    const pos = (last - bbLower) / bbRange;
+    if      (pos < 0.05)  { bbSig = 'buy';  bbLabel = 'Below Band';  score += 2; }
+    else if (pos < 0.25)  { bbSig = 'buy';  bbLabel = 'Near Support'; score += 1; }
+    else if (pos > 0.95)  { bbSig = 'sell'; bbLabel = 'Above Band';   score -= 2; }
+    else if (pos > 0.75)  { bbSig = 'sell'; bbLabel = 'Near Resist.'; score -= 1; }
+    else                  { bbSig = 'hold'; bbLabel = 'Mid Band';      score += 0; }
+  } else { bbSig = 'hold'; bbLabel = 'N/A'; }
+  rows.push({ name: 'Bollinger Bands', badge: bbSig, label: bbLabel, val: bbLower ? `$${bbLower.toFixed(2)}–$${bbUpper.toFixed(2)}` : '—' });
+
+  // MA position
+  let maSig, maLabel;
+  if (sma50L !== null) {
+    if      (last > sma50L && (sma20L || 0) > sma50L) { maSig = 'buy';  maLabel = 'Above MA50&20'; score += 2; }
+    else if (last > sma50L)                            { maSig = 'buy';  maLabel = 'Above MA50';    score += 1; }
+    else if (last < sma50L && (sma20L || last) < sma50L) { maSig = 'sell'; maLabel = 'Below MA50&20'; score -= 2; }
+    else                                               { maSig = 'sell'; maLabel = 'Below MA50';    score -= 1; }
+  } else { maSig = 'hold'; maLabel = 'N/A'; }
+  rows.push({ name: 'Moving Averages', badge: maSig, label: maLabel, val: sma50L ? `SMA50 $${sma50L.toFixed(2)}` : '—' });
+
+  // Overall signal
+  let overall, sigCls;
+  if      (score >= 5)  { overall = '⬆ STRONG BUY';  sigCls = 'sig-sb'; }
+  else if (score >= 2)  { overall = '↑ BUY';           sigCls = 'sig-b';  }
+  else if (score >= -1) { overall = '→ HOLD';          sigCls = 'sig-h';  }
+  else if (score >= -4) { overall = '↓ SELL';          sigCls = 'sig-s';  }
+  else                  { overall = '⬇ STRONG SELL';  sigCls = 'sig-ss'; }
+
+  // Entry / Exit zones
+  const recentLows  = lows  ? lows.slice(-20)  : prices.slice(-20);
+  const recentHighs = highs ? highs.slice(-20) : prices.slice(-20);
+  const support    = Math.min(...recentLows.filter(Boolean));
+  const resistance = Math.max(...recentHighs.filter(Boolean));
+  const entryLow   = bbLower  ? Math.max(bbLower,  support    * 0.99) : support;
+  const entryHigh  = bbMid    ? Math.min(bbMid,    support    * 1.02) : support * 1.02;
+  const exitLow    = bbMid    ? Math.max(bbMid,    resistance * 0.98) : resistance * 0.98;
+  const exitHigh   = bbUpper  ? Math.min(bbUpper,  resistance * 1.01) : resistance;
+
+  return { score, overall, sigCls, rows, rsiLast, entryLow, entryHigh, exitLow, exitHigh, last };
+}
+
+function renderTAPanel(sig) {
+  const el = g('ta-panel-container');
+  if (!el || !sig) return;
+  const fp = v => v > 0 ? `$${v.toFixed(2)}` : '—';
+  el.innerHTML = `
+    <div class="ta-panel">
+      <div class="ta-header">
+        <div class="ta-title">📊 Technical Analysis</div>
+        <div class="ta-signal ${sig.sigCls}">${sig.overall}</div>
+      </div>
+      <div class="ta-zones">
+        <div class="ta-zone entry-zone">
+          <div class="ta-zone-title">🟢 Entry Zone</div>
+          <div class="ta-zone-range">${fp(sig.entryLow)} – ${fp(sig.entryHigh)}</div>
+          <div class="ta-zone-note">Near support / lower BB</div>
+        </div>
+        <div class="ta-zone exit-zone">
+          <div class="ta-zone-title">🔴 Exit / Target Zone</div>
+          <div class="ta-zone-range">${fp(sig.exitLow)} – ${fp(sig.exitHigh)}</div>
+          <div class="ta-zone-note">Near resistance / upper BB</div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        ${sig.rows.map(r => `
+          <div class="ta-ind-row">
+            <span class="ta-ind-name">${r.name}</span>
+            <span class="ta-ind-badge ${r.badge}">${r.label}</span>
+            <span class="ta-ind-val">${r.val}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  INDICATOR TOGGLE STATE
+// ═══════════════════════════════════════════════
+const _indState = { ma: true, bb: true, rsi: true, vol: false, macd: false };
+let _lastDrawerChartData = null;  // cache for re-renders on toggle
+
+function toggleIndicator(key) {
+  _indState[key] = !_indState[key];
+  const btn = g(`itog-${key}`);
+  if (btn) btn.classList.toggle('on', _indState[key]);
+  // Show/hide sub-charts
+  if (key === 'rsi')  { const s = g('drawer-rsi-section');  if (s) s.style.display  = _indState.rsi  ? 'block' : 'none'; }
+  if (key === 'macd') { const s = g('drawer-macd-section'); if (s) s.style.display  = _indState.macd ? 'block' : 'none'; }
+  if (key === 'vol')  { const s = g('drawer-vol-section');  if (s) s.style.display  = _indState.vol  ? 'block' : 'none'; }
+  // Re-render price chart overlays
+  if ((key === 'ma' || key === 'bb') && _lastDrawerChartData) {
+    _renderPriceChart(_lastDrawerChartData);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  DRAWER CHARTS
+// ═══════════════════════════════════════════════
+let _drawerChart = null, _drawerRsiChart = null, _drawerMacdChart = null, _drawerVolChart = null;
+
+function _destroyDrawerCharts() {
+  [_drawerChart, _drawerRsiChart, _drawerMacdChart, _drawerVolChart].forEach(c => { if (c) c.destroy(); });
+  _drawerChart = _drawerRsiChart = _drawerMacdChart = _drawerVolChart = null;
+}
+
+const _chartDefaults = (theme='dark') => ({
+  responsive: true, maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  animation: false,
+  plugins: { legend: { display: false }, tooltip: {
+    backgroundColor: '#161b22', borderColor: '#21262d', borderWidth: 1,
+    titleColor: '#8b949e', bodyColor: '#e6edf3',
+  }},
+  scales: {
+    x: { grid: { display: false }, ticks: { color: '#8b949e', font: { size: 8 }, maxTicksLimit: 5 }},
+    y: { position: 'right', grid: { color: 'rgba(33,38,45,0.5)' },
+         ticks: { color: '#8b949e', font: { size: 8 }}}
+  }
+});
+
+function _renderPriceChart({ labels, prices, bb, sma20, sma50 }) {
+  const canvas = g('drawer-price-chart');
+  if (!canvas) return;
+  if (_drawerChart) { _drawerChart.destroy(); _drawerChart = null; }
+
+  const last = prices[prices.length - 1], first = prices[0];
+  const isUp = last >= first;
+  const color = isUp ? '#26a641' : '#f85149';
+  const fill  = isUp ? 'rgba(38,166,65,0.08)' : 'rgba(248,81,73,0.08)';
+
+  const datasets = [{
+    label: 'Price', data: prices, borderColor: color, backgroundColor: fill,
+    fill: true, tension: 0.15, pointRadius: 0, pointHoverRadius: 3, borderWidth: 2, order: 10,
+  }];
+
+  if (_indState.ma) {
+    datasets.push({ label: 'SMA20', data: sma20, borderColor: '#388bfd', backgroundColor: 'transparent',
+      fill: false, tension: 0.2, pointRadius: 0, borderWidth: 1.2, borderDash: [4,3], order: 5 });
+    datasets.push({ label: 'SMA50', data: sma50, borderColor: '#f0883e', backgroundColor: 'transparent',
+      fill: false, tension: 0.2, pointRadius: 0, borderWidth: 1.2, borderDash: [6,4], order: 4 });
+  }
+  if (_indState.bb && bb) {
+    datasets.push({ label: 'BB Upper', data: bb.upper, borderColor: 'rgba(167,139,250,0.6)', backgroundColor: 'transparent',
+      fill: false, tension: 0.2, pointRadius: 0, borderWidth: 1, borderDash: [3,3], order: 3 });
+    datasets.push({ label: 'BB Mid',   data: bb.mid,   borderColor: 'rgba(167,139,250,0.35)', backgroundColor: 'transparent',
+      fill: false, tension: 0.2, pointRadius: 0, borderWidth: 1, borderDash: [2,4], order: 3 });
+    datasets.push({ label: 'BB Lower', data: bb.lower, borderColor: 'rgba(167,139,250,0.6)',
+      backgroundColor: 'rgba(109,40,217,0.04)',
+      fill: '-1', tension: 0.2, pointRadius: 0, borderWidth: 1, borderDash: [3,3], order: 3 });
+  }
+
+  const opts = _chartDefaults();
+  opts.plugins.tooltip.callbacks = {
+    label: c => c.dataset.label === 'Price'
+      ? ` $${Number(c.parsed.y).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4})}`
+      : `${c.dataset.label}: $${Number(c.parsed.y).toFixed(2)}`
+  };
+  opts.scales.y.ticks.callback = v => '$' + Number(v).toLocaleString('en-US',{maximumFractionDigits:2});
+
+  _drawerChart = new Chart(canvas, { type:'line', data:{ labels, datasets }, options: opts });
+}
+
+function _renderRSIChart(labels, rsi) {
+  const canvas = g('drawer-rsi-chart');
+  if (!canvas) return;
+  if (_drawerRsiChart) { _drawerRsiChart.destroy(); _drawerRsiChart = null; }
+
+  const colors = rsi.map(v => v === null ? null : v > 70 ? '#f85149' : v < 30 ? '#26a641' : '#388bfd');
+  const opts = _chartDefaults();
+  opts.scales.y.min = 0; opts.scales.y.max = 100;
+  opts.scales.y.ticks.callback = v => v;
+  opts.plugins.annotation = {};
+  opts.plugins.tooltip.callbacks = { label: c => ` RSI: ${Number(c.parsed.y).toFixed(1)}` };
+
+  _drawerRsiChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets: [
+      { data: rsi, borderColor: '#f0883e', backgroundColor: 'rgba(240,136,62,0.08)',
+        fill: true, tension: 0.2, pointRadius: 0, borderWidth: 1.5 },
+      // overbought / oversold reference lines
+      { data: labels.map(() => 70), borderColor: 'rgba(248,81,73,0.4)', backgroundColor:'transparent',
+        fill: false, pointRadius: 0, borderWidth: 1, borderDash: [4,3] },
+      { data: labels.map(() => 30), borderColor: 'rgba(38,166,65,0.4)', backgroundColor:'transparent',
+        fill: false, pointRadius: 0, borderWidth: 1, borderDash: [4,3] },
+    ]},
+    options: opts,
+  });
+}
+
+function _renderMACDChart(labels, macdData) {
+  const canvas = g('drawer-macd-chart');
+  if (!canvas) return;
+  if (_drawerMacdChart) { _drawerMacdChart.destroy(); _drawerMacdChart = null; }
+
+  const histColors = macdData.hist.map(v => v === null ? 'transparent' : v >= 0 ? 'rgba(38,166,65,0.7)' : 'rgba(248,81,73,0.7)');
+  const opts = _chartDefaults();
+  opts.scales.y.ticks.callback = v => v.toFixed(2);
+  opts.plugins.tooltip.callbacks = { label: c => ` ${c.dataset.label}: ${Number(c.parsed.y).toFixed(3)}` };
+
+  _drawerMacdChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { type:'line', label:'MACD',   data: macdData.macd,   borderColor:'#388bfd', backgroundColor:'transparent',
+        fill:false, tension:0.2, pointRadius:0, borderWidth:1.5, order:1 },
+      { type:'line', label:'Signal', data: macdData.signal, borderColor:'#f0883e', backgroundColor:'transparent',
+        fill:false, tension:0.2, pointRadius:0, borderWidth:1.2, borderDash:[3,3], order:2 },
+      { type:'bar',  label:'Hist',   data: macdData.hist,   backgroundColor: histColors,
+        borderWidth:0, order:3 },
+    ]},
+    options: opts,
+  });
+}
+
+function _renderVolChart(labels, volumes) {
+  const canvas = g('drawer-vol-chart');
+  if (!canvas) return;
+  if (_drawerVolChart) { _drawerVolChart.destroy(); _drawerVolChart = null; }
+
+  const opts = _chartDefaults();
+  opts.scales.y.ticks.callback = v => v >= 1e6 ? (v/1e6).toFixed(0)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v;
+  opts.plugins.tooltip.callbacks = { label: c => ` Vol: ${Number(c.parsed.y).toLocaleString()}` };
+
+  _drawerVolChart = new Chart(canvas, {
+    type: 'bar',
+    data: { labels, datasets: [{
+      data: volumes, backgroundColor: 'rgba(56,139,253,0.35)', borderWidth: 0,
+    }]},
+    options: opts,
+  });
+}
 
 async function loadDrawerChart(symbol, period, btn) {
-  // Update active button
   if (btn) {
     btn.closest('.drawer-chart-periods').querySelectorAll('.dcp').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
   }
-
-  const canvas = g('drawer-price-chart');
-  if (!canvas) return;
-
-  // Show loading
-  const ctx = canvas.getContext('2d');
-  if (_drawerChart) { _drawerChart.destroy(); _drawerChart = null; }
-  canvas.style.display = '';
+  if (!g('drawer-price-chart')) return;
+  _destroyDrawerCharts();
 
   try {
     const r = await fetch(`/api/stock/history/${symbol}/${period}`);
     if (!r.ok) return;
     const pts = await r.json();
-    if (!pts || pts.length < 2) return;
+    if (!pts || pts.length < 5) return;
 
     const labels = pts.map(p => {
       const d = new Date(p.t);
@@ -3259,71 +3646,47 @@ async function loadDrawerChart(symbol, period, btn) {
       if (period === '5d')  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
       return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
     });
-    const prices = pts.map(p => p.c);
-    const first  = prices[0];
-    const last   = prices[prices.length - 1];
-    const isUp   = last >= first;
-    const color  = isUp ? '#26a641' : '#f85149';
-    const fill   = isUp ? 'rgba(38,166,65,0.1)' : 'rgba(248,81,73,0.1)';
 
-    const minP = Math.min(...prices);
-    const maxP = Math.max(...prices);
-    const fmt  = v => '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const prices  = pts.map(p => p.c);
+    const highs   = pts.map(p => p.h || p.c);
+    const lows    = pts.map(p => p.l || p.c);
+    const volumes = pts.map(p => p.v || 0);
 
-    const lowEl  = g('dpc-low');
-    const highEl = g('dpc-high');
+    // Calculate indicators
+    const n    = prices.length;
+    const p20  = Math.min(20, Math.floor(n / 3));
+    const p50  = Math.min(50, Math.floor(n / 2));
+    const bb   = n >= p20 * 2 ? calcBB(prices, p20, 2) : null;
+    const sma20 = calcSMA(prices, p20);
+    const sma50 = calcSMA(prices, p50);
+    const rsi   = calcRSI(prices, Math.min(14, Math.floor(n / 3)));
+    const macdData = n >= 30 ? calcMACD(prices) : null;
+
+    const fmt = v => '$' + v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const minP = Math.min(...lows), maxP = Math.max(...highs);
+    const lowEl = g('dpc-low'), highEl = g('dpc-high');
     if (lowEl)  lowEl.textContent  = 'Low: '  + fmt(minP);
     if (highEl) highEl.textContent = 'High: ' + fmt(maxP);
 
-    _drawerChart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          data: prices,
-          borderColor: color,
-          backgroundColor: fill,
-          fill: true,
-          tension: 0.2,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          borderWidth: 2,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#161b22',
-            borderColor: '#21262d',
-            borderWidth: 1,
-            titleColor: '#8b949e',
-            bodyColor: '#e6edf3',
-            callbacks: {
-              label: ctx => ' $' + Number(ctx.parsed.y).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:4})
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { display: false },
-            ticks: { color: '#8b949e', font: { size: 9 }, maxTicksLimit: 6 }
-          },
-          y: {
-            position: 'right',
-            grid: { color: 'rgba(33,38,45,0.6)' },
-            ticks: {
-              color: '#8b949e', font: { size: 9 },
-              callback: v => '$' + Number(v).toLocaleString('en-US',{maximumFractionDigits:2})
-            }
-          }
-        }
-      }
-    });
-  } catch(e) { /* drawer chart failed silently — non-critical */ }
+    // Cache for toggle re-renders
+    _lastDrawerChartData = { labels, prices, bb, sma20, sma50 };
+
+    // Render all charts
+    _renderPriceChart({ labels, prices, bb, sma20, sma50 });
+    _renderRSIChart(labels, rsi);
+    if (macdData) _renderMACDChart(labels, macdData);
+    if (_indState.vol)  _renderVolChart(labels, volumes);
+
+    // Show/hide sub-sections per toggle state
+    const rsiSec  = g('drawer-rsi-section');  if (rsiSec)  rsiSec.style.display  = _indState.rsi  ? 'block' : 'none';
+    const macdSec = g('drawer-macd-section'); if (macdSec) macdSec.style.display = (_indState.macd && macdData) ? 'block' : 'none';
+    const volSec  = g('drawer-vol-section');  if (volSec)  volSec.style.display  = _indState.vol  ? 'block' : 'none';
+
+    // Render TA signals panel
+    const sig = calcTASignals(prices, highs, lows);
+    renderTAPanel(sig);
+
+  } catch(e) { console.warn('Drawer chart error:', e); }
 }
 
 // ═══════════════════════════════════════════════
