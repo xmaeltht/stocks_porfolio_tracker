@@ -3282,7 +3282,7 @@ async function loadMarket(force=false) {
     renderMarketNews(news || []);
     if (IS_SERVER) loadWatchlist();
     if (IS_SERVER) loadSparklines();
-    if (IS_SERVER) loadEarningsCalendar();
+    if (IS_SERVER) loadEarningsCalendar(true);  // always force-refresh on market tab load
     if (IS_SERVER) loadFutures();
     if (IS_SERVER) loadExtendedHours();
   } catch(e) { showToast('⚠️ Failed to load market data', 'error', 4000); }
@@ -5041,9 +5041,13 @@ function renderAnalytics(rs) {
 //  EARNINGS CALENDAR
 // ═══════════════════════════════════════════════
 let _earningsLoaded = false;
+let _earningsLoadedAt = 0;
 async function loadEarningsCalendar(force=false) {
-  if (_earningsLoaded && !force) return;
+  // Reload if forced, never loaded, or data is older than 30 minutes
+  const stale = (Date.now() - _earningsLoadedAt) > 30 * 60 * 1000;
+  if (_earningsLoaded && !force && !stale) return;
   _earningsLoaded = true;
+  _earningsLoadedAt = Date.now();
   const grid = g('earnings-grid');
   if (!grid || !IS_SERVER) return;
   try {
@@ -5063,11 +5067,27 @@ function renderEarningsCalendar(items) {
     grid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">No upcoming earnings found in the next 45 days.</div>';
     return;
   }
-  const today = new Date().toISOString().slice(0,10);
-  grid.innerHTML = items.map(it => {
+  // Always recalculate days_away client-side from the earnings_date string
+  // so stale server-cached values (e.g. "days_away=0" from yesterday) never show wrong labels
+  const todayMs = new Date(new Date().toISOString().slice(0,10) + 'T00:00:00').getTime();
+  const processed = items
+    .map(it => {
+      const earnMs   = new Date(it.earnings_date + 'T00:00:00').getTime();
+      const daysAway = Math.round((earnMs - todayMs) / 86400000);
+      return { ...it, days_away: daysAway };
+    })
+    .filter(it => it.days_away >= -3 && it.days_away <= 45)
+    .sort((a, b) => a.days_away - b.days_away);
+
+  if (!processed.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">No upcoming earnings in the next 45 days.</div>';
+    return;
+  }
+
+  grid.innerHTML = processed.map(it => {
     const d       = it.days_away;
-    const isToday = d === 0 || d === -1 || d === 1;
-    const isPast  = d < -1;
+    const isToday = d === 0;
+    const isPast  = d < 0;
     const cardCls = isToday ? 'earnings-card today' : isPast ? 'earnings-card past' : 'earnings-card';
     let chipCls, chipTxt;
     if (isPast)         { chipCls = 'chip-past';     chipTxt = d === -1 ? 'Yesterday' : `${Math.abs(d)}d ago`; }
@@ -5075,6 +5095,7 @@ function renderEarningsCalendar(items) {
     else if (d <= 3)    { chipCls = 'chip-soon';     chipTxt = `In ${d}d`; }
     else                { chipCls = 'chip-upcoming'; chipTxt = `In ${d}d`; }
     const dateColor = isPast ? 'past-color' : isToday ? 'today-color' : d <= 7 ? 'soon' : '';
+
     const epsStr = it.eps_estimate ? `EPS est: $${it.eps_estimate.toFixed(2)}` : '';
     const inPort = portfolio.some(h => h.ticker === it.ticker);
     return `<div class="${cardCls}" onclick="openDrawer('${it.ticker}')">

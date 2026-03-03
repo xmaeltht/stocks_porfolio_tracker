@@ -427,9 +427,23 @@ def get_earnings_calendar(tickers):
                 item = fut.result()
                 if item:
                     results.append(item)
-        results.sort(key=lambda x: x["days_away"])
+        # Store raw items WITHOUT days_away — it will be recalculated fresh on every serve
         return results
-    return _from_cache(key, fetch, ttl=3600 * 6)
+    raw = _from_cache(key, fetch, ttl=3600 * 6)
+    # Always recompute days_away from earnings_date vs. NOW so cached data never shows
+    # stale "Today!" or wrong day counts after midnight rolls over.
+    today = datetime.now().date()
+    out = []
+    for item in raw:
+        try:
+            earn_date = datetime.strptime(item["earnings_date"], "%Y-%m-%d").date()
+            days_away = (earn_date - today).days
+            if -3 <= days_away <= 45:
+                out.append({**item, "days_away": days_away})
+        except Exception:
+            pass
+    out.sort(key=lambda x: x["days_away"])
+    return out
 
 # Default tickers to always check for earnings (augmented by user holdings at query time)
 EARNINGS_WATCHLIST = [
