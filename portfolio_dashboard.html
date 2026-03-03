@@ -1055,6 +1055,61 @@ tbody tr:hover{background:rgba(56,139,253,.06)!important;}
 
 /* ── 18. FOCUS RINGS ─────────────────────────────────── */
 *:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px;}
+
+/* ── POSITION SIZER ─────────────────────────────── */
+#pos-sizer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+#pos-sizer-overlay.open{display:flex;}
+#pos-sizer{background:var(--surface-2,#1c2128);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:22px;max-width:420px;width:92%;box-shadow:0 24px 64px rgba(0,0,0,.7);}
+#pos-sizer h3{font-size:.95rem;font-weight:800;margin-bottom:4px;}
+#pos-sizer .ps-sub{font-size:.76rem;color:var(--muted);margin-bottom:16px;}
+.ps-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.ps-row label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
+.ps-row input{background:var(--bg,#0d1117);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--text,#e6edf3);padding:8px 11px;font-size:.9rem;outline:none;transition:border-color .15s;}
+.ps-row input:focus{border-color:var(--blue,#388bfd);box-shadow:0 0 0 3px rgba(56,139,253,.15);}
+.ps-result{background:rgba(56,139,253,.07);border:1px solid rgba(56,139,253,.2);border-radius:10px;padding:14px;margin:14px 0;}
+.ps-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ps-metric{display:flex;flex-direction:column;gap:2px;}
+.ps-metric-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted);}
+.ps-metric-value{font-size:1.1rem;font-weight:800;}
+.ps-rr{font-size:.8rem;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);color:var(--muted);}
+.ps-rr strong{color:var(--text);}
+.ps-warn{font-size:.72rem;color:var(--yellow,#e3b341);margin-top:6px;}
+[data-theme="light"] #pos-sizer{background:#fff;border-color:rgba(0,0,0,.1);}
+[data-theme="light"] .ps-row input{background:#f6f8fa;border-color:rgba(0,0,0,.12);}
+[data-theme="light"] .ps-result{background:rgba(9,105,218,.05);border-color:rgba(9,105,218,.2);}
+
+/* ── DIVIDEND CALENDAR ───────────────────────── */
+#div-cal-section{margin-bottom:24px;}
+.div-cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.div-card{background:linear-gradient(145deg,var(--surface),rgba(22,27,34,.5));border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:13px 15px;cursor:pointer;transition:all .18s;}
+.div-card:hover{border-color:rgba(38,166,65,.4);box-shadow:0 4px 16px rgba(38,166,65,.12);transform:translateY(-1px);}
+.div-card-ticker{font-size:.95rem;font-weight:800;font-family:monospace;color:var(--blue);}
+.div-card-date{font-size:.74rem;color:var(--muted);margin:3px 0;}
+.div-card-rate{font-size:1.05rem;font-weight:700;color:var(--green);}
+.div-card-yield{font-size:.72rem;color:var(--muted);margin-top:1px;}
+.div-card-payout{font-size:.78rem;font-weight:600;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.06);}
+.div-card-days{display:inline-block;font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:8px;margin-bottom:4px;}
+.div-days-soon{background:rgba(38,166,65,.15);color:#3fb950;border:1px solid rgba(38,166,65,.3);}
+.div-days-upcoming{background:#0d2244;color:var(--blue);border:1px solid rgba(56,139,253,.3);}
+.div-days-past{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid rgba(255,255,255,.1);}
+.div-empty{color:var(--muted);font-size:.84rem;padding:20px 0;text-align:center;}
+[data-theme="light"] .div-card{background:linear-gradient(145deg,#fff,#f8fafc);border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .div-card-payout{border-top-color:rgba(0,0,0,.06);}
+
+/* ── REALIZED PNL ───────────────────────────── */
+.rpnl-wrap{background:var(--surface);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.rpnl-hd{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:space-between;}
+.rpnl-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.rpnl-table th{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.05);text-align:right;font-weight:700;}
+.rpnl-table th:first-child{text-align:left;}
+.rpnl-table td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;white-space:nowrap;}
+.rpnl-table td:first-child{text-align:left;font-weight:700;font-family:monospace;color:var(--blue);}
+.rpnl-table tbody tr:last-child td{border-bottom:none;}
+.rpnl-table tbody tr:hover td{background:rgba(56,139,253,.05);}
+.rpnl-total{background:rgba(255,255,255,.03);font-weight:700;}
+.rpnl-empty{color:var(--muted);font-size:.84rem;padding:20px;text-align:center;}
+[data-theme="light"] .rpnl-wrap{background:var(--surface);border-color:rgba(0,0,0,.08);}
+[data-theme="light"] .rpnl-hd{background:rgba(0,0,0,.03);}
 </style>
 </head>
 <body>
@@ -1290,6 +1345,14 @@ tbody tr:hover{background:rgba(56,139,253,.06)!important;}
       </table>
     </div>
 
+    <!-- DIVIDEND CALENDAR -->
+    <div id="div-cal-section" style="display:none;">
+      <div class="section-bar" style="margin-bottom:10px;">
+        <div class="section-title">💵 Upcoming Dividends</div>
+      </div>
+      <div class="div-cal-grid" id="div-cal-grid"></div>
+    </div>
+
     <!-- NEWS -->
     <div id="news-section" style="display:none;">
       <div class="section-title" style="margin-bottom:10px;">📰 Market News</div>
@@ -1461,6 +1524,12 @@ tbody tr:hover{background:rgba(56,139,253,.06)!important;}
       <div class="journal-empty">Loading journal… <span class="spinner"></span></div>
     </div>
 
+    <!-- REALIZED P&L -->
+    <div style="margin-top:24px;">
+      <div class="section-title" style="margin-bottom:10px;">💰 Realized P&amp;L (from BUY/SELL entries)</div>
+      <div id="rpnl-container"></div>
+    </div>
+
   </div><!-- /tab-journal -->
 
 </main>
@@ -1601,6 +1670,61 @@ async function syncToServer() {
     if (r.status === 401) window.location.href = '/login';
   } catch { /* silent */ }
 }
+
+// ═══════════════════════════════════════════════
+//  POSITION SIZE CALCULATOR
+// ═══════════════════════════════════════════════
+function openPosSizer(entry, stop, target) {
+  const ov = g('pos-sizer-overlay');
+  if (!ov) return;
+  if (entry)  g('ps-entry').value  = entry.toFixed(2);
+  if (stop)   g('ps-stop').value   = stop.toFixed(2);
+  if (target) g('ps-target').value = target.toFixed(2);
+  g('ps-result').style.display = 'none';
+  ov.classList.add('open');
+  setTimeout(() => g('ps-account').focus(), 80);
+}
+function closePosSizer() {
+  const ov = g('pos-sizer-overlay');
+  if (ov) ov.classList.remove('open');
+}
+function calcPositionSize() {
+  const account  = parseFloat(g('ps-account').value) || 0;
+  const riskPct  = parseFloat(g('ps-risk-pct').value) || 2;
+  const entry    = parseFloat(g('ps-entry').value) || 0;
+  const stop     = parseFloat(g('ps-stop').value) || 0;
+  const target   = parseFloat(g('ps-target').value) || 0;
+  const res = g('ps-result');
+  if (!entry || !stop || entry <= stop) {
+    res.style.display = 'block';
+    res.innerHTML = '<div style="color:var(--red);font-size:.82rem;">⚠ Entry price must be greater than stop price.</div>';
+    return;
+  }
+  const riskDollar  = account > 0 ? account * riskPct / 100 : 0;
+  const riskPerShare = entry - stop;
+  const shares      = riskDollar > 0 && riskPerShare > 0 ? Math.floor(riskDollar / riskPerShare) : 0;
+  const totalCost   = shares * entry;
+  const maxLoss     = shares * riskPerShare;
+  const potGain     = target > entry ? shares * (target - entry) : 0;
+  const rr          = potGain > 0 && maxLoss > 0 ? (potGain / maxLoss).toFixed(2) : null;
+  const pctOfAcct   = account > 0 ? (totalCost / account * 100).toFixed(1) : null;
+
+  res.style.display = 'block';
+  res.innerHTML = `
+    <div class="ps-result-grid">
+      <div class="ps-metric"><div class="ps-metric-label">Shares to Buy</div><div class="ps-metric-value blue">${shares > 0 ? shares.toLocaleString() : '—'}</div></div>
+      <div class="ps-metric"><div class="ps-metric-label">Total Cost</div><div class="ps-metric-value">${totalCost > 0 ? '$'+totalCost.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div></div>
+      <div class="ps-metric"><div class="ps-metric-label">Max Risk ($)</div><div class="ps-metric-value red">${maxLoss > 0 ? '-$'+maxLoss.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div></div>
+      <div class="ps-metric"><div class="ps-metric-label">Potential Gain</div><div class="ps-metric-value green">${potGain > 0 ? '+$'+potGain.toLocaleString('en-US',{maximumFractionDigits:0}) : '—'}</div></div>
+    </div>
+    <div class="ps-rr">
+      ${rr ? `Risk/Reward: <strong>1 : ${rr}</strong>&nbsp;&nbsp;` : ''}
+      ${pctOfAcct ? `Position size: <strong>${pctOfAcct}% of account</strong>` : ''}
+      ${account === 0 ? '<span style="color:var(--muted)">Enter account size for full calculation</span>' : ''}
+    </div>
+    ${shares === 0 ? '<div class="ps-warn">⚠ Risk dollar amount too small for even 1 share at this stop distance.</div>' : ''}`;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePosSizer(); });
 
 // ═══════════════════════════════════════════════
 //  TOAST NOTIFICATIONS
@@ -1775,6 +1899,7 @@ function rows() {
       w52h: q.fiftyTwoWeekHigh || 0, w52l: q.fiftyTwoWeekLow || 0,
       pe: q.trailingPE || 0, vol: q.regularMarketVolume || 0, mcap: q.marketCap || 0,
       beta: q.beta || 0, dividendRate: q.dividendRate || 0, dividendYield: q.dividendYield || 0,
+      exDividendDate: q.exDividendDate || '',
       sector: q.sector || '', avgVol: q.averageVolume || 0,
       volSpike: q.averageVolume > 0 && q.regularMarketVolume > q.averageVolume * 2,
       alert: Math.abs(chgPct) >= THRESH,
@@ -2557,6 +2682,7 @@ async function refresh() {
   Object.assign(quotes, q);
   const rs = rows();
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart(); renderNews(n);
+  loadDividendCalendar(rs);
   renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
   g('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -3401,6 +3527,101 @@ function renderJournal() {
       <button class="je-del" onclick="deleteJournalEntry(${e.id})" title="Delete entry">✕</button>
     </div>`;
   }).join('');
+
+  // Render realized P&L table
+  renderRealizedPnL(_journalEntries);
+}
+
+// ═══════════════════════════════════════════════
+//  REALIZED P&L  (computed from journal BUY/SELL)
+// ═══════════════════════════════════════════════
+function calcRealizedPnL(entries) {
+  // FIFO: process BUY entries as cost basis, SELL entries realize gains
+  const lots = {};    // ticker -> [{shares, price}]
+  const realized = {}; // ticker -> {realizedPnl, soldShares, soldValue, boughtShares, boughtCost}
+
+  // Sort entries by date ascending
+  const sorted = [...entries].sort((a, b) => (a.date > b.date ? 1 : -1));
+
+  sorted.forEach(e => {
+    const tk = (e.ticker || '').toUpperCase();
+    if (!tk || (!e.shares && !e.price)) return;
+    const shares = parseFloat(e.shares) || 0;
+    const price  = parseFloat(e.price)  || 0;
+    if (shares <= 0 || price <= 0) return;
+
+    if (!lots[tk])     lots[tk] = [];
+    if (!realized[tk]) realized[tk] = { realizedPnl: 0, soldShares: 0, soldValue: 0, boughtShares: 0, boughtCost: 0 };
+
+    if (e.action === 'BUY') {
+      lots[tk].push({ shares, price });
+      realized[tk].boughtShares += shares;
+      realized[tk].boughtCost   += shares * price;
+    } else if (e.action === 'SELL') {
+      let remaining = shares;
+      realized[tk].soldShares += shares;
+      realized[tk].soldValue  += shares * price;
+      while (remaining > 0 && lots[tk].length > 0) {
+        const lot = lots[tk][0];
+        const used = Math.min(remaining, lot.shares);
+        realized[tk].realizedPnl += used * (price - lot.price);
+        lot.shares -= used;
+        remaining  -= used;
+        if (lot.shares <= 0) lots[tk].shift();
+      }
+    }
+  });
+
+  return Object.entries(realized)
+    .filter(([, v]) => v.soldShares > 0)
+    .map(([ticker, v]) => ({ ticker, ...v }))
+    .sort((a, b) => b.realizedPnl - a.realizedPnl);
+}
+
+function renderRealizedPnL(entries) {
+  const el = g('rpnl-container');
+  if (!el) return;
+  const data = calcRealizedPnL(entries || []);
+  if (!data.length) {
+    el.innerHTML = '<div class="rpnl-empty">No SELL entries in journal yet. Add BUY and SELL entries to track realized gains/losses.</div>';
+    return;
+  }
+  const totalPnl = data.reduce((s, r) => s + r.realizedPnl, 0);
+  const cc = v => v >= 0 ? 'green' : 'red';
+  const fp = v => (v >= 0 ? '+$' : '-$') + Math.abs(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  el.innerHTML = `
+    <div class="rpnl-wrap">
+      <div class="rpnl-hd">
+        <span>Trade Summary — FIFO Realized P&L</span>
+        <span class="${cc(totalPnl)}" style="font-size:.82rem;font-weight:800">${fp(totalPnl)} total</span>
+      </div>
+      <table class="rpnl-table">
+        <thead><tr>
+          <th>Ticker</th><th>Bought</th><th>Avg Cost</th><th>Sold</th><th>Avg Sale</th><th>Realized P&L</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(r => {
+            const avgCost = r.boughtCost / r.boughtShares;
+            const avgSale = r.soldValue  / r.soldShares;
+            return `<tr>
+              <td>${r.ticker}</td>
+              <td>${r.boughtShares.toFixed(0)} sh @ $${avgCost.toFixed(2)}</td>
+              <td>$${(r.boughtCost).toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+              <td>${r.soldShares.toFixed(0)} sh @ $${avgSale.toFixed(2)}</td>
+              <td>$${(r.soldValue).toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+              <td class="${cc(r.realizedPnl)}" style="font-weight:700">${fp(r.realizedPnl)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr class="rpnl-total">
+            <td colspan="5" style="text-align:right;padding:9px 12px;">Total Realized P&L</td>
+            <td class="${cc(totalPnl)}" style="padding:9px 12px;">${fp(totalPnl)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>`;
 }
 
 async function addJournalEntry() {
@@ -3595,6 +3816,48 @@ function renderPerfChart(data, spyPts) {
 // ═══════════════════════════════════════════════
 let _watchlist = [];
 
+// ═══════════════════════════════════════════════
+//  DIVIDEND CALENDAR
+// ═══════════════════════════════════════════════
+async function loadDividendCalendar(rs) {
+  const sec = g('div-cal-section'), grid = g('div-cal-grid');
+  if (!sec || !grid || !IS_SERVER) return;
+  // rs = rows() from portfolio. Filter to holdings that pay dividends.
+  const divHolders = rs.filter(r => r.dividendRate > 0 || r.exDividendDate);
+  if (!divHolders.length) { sec.style.display = 'none'; return; }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const cards = divHolders.map(r => {
+    const exDate = r.exDividendDate ? new Date(r.exDividendDate + 'T00:00:00') : null;
+    let daysLabel = '', daysCls = '';
+    if (exDate) {
+      const diff = Math.round((exDate - today) / 86400000);
+      if (diff < 0)       { daysLabel = `Ex-div ${Math.abs(diff)}d ago`;   daysCls = 'div-days-past'; }
+      else if (diff <= 14){ daysLabel = `Ex-div in ${diff}d ⚡`;            daysCls = 'div-days-soon'; }
+      else                { daysLabel = `Ex-div in ${diff}d`;               daysCls = 'div-days-upcoming'; }
+    }
+    const annualPayout = (r.dividendRate || 0) * (r.shares || 0);
+    const qtrPayout    = annualPayout / 4;
+    return { r, exDate, daysLabel, daysCls, annualPayout, qtrPayout };
+  }).sort((a, b) => {
+    if (!a.exDate && !b.exDate) return 0;
+    if (!a.exDate) return 1;
+    if (!b.exDate) return -1;
+    return a.exDate - b.exDate;
+  });
+
+  sec.style.display = 'block';
+  grid.innerHTML = cards.map(({ r, exDate, daysLabel, daysCls, annualPayout, qtrPayout }) => `
+    <div class="div-card" onclick="openDrawer('${r.ticker}')">
+      ${daysLabel ? `<div class="div-card-days ${daysCls}">${daysLabel}</div>` : ''}
+      <div class="div-card-ticker">${r.ticker}</div>
+      <div class="div-card-date">${exDate ? 'Ex-div: ' + exDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'Ex-date unknown'}</div>
+      <div class="div-card-rate">$${(r.dividendRate||0).toFixed(2)} / yr</div>
+      <div class="div-card-yield">${r.dividendYield ? (r.dividendYield*100).toFixed(2)+'% yield' : ''}</div>
+      ${annualPayout > 0 ? `<div class="div-card-payout">Your payout: ~<strong>$${qtrPayout.toFixed(2)}/qtr</strong> · $${annualPayout.toFixed(2)}/yr</div>` : ''}
+    </div>`).join('');
+}
+
 async function loadWatchlist() {
   if (!IS_SERVER) return;
   try {
@@ -3619,9 +3882,16 @@ function renderWatchlist() {
       <span class="wl-name" title="${w.name||''}">${w.name || w.ticker}</span>
       <span class="wl-price">${w.price ? '$'+w.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</span>
       <span class="wl-pct ${cls}">${w.price ? (up?'+':'')+w.change_pct.toFixed(2)+'%' : '—'}</span>
+      <span id="wl-sig-${w.ticker}" style="min-width:110px;flex-shrink:0;"><span class="spinner"></span></span>
       <button class="wl-del" onclick="event.stopPropagation();removeFromWatchlist('${w.ticker}')" title="Remove">✕</button>
     </div>`;
   }).join('');
+
+  // Load TA signals for watchlist tickers
+  setTimeout(() => {
+    _watchlist.forEach(w => { if (_portSignals[w.ticker]) _updateWlSigCell(w.ticker); });
+    loadWatchlistSignals();
+  }, 0);
 }
 
 async function addToWatchlist() {
@@ -3855,7 +4125,7 @@ function renderTAPanel(sig) {
   el.innerHTML = `
     <div class="ta-panel">
       <div class="ta-header">
-        <div class="ta-title">📊 Technical Analysis</div>
+        <div class="ta-title">📊 Technical Analysis <span style="font-size:.6rem;background:rgba(255,255,255,.07);border-radius:6px;padding:1px 7px;font-weight:600;color:var(--muted)">Swing (3mo daily)</span></div>
         <div class="ta-signal ${sig.sigCls}">${sig.overall}</div>
       </div>
 
@@ -3929,6 +4199,10 @@ function renderTAPanel(sig) {
             <span class="ta-ind-val">${r.val}</span>
           </div>`).join('')}
       </div>
+
+      <div style="margin-top:12px;text-align:right;">
+        <button class="btn btn-outline btn-sm" onclick="openPosSizer(${sig.last ? sig.last.toFixed(4) : 0}, ${stopLoss.toFixed(4)}, ${exitMid.toFixed(4)})">📐 Calculate Position Size</button>
+      </div>
     </div>`;
 }
 
@@ -3958,8 +4232,39 @@ function _updateSigCell(ticker) {
     </div>`;
 }
 
+function _updateWlSigCell(ticker) {
+  const cell = g('wl-sig-' + ticker);
+  if (!cell) return;
+  const sig = _portSignals[ticker];
+  if (!sig) { cell.innerHTML = ''; return; }
+  const fp = v => v > 0 ? `$${v.toFixed(2)}` : '—';
+  const entryMid = (sig.entryLow + sig.entryHigh) / 2;
+  const exitMid  = (sig.exitLow  + sig.exitHigh)  / 2;
+  const label = sig.overall.replace(/^[⬆↑→↓⬇]\s*/, '');
+  cell.innerHTML = `<div class="sig-cell"><span class="sig-cell-badge ${sig.sigCls}">${label}</span><div class="sig-targets"><span class="gt">▲ ${fp(exitMid)}</span><span class="sep">·</span><span class="rt">▼ ${fp(entryMid)}</span></div></div>`;
+}
+
 function _fillCachedSigCells() {
   portfolio.forEach(h => { if (_portSignals[h.ticker]) _updateSigCell(h.ticker); });
+}
+
+async function loadWatchlistSignals() {
+  const tickers = _watchlist.map(w => w.ticker).filter(t => !_portSignals[t]);
+  for (let i = 0; i < tickers.length; i += 3) {
+    const batch = tickers.slice(i, i + 3);
+    await Promise.all(batch.map(async ticker => {
+      try {
+        const r = await fetch(`/api/history?symbol=${encodeURIComponent(ticker)}&period=3mo`,
+          { signal: AbortSignal.timeout(18000) });
+        if (!r.ok) return;
+        const d = await r.json();
+        const pts = d.points || [];
+        if (pts.length < 30) return;
+        const sig = calcTASignals(pts.map(p=>p.c), pts.map(p=>p.h||p.c), pts.map(p=>p.l||p.c));
+        if (sig) { _portSignals[ticker] = sig; _updateWlSigCell(ticker); }
+      } catch(e) {}
+    }));
+  }
 }
 
 async function loadPortfolioSignals() {
@@ -4993,6 +5298,27 @@ function _renderFSContent(mode) {
     <div id="chart-fs-body">
       <div id="chart-fs-main"></div>
       <div id="chart-fs-subs"></div>
+    </div>
+  </div>
+</div>
+
+<!-- POSITION SIZE CALCULATOR -->
+<div id="pos-sizer-overlay" onclick="if(event.target===this)closePosSizer()">
+  <div id="pos-sizer">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px;">
+      <h3>📐 Position Size Calculator</h3>
+      <button onclick="closePosSizer()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:2px 6px;border-radius:4px;line-height:1;">✕</button>
+    </div>
+    <div class="ps-sub">Based on your risk tolerance and the TA entry/stop levels</div>
+    <div class="ps-row"><label>Account Size ($)</label><input id="ps-account" type="number" placeholder="e.g. 10000" min="1"/></div>
+    <div class="ps-row"><label>Risk per Trade (% of account)</label><input id="ps-risk-pct" type="number" value="2" min="0.1" max="100" step="0.1"/></div>
+    <div class="ps-row"><label>Entry Price ($)</label><input id="ps-entry" type="number" placeholder="e.g. 142.50" step="0.01" min="0"/></div>
+    <div class="ps-row"><label>Stop Loss Price ($)</label><input id="ps-stop" type="number" placeholder="e.g. 135.00" step="0.01" min="0"/></div>
+    <div class="ps-row"><label>Exit Target Price ($) <span style="font-weight:400;text-transform:none">(optional)</span></label><input id="ps-target" type="number" placeholder="e.g. 158.00" step="0.01" min="0"/></div>
+    <div id="ps-result" class="ps-result" style="display:none"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px;">
+      <button class="btn btn-outline btn-sm" onclick="closePosSizer()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="calcPositionSize()">Calculate</button>
     </div>
   </div>
 </div>

@@ -554,18 +554,28 @@ def _fetch_one_quote(sym):
         if not meta or (time.time() - _cache[meta_key]["ts"]) > 86400:
             try:
                 info = yf.Ticker(sym).info
+                ex_div = info.get("exDividendDate")  # epoch int or None
+                ex_div_str = ""
+                if ex_div:
+                    try:
+                        import datetime
+                        ex_div_str = datetime.datetime.utcfromtimestamp(int(ex_div)).strftime("%Y-%m-%d")
+                    except: pass
                 meta = {
-                    "shortName":     info.get("shortName", sym),
-                    "sector":        info.get("sector", ""),
-                    "trailingPE":    float(info.get("trailingPE")    or 0),
-                    "beta":          float(info.get("beta")           or 0),
-                    "dividendRate":  float(info.get("dividendRate")   or 0),
-                    "dividendYield": float(info.get("dividendYield")  or 0),
+                    "shortName":       info.get("shortName", sym),
+                    "sector":          info.get("sector", ""),
+                    "trailingPE":      float(info.get("trailingPE")    or 0),
+                    "beta":            float(info.get("beta")           or 0),
+                    "dividendRate":    float(info.get("dividendRate")   or 0),
+                    "dividendYield":   float(info.get("dividendYield")  or 0),
+                    "exDividendDate":  ex_div_str,
+                    "w52ChangePct":    float(info.get("52WeekChange")   or 0) * 100,
                 }
                 _cache[meta_key] = {"ts": time.time(), "data": meta}
             except:
                 meta = {"shortName": sym, "sector": "", "trailingPE": 0,
-                        "beta": 0, "dividendRate": 0, "dividendYield": 0}
+                        "beta": 0, "dividendRate": 0, "dividendYield": 0,
+                        "exDividendDate": "", "w52ChangePct": 0}
 
         return sym, {
             "symbol":                     sym,
@@ -583,6 +593,8 @@ def _fetch_one_quote(sym):
             "beta":                       meta["beta"],
             "dividendRate":               meta["dividendRate"],
             "dividendYield":              meta["dividendYield"],
+            "exDividendDate":             meta.get("exDividendDate", ""),
+            "w52ChangePct":               meta.get("w52ChangePct", 0),
             "sector":                     meta["sector"],
         }
     except Exception as e:
@@ -1183,6 +1195,20 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
             elif path == "/api/extended-hours":
                 syms = [s for s in qs.get("symbols", [""])[0].split(",") if s.strip()]
                 self.send_json(get_extended_hours(syms))
+
+            elif path == "/api/dividends":
+                syms = [s for s in qs.get("symbols", [""])[0].split(",") if s.strip()]
+                result = []
+                for sym in syms[:30]:  # cap at 30
+                    meta_key = f"meta:{sym.upper()}"
+                    m = _cache.get(meta_key, {}).get("data") or {}
+                    ex = m.get("exDividendDate", "")
+                    rate = m.get("dividendRate", 0)
+                    yld  = m.get("dividendYield", 0)
+                    if ex or rate:
+                        result.append({"ticker": sym.upper(), "exDividendDate": ex,
+                                       "dividendRate": rate, "dividendYield": yld})
+                self.send_json(result)
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
