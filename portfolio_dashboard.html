@@ -449,6 +449,22 @@ tbody tr.clickable{cursor:pointer;}
 .watchlist-empty{padding:20px;text-align:center;color:var(--muted);font-size:.82rem;}
 
 /* DRAWER CHART */
+/* ── Chart fullscreen modal ───────────────────────────────────────────────── */
+#chart-fs-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+#chart-fs-overlay.open{display:flex;}
+#chart-fs-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:min(96vw,1100px);padding:18px 20px;display:flex;flex-direction:column;gap:10px;max-height:92vh;overflow:hidden;}
+#chart-fs-header{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+#chart-fs-title{font-size:.88rem;font-weight:700;color:var(--text);}
+#chart-fs-close{background:none;border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:6px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+#chart-fs-close:hover{background:var(--border);color:var(--text);}
+#chart-fs-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px;}
+#chart-fs-main{position:relative;flex:1;min-height:300px;}
+#chart-fs-subs{display:flex;flex-direction:column;gap:4px;}
+.chart-fs-sub{position:relative;height:80px;}
+.chart-expand-btn{position:absolute;top:6px;right:6px;z-index:10;background:rgba(22,27,34,.75);border:1px solid var(--border);color:var(--muted);width:24px;height:24px;border-radius:5px;font-size:.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;opacity:0;}
+.drawer-chart-wrap:hover .chart-expand-btn,
+.chart-wrap:hover .chart-expand-btn{opacity:1;}
+.chart-expand-btn:hover{background:var(--surface);color:var(--text);}
 .drawer-chart-wrap{position:relative;height:200px;margin-bottom:3px;}
 .drawer-subchart-wrap{position:relative;margin-bottom:3px;}
 .drawer-subchart-wrap.rsi-wrap{height:80px;}
@@ -804,6 +820,7 @@ tbody tr.clickable{cursor:pointer;}
       </div>
       <div class="chart-wrap">
         <canvas id="perf-chart"></canvas>
+        <button class="chart-expand-btn" onclick="openChartFullscreen('perf')" title="Expand chart">⛶</button>
         <div class="chart-empty" id="chart-empty" style="display:none">
           Not enough history yet.<br>Check back after your first full day of data.
         </div>
@@ -2551,7 +2568,10 @@ function renderDrawer(d, ticker) {
           <button class="ind-btn ib-macd"   id="itog-macd" onclick="toggleIndicator('macd')">MACD</button>
         </div>
       </div>
-      <div class="drawer-chart-wrap"><canvas id="drawer-price-chart"></canvas></div>
+      <div class="drawer-chart-wrap">
+        <canvas id="drawer-price-chart"></canvas>
+        <button class="chart-expand-btn" onclick="openChartFullscreen('drawer')" title="Expand chart">⛶</button>
+      </div>
       <div id="drawer-vol-section"  style="display:none"><div class="subchart-label">Volume</div><div class="drawer-subchart-wrap vol-wrap"><canvas id="drawer-vol-chart"></canvas></div></div>
       <div id="drawer-rsi-section"  style="display:block"><div class="subchart-label">RSI (14)</div><div class="drawer-subchart-wrap rsi-wrap"><canvas id="drawer-rsi-chart"></canvas></div></div>
       <div id="drawer-macd-section" style="display:none"><div class="subchart-label">MACD (12,26,9)</div><div class="drawer-subchart-wrap macd-wrap"><canvas id="drawer-macd-chart"></canvas></div></div>
@@ -4358,6 +4378,124 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.warn('[SW] registration failed:', err));
   });
 }
+
+// ═══════════════════════════════════════════════
+//  CHART FULLSCREEN
+// ═══════════════════════════════════════════════
+let _fsChart = null, _fsSubCharts = [], _fsMode = null;
+
+function openChartFullscreen(mode) {
+  _fsMode = mode;
+  const overlay = g('chart-fs-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Trap Escape key
+  document.addEventListener('keydown', _fskeyHandler);
+  _renderFSContent(mode);
+}
+
+function closeChartFullscreen() {
+  const overlay = g('chart-fs-overlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  document.removeEventListener('keydown', _fskeyHandler);
+  if (_fsChart) { _fsChart.destroy(); _fsChart = null; }
+  _fsSubCharts.forEach(c => c.destroy()); _fsSubCharts = [];
+  _fsMode = null;
+}
+
+function _fskeyHandler(e) { if (e.key === 'Escape') closeChartFullscreen(); }
+
+function _renderFSContent(mode) {
+  const titleEl  = g('chart-fs-title');
+  const mainDiv  = g('chart-fs-main');
+  const subsDiv  = g('chart-fs-subs');
+
+  if (_fsChart) { _fsChart.destroy(); _fsChart = null; }
+  _fsSubCharts.forEach(c => c.destroy()); _fsSubCharts = [];
+  subsDiv.innerHTML = '';
+
+  if (mode === 'perf') {
+    // Clone the portfolio performance chart data
+    titleEl.textContent = '📈 Portfolio Performance';
+    mainDiv.innerHTML = '<canvas id="fs-perf-canvas"></canvas>';
+    subsDiv.style.display = 'none';
+    // Copy data from existing perf chart
+    const src = _perfChart;
+    if (src) {
+      const canvas = g('fs-perf-canvas');
+      const opts   = JSON.parse(JSON.stringify(src.config.options));
+      opts.responsive = true; opts.maintainAspectRatio = false; opts.animation = false;
+      _fsChart = new Chart(canvas, {
+        type:    src.config.type,
+        data:    JSON.parse(JSON.stringify(src.config.data)),
+        options: opts,
+      });
+    }
+  } else if (mode === 'drawer') {
+    // Re-render all drawer charts at full size
+    const sym  = g('d-ticker')?.textContent || '—';
+    titleEl.textContent = `📊 ${sym} — Technical Analysis`;
+    mainDiv.innerHTML = '<canvas id="fs-price-canvas"></canvas>';
+    subsDiv.style.display = 'flex';
+    subsDiv.style.flexDirection = 'column';
+    subsDiv.style.gap = '4px';
+
+    // Sub-charts container
+    const subPanes = [];
+    if (_indState.rsi)  subPanes.push({ id:'fs-rsi-canvas',  label:'RSI (14)',      src: _drawerRsiChart,  h:'85px' });
+    if (_indState.macd && _drawerMacdChart) subPanes.push({ id:'fs-macd-canvas', label:'MACD (12,26,9)',  src: _drawerMacdChart, h:'80px' });
+    if (_indState.vol  && _drawerVolChart)  subPanes.push({ id:'fs-vol-canvas',  label:'Volume',          src: _drawerVolChart,  h:'65px' });
+
+    subPanes.forEach(p => {
+      const wrap = document.createElement('div');
+      wrap.style.cssText = `position:relative;height:${p.h};flex-shrink:0;`;
+      wrap.innerHTML = `<div style="font-size:.6rem;font-weight:700;color:#8b949e;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px">${p.label}</div><div style="position:relative;flex:1;height:calc(100% - 16px)"><canvas id="${p.id}"></canvas></div>`;
+      subsDiv.appendChild(wrap);
+    });
+
+    // Re-render price chart
+    if (_lastDrawerChartData && _drawerChart) {
+      const canvas = g('fs-price-canvas');
+      const src    = _drawerChart;
+      const opts   = JSON.parse(JSON.stringify(src.config.options));
+      opts.responsive = true; opts.maintainAspectRatio = false; opts.animation = false;
+      _fsChart = new Chart(canvas, {
+        type: src.config.type,
+        data: JSON.parse(JSON.stringify(src.config.data)),
+        options: opts,
+      });
+    }
+
+    // Re-render sub-charts
+    subPanes.forEach(p => {
+      const canvas = g(p.id);
+      if (!canvas || !p.src) return;
+      const opts = JSON.parse(JSON.stringify(p.src.config.options));
+      opts.responsive = true; opts.maintainAspectRatio = false; opts.animation = false;
+      const c = new Chart(canvas, {
+        type: p.src.config.type,
+        data: JSON.parse(JSON.stringify(p.src.config.data)),
+        options: opts,
+      });
+      _fsSubCharts.push(c);
+    });
+  }
+}
 </script>
+
+<!-- Chart Fullscreen Modal -->
+<div id="chart-fs-overlay" onclick="if(event.target===this)closeChartFullscreen()">
+  <div id="chart-fs-box">
+    <div id="chart-fs-header">
+      <span id="chart-fs-title">Chart</span>
+      <button id="chart-fs-close" onclick="closeChartFullscreen()" title="Close (Esc)">✕</button>
+    </div>
+    <div id="chart-fs-body">
+      <div id="chart-fs-main"></div>
+      <div id="chart-fs-subs"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
