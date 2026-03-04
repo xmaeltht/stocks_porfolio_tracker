@@ -776,6 +776,30 @@ def get_stock_detail(symbol):
                 "target_low": flt("targetLowPrice"), "recommendation": info.get("recommendationKey", ""),
                 "analyst_count": info.get("numberOfAnalystOpinions", 0),
                 "shares_outstanding": flt("sharesOutstanding"), "float_shares": flt("floatShares"),
+                # ── Extra financial fields from info ──────────────────────────
+                "total_revenue":      flt("totalRevenue"),
+                "net_income":         flt("netIncomeToCommon"),
+                "gross_margins":      flt("grossMargins"),
+                "operating_margins":  flt("operatingMargins"),
+                "profit_margins":     flt("profitMargins"),
+                "revenue_growth":     flt("revenueGrowth"),
+                "earnings_growth":    flt("earningsGrowth"),
+                "return_on_equity":   flt("returnOnEquity"),
+                "return_on_assets":   flt("returnOnAssets"),
+                "current_ratio":      flt("currentRatio"),
+                "debt_to_equity":     flt("debtToEquity"),
+                "total_cash":         flt("totalCash"),
+                "total_debt":         flt("totalDebt"),
+                "free_cashflow":      flt("freeCashflow"),
+                "operating_cashflow": flt("operatingCashflow"),
+                "forward_eps":        flt("forwardEps"),
+                "trailing_eps":       flt("trailingEps"),
+                "book_value":         flt("bookValue"),
+                "earnings_date": (lambda ts: (
+                    datetime.utcfromtimestamp(float(ts[0] if isinstance(ts,(list,tuple)) else ts)).strftime('%b %d, %Y')
+                    if ts else None
+                ))(info.get("earningsTimestamp") or info.get("earningsDate")),
+                "ex_dividend_date": info.get("exDividendDate"),
                 "news": news,
             }
         except Exception as e:
@@ -797,58 +821,174 @@ def get_stock_financials(symbol):
                     return float(v) if v is not None and not (isinstance(v, float) and math.isnan(v)) else None
                 return None
             except: return None
+        def _try_df(*attrs):
+            """Try multiple yfinance DataFrame attributes, return first non-empty."""
+            for attr in attrs:
+                try:
+                    df = getattr(stock, attr) if isinstance(attr, str) else attr()
+                    if df is not None and not df.empty:
+                        return df
+                except Exception:
+                    pass
+            return None
+
         try:
             stock = yf.Ticker(symbol)
+            info  = stock.info or {}
+
             # ── Income Statement ──────────────────────────────────────────────
             try:
-                fin = stock.financials
+                fin = _try_df('financials', 'income_stmt', 'quarterly_financials')
                 if fin is not None and not fin.empty:
                     for col in list(fin.columns)[:4]:
-                        row = {"year": str(col.year)}
-                        for k, m in [("revenue","Total Revenue"),("gross_profit","Gross Profit"),
-                                     ("operating_income","Operating Income"),("net_income","Net Income"),
-                                     ("ebitda","EBITDA"),("eps","Basic EPS")]:
-                            row[k] = sv(fin, m, col)
+                        row = {"year": str(col.year) if hasattr(col,'year') else str(col)[:4]}
+                        # try multiple possible row names for each metric
+                        def sv2(df, *metrics):
+                            for m in metrics:
+                                v = sv(df, m, col)
+                                if v is not None: return v
+                            return None
+                        row["revenue"]          = sv2(fin, "Total Revenue", "Revenue")
+                        row["gross_profit"]     = sv2(fin, "Gross Profit")
+                        row["operating_income"] = sv2(fin, "Operating Income", "EBIT")
+                        row["net_income"]       = sv2(fin, "Net Income", "Net Income Common Stockholders")
+                        row["ebitda"]           = sv2(fin, "EBITDA", "Normalized EBITDA")
+                        row["eps"]              = sv2(fin, "Basic EPS", "Diluted EPS")
                         result["income"].append(row)
+                else:
+                    # ── Info-based TTM fallback ───────────────────────────────
+                    def _inf(k):
+                        v = info.get(k)
+                        try: return float(v) if v is not None else None
+                        except: return None
+                    ttm = {"year": "TTM",
+                           "revenue":          _inf("totalRevenue"),
+                           "gross_profit":      (_inf("totalRevenue") or 0) * (_inf("grossMargins") or 0) or None,
+                           "operating_income":  (_inf("totalRevenue") or 0) * (_inf("operatingMargins") or 0) or None,
+                           "net_income":        _inf("netIncomeToCommon"),
+                           "ebitda":            _inf("ebitda"),
+                           "eps":               _inf("trailingEps"),
+                    }
+                    # Only add if at least revenue is available
+                    if ttm["revenue"]:
+                        result["income"].append(ttm)
+                        result["info_fallback"] = True
             except Exception as e: print(f"  Income err {symbol}: {e}")
+
             # ── Balance Sheet ─────────────────────────────────────────────────
             try:
-                bs = stock.balance_sheet
+                bs = _try_df('balance_sheet', 'quarterly_balance_sheet')
                 if bs is not None and not bs.empty:
                     for col in list(bs.columns)[:4]:
-                        row = {"year": str(col.year)}
-                        for k, m in [("total_assets","Total Assets"),("total_debt","Total Debt"),
-                                     ("cash","Cash And Cash Equivalents"),("equity","Stockholders Equity"),
-                                     ("current_assets","Current Assets"),("current_liabilities","Current Liabilities")]:
-                            row[k] = sv(bs, m, col)
+                        row = {"year": str(col.year) if hasattr(col,'year') else str(col)[:4]}
+                        def bsv(*metrics):
+                            for m in metrics:
+                                v = sv(bs, m, col)
+                                if v is not None: return v
+                            return None
+                        row["total_assets"]        = bsv("Total Assets")
+                        row["total_debt"]          = bsv("Total Debt", "Long Term Debt")
+                        row["cash"]                = bsv("Cash And Cash Equivalents", "Cash Cash Equivalents And Short Term Investments")
+                        row["equity"]              = bsv("Stockholders Equity", "Common Stock Equity")
+                        row["current_assets"]      = bsv("Current Assets")
+                        row["current_liabilities"] = bsv("Current Liabilities")
                         result["balance"].append(row)
+                else:
+                    # Info-based balance fallback
+                    def _inf(k):
+                        v = info.get(k)
+                        try: return float(v) if v is not None else None
+                        except: return None
+                    bal = {"year": "Latest",
+                           "total_assets":        _inf("totalAssets"),
+                           "total_debt":          _inf("totalDebt"),
+                           "cash":                _inf("totalCash"),
+                           "equity":              None,
+                           "current_assets":      _inf("currentAssets") if info.get("currentAssets") else None,
+                           "current_liabilities": None,
+                    }
+                    if bal["total_assets"] or bal["total_debt"] or bal["cash"]:
+                        result["balance"].append(bal)
             except Exception as e: print(f"  Balance err {symbol}: {e}")
+
             # ── Cash Flow ─────────────────────────────────────────────────────
             try:
-                cf = stock.cashflow
+                cf = _try_df('cashflow', 'cash_flow', 'quarterly_cashflow')
                 if cf is not None and not cf.empty:
                     for col in list(cf.columns)[:4]:
-                        row = {"year": str(col.year)}
-                        for k, m in [("operating_cf","Operating Cash Flow"),("investing_cf","Investing Cash Flow"),
-                                     ("financing_cf","Financing Cash Flow"),("free_cf","Free Cash Flow"),
-                                     ("capex","Capital Expenditure")]:
-                            row[k] = sv(cf, m, col)
+                        row = {"year": str(col.year) if hasattr(col,'year') else str(col)[:4]}
+                        def cfv(*metrics):
+                            for m in metrics:
+                                v = sv(cf, m, col)
+                                if v is not None: return v
+                            return None
+                        row["operating_cf"]  = cfv("Operating Cash Flow", "Cash Flow From Continuing Operations")
+                        row["investing_cf"]  = cfv("Investing Cash Flow")
+                        row["financing_cf"]  = cfv("Financing Cash Flow")
+                        row["free_cf"]       = cfv("Free Cash Flow")
+                        row["capex"]         = cfv("Capital Expenditure")
                         result["cashflow"].append(row)
+                else:
+                    def _inf(k):
+                        v = info.get(k)
+                        try: return float(v) if v is not None else None
+                        except: return None
+                    cfl = {"year": "TTM",
+                           "operating_cf":  _inf("operatingCashflow"),
+                           "investing_cf":  None,
+                           "financing_cf":  None,
+                           "free_cf":       _inf("freeCashflow"),
+                           "capex":         None,
+                    }
+                    if cfl["operating_cf"] or cfl["free_cf"]:
+                        result["cashflow"].append(cfl)
             except Exception as e: print(f"  Cashflow err {symbol}: {e}")
+
             # ── Analyst Recommendations Breakdown ─────────────────────────────
             try:
-                recs = stock.recommendations
+                recs = None
+                # Try recommendations_summary first (newer API)
+                for attr in ['recommendations_summary', 'recommendations']:
+                    try:
+                        df = getattr(stock, attr)
+                        if df is not None and not df.empty:
+                            recs = df; break
+                    except: pass
                 if recs is not None and not recs.empty:
                     latest = recs.iloc[-1]
+                    def _rc(k):
+                        v = latest.get(k, 0)
+                        try: return int(float(v)) if v is not None else 0
+                        except: return 0
                     result["ratings"] = {
-                        "strongBuy":  int(latest.get("strongBuy",  0)),
-                        "buy":        int(latest.get("buy",        0)),
-                        "hold":       int(latest.get("hold",       0)),
-                        "sell":       int(latest.get("sell",       0)),
-                        "strongSell": int(latest.get("strongSell", 0)),
+                        "strongBuy":  _rc("strongBuy"),
+                        "buy":        _rc("buy"),
+                        "hold":       _rc("hold"),
+                        "sell":       _rc("sell"),
+                        "strongSell": _rc("strongSell"),
                         "period":     str(recs.index[-1])[:10] if len(recs) > 0 else "",
                     }
+                else:
+                    # Build from info dict analyst count + recommendation key
+                    rec_key = info.get("recommendationKey", "")
+                    n = info.get("numberOfAnalystOpinions", 0) or 0
+                    if rec_key and n:
+                        # Estimate distribution from recommendationMean (1=Strong Buy, 5=Strong Sell)
+                        mean = float(info.get("recommendationMean", 3) or 3)
+                        # Simple heuristic distribution
+                        buy_pct   = max(0, min(1, (3.5 - mean) / 2.5))
+                        sell_pct  = max(0, min(1, (mean - 3.5) / 1.5))
+                        hold_pct  = 1 - buy_pct - sell_pct
+                        result["ratings"] = {
+                            "strongBuy":  round(n * buy_pct * 0.4),
+                            "buy":        round(n * buy_pct * 0.6),
+                            "hold":       round(n * hold_pct),
+                            "sell":       round(n * sell_pct * 0.6),
+                            "strongSell": round(n * sell_pct * 0.4),
+                            "period":     "estimated",
+                        }
             except Exception as e: print(f"  Ratings err {symbol}: {e}")
+
         except Exception as e:
             result["error"] = str(e)
         return result

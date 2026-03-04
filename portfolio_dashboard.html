@@ -6277,24 +6277,36 @@ function _spRenderOverview(d) {
   }
 
   // Key stats grid
+  const _pct = v => v ? (v*100).toFixed(1)+'%' : '—';
+  const _x   = v => v ? v.toFixed(2)+'x' : '—';
   const stats = [
-    ['Market Cap',    d.market_cap    ? f.big(d.market_cap)                        : '—'],
-    ['P/E (TTM)',     d.pe_ratio      ? d.pe_ratio.toFixed(2)+'x'                  : '—'],
-    ['Forward P/E',  d.forward_pe    ? d.forward_pe.toFixed(2)+'x'                : '—'],
-    ['EPS (TTM)',     d.eps           ? '$'+d.eps.toFixed(3)                       : '—'],
-    ['52W High',      d.week52_high   ? f.usd(d.week52_high)                       : '—'],
-    ['52W Low',       d.week52_low    ? f.usd(d.week52_low)                        : '—'],
-    ['Volume',        d.volume        ? Number(d.volume).toLocaleString()           : '—'],
-    ['Avg Volume',    d.avg_volume    ? Number(d.avg_volume).toLocaleString()       : '—'],
-    ['P/B Ratio',     d.price_to_book ? d.price_to_book.toFixed(2)+'x'            : '—'],
-    ['PEG Ratio',     d.peg_ratio     ? d.peg_ratio.toFixed(2)                    : '—'],
-    ['Beta',          d.beta          ? d.beta.toFixed(2)                          : '—'],
-    ['Div Yield',     d.dividend_yield? (d.dividend_yield*100).toFixed(2)+'%'     : '—'],
-    ['50D MA',        d.day50_ma      ? f.usd(d.day50_ma)                         : '—'],
-    ['200D MA',       d.day200_ma     ? f.usd(d.day200_ma)                        : '—'],
-    ['Short %Float',  d.short_pct_float? (d.short_pct_float*100).toFixed(1)+'%'  : '—'],
-    ['Employees',     d.employees     ? Number(d.employees).toLocaleString()       : '—'],
-  ];
+    ['Market Cap',    d.market_cap    ? f.big(d.market_cap)                         : '—'],
+    ['Revenue (TTM)', d.total_revenue ? f.big(d.total_revenue)                      : '—'],
+    ['Net Income',    d.net_income    ? f.big(d.net_income)                         : '—'],
+    ['P/E (TTM)',     d.pe_ratio      ? _x(d.pe_ratio)                              : '—'],
+    ['Forward P/E',   d.forward_pe    ? _x(d.forward_pe)                            : '—'],
+    ['EPS (TTM)',     (d.eps||d.trailing_eps) ? '$'+(d.eps||d.trailing_eps).toFixed(3) : '—'],
+    ['Fwd EPS',       d.forward_eps   ? '$'+d.forward_eps.toFixed(3)               : '—'],
+    ['Earnings Date', d.earnings_date || '—'],
+    ['52W High',      d.week52_high   ? f.usd(d.week52_high)                        : '—'],
+    ['52W Low',       d.week52_low    ? f.usd(d.week52_low)                         : '—'],
+    ['Volume',        d.volume        ? Number(d.volume).toLocaleString()            : '—'],
+    ['Avg Volume',    d.avg_volume    ? Number(d.avg_volume).toLocaleString()        : '—'],
+    ['Gross Margin',  d.gross_margins ? _pct(d.gross_margins)                       : '—'],
+    ['Net Margin',    d.profit_margins? _pct(d.profit_margins)                      : '—'],
+    ['P/B Ratio',     d.price_to_book ? _x(d.price_to_book)                         : '—'],
+    ['PEG Ratio',     d.peg_ratio     ? d.peg_ratio.toFixed(2)                      : '—'],
+    ['Beta',          d.beta          ? d.beta.toFixed(2)                           : '—'],
+    ['Div Yield',     d.dividend_yield? _pct(d.dividend_yield)                      : '—'],
+    ['ROE',           d.return_on_equity? _pct(d.return_on_equity)                  : '—'],
+    ['Debt/Equity',   d.debt_to_equity? d.debt_to_equity.toFixed(2)                 : '—'],
+    ['Current Ratio', d.current_ratio ? d.current_ratio.toFixed(2)                  : '—'],
+    ['Free Cash Flow',d.free_cashflow ? f.big(d.free_cashflow)                      : '—'],
+    ['50D MA',        d.day50_ma      ? f.usd(d.day50_ma)                           : '—'],
+    ['200D MA',       d.day200_ma     ? f.usd(d.day200_ma)                          : '—'],
+    ['Short %Float',  d.short_pct_float? _pct(d.short_pct_float)                    : '—'],
+    ['Employees',     d.employees     ? Number(d.employees).toLocaleString()         : '—'],
+  ].filter(([,v]) => v !== '—');
   g('sp-stats-col').innerHTML = stats.map(([l,v]) =>
     `<div class="sp-stat"><div class="sp-stat-label">${l}</div><div class="sp-stat-val">${v}</div></div>`
   ).join('');
@@ -6404,11 +6416,16 @@ function _spFmtFin(v) {
   return `<span class="${cls}">${s}</span>`;
 }
 
-function _spBuildTable(rows, metrics) {
+function _spBuildTable(rows, metrics, fallbackNote) {
   if (!rows||!rows.length) return '<div style="padding:20px;color:var(--muted);font-size:.85rem">No financial data available for this stock</div>';
+  // Filter metrics to only those that have at least one non-null value
+  const activeMetrics = metrics.filter(([key]) => rows.some(r => r[key] != null));
+  if (!activeMetrics.length) return '<div style="padding:20px;color:var(--muted);font-size:.85rem">No financial data available for this stock</div>';
   const years = rows.map(r=>r.year);
-  let h = '<table class="sp-fin-table"><thead><tr><th>Metric</th>' + years.map(y=>`<th>${y}</th>`).join('') + '</tr></thead><tbody>';
-  for (const [key,label] of metrics) {
+  let h = '';
+  if (fallbackNote) h += `<div style="color:var(--muted);font-size:.77rem;padding:6px 10px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:8px">ℹ️ ${fallbackNote}</div>`;
+  h += '<table class="sp-fin-table"><thead><tr><th>Metric</th>' + years.map(y=>`<th>${y}</th>`).join('') + '</tr></thead><tbody>';
+  for (const [key,label] of activeMetrics) {
     h += `<tr><td>${label}</td>` + rows.map(r=>`<td>${_spFmtFin(r[key])}</td>`).join('') + '</tr>';
   }
   return h + '</tbody></table>';
@@ -6417,21 +6434,22 @@ function _spBuildTable(rows, metrics) {
 function _spRenderFinancials(d) {
   const iw = g('sp-fin-income'), bw = g('sp-fin-balance'), cw = g('sp-fin-cashflow');
   if (!iw||!bw||!cw) return;
+  const fallback = d.info_fallback ? 'Showing TTM summary — historical statements not available for this ticker' : null;
   iw.innerHTML = _spBuildTable(d.income, [
     ['revenue','Total Revenue'],['gross_profit','Gross Profit'],
     ['operating_income','Operating Income'],['ebitda','EBITDA'],
     ['net_income','Net Income'],['eps','EPS (Basic)'],
-  ]);
+  ], fallback);
   bw.innerHTML = _spBuildTable(d.balance, [
     ['total_assets','Total Assets'],['total_debt','Total Debt'],
     ['cash','Cash & Equivalents'],['equity','Stockholders Equity'],
     ['current_assets','Current Assets'],['current_liabilities','Current Liabilities'],
-  ]);
+  ], fallback);
   cw.innerHTML = _spBuildTable(d.cashflow, [
     ['operating_cf','Operating Cash Flow'],['investing_cf','Investing Cash Flow'],
     ['financing_cf','Financing Cash Flow'],['free_cf','Free Cash Flow'],
     ['capex','Capital Expenditure'],
-  ]);
+  ], fallback);
 }
 
 // ── Analyst ───────────────────────────────────────────────────────────────
@@ -6476,13 +6494,19 @@ function _spRenderAnalyst(d) {
       <div style="margin-top:16px">
         <div class="sp-a-title">Quick Stats</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          ${[['P/E (TTM)', d.pe_ratio?d.pe_ratio.toFixed(2)+'x':'—'],
-             ['Fwd P/E',  d.forward_pe?d.forward_pe.toFixed(2)+'x':'—'],
-             ['EPS',      d.eps?'$'+d.eps.toFixed(2):'—'],
-             ['Beta',     d.beta?d.beta.toFixed(2):'—'],
-             ['Mkt Cap',  d.market_cap?f.big(d.market_cap):'—'],
-             ['Div Yield',d.dividend_yield?(d.dividend_yield*100).toFixed(2)+'%':'—']
-          ].map(([l,v])=>`<div class="sp-stat"><div class="sp-stat-label">${l}</div><div class="sp-stat-val">${v}</div></div>`).join('')}
+          ${[['P/E (TTM)',   d.pe_ratio?d.pe_ratio.toFixed(2)+'x':'—'],
+             ['Fwd P/E',    d.forward_pe?d.forward_pe.toFixed(2)+'x':'—'],
+             ['EPS (TTM)',  d.eps?'$'+d.eps.toFixed(2):'—'],
+             ['Beta',       d.beta?d.beta.toFixed(2):'—'],
+             ['Mkt Cap',    d.market_cap?f.big(d.market_cap):'—'],
+             ['Revenue',    d.total_revenue?f.big(d.total_revenue):'—'],
+             ['Net Income', d.net_income?f.big(d.net_income):'—'],
+             ['Net Margin', d.profit_margins?(d.profit_margins*100).toFixed(1)+'%':'—'],
+             ['Rev Growth', d.revenue_growth?(d.revenue_growth*100).toFixed(1)+'%':'—'],
+             ['ROE',        d.return_on_equity?(d.return_on_equity*100).toFixed(1)+'%':'—'],
+             ['Div Yield',  d.dividend_yield?(d.dividend_yield*100).toFixed(2)+'%':'—'],
+             ['Earnings',   d.earnings_date||'—']
+          ].filter(([,v])=>v!=='—').map(([l,v])=>`<div class="sp-stat"><div class="sp-stat-label">${l}</div><div class="sp-stat-val">${v}</div></div>`).join('')}
         </div>
       </div>
     </div>`;
