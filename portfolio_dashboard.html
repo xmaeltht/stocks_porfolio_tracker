@@ -362,7 +362,8 @@ tbody tr.clickable{cursor:pointer;}
 .eh-post{background:var(--yellow-bg);color:var(--yellow);border:1px solid rgba(227,179,65,.4);}
 
 .indices-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:18px;}
-.idx-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;cursor:default;}
+.idx-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;cursor:default;transition:border-color .15s,box-shadow .15s;}
+.idx-card:hover{border-color:rgba(124,92,252,.35);box-shadow:0 0 0 1px rgba(124,92,252,.12);}
 .idx-name{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
 .idx-price{font-size:1.3rem;font-weight:700;line-height:1.1;}
 .idx-chg{font-size:.8rem;font-weight:600;margin-top:2px;}
@@ -1469,6 +1470,13 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
 .sp-a-tgt-label{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
 .sp-a-tgt-val{font-size:1.05rem;font-weight:700;font-family:var(--font-data);}
 .sp-upside{margin-top:10px;font-size:.83rem;font-weight:600;}
+/* ═══ Portfolio Ticker Tape ═══ */
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.tt-item{display:inline-flex;align-items:center;gap:7px;padding:0 18px;height:28px;border-right:1px solid var(--border);cursor:pointer;transition:background .1s;font-size:.73rem;font-family:var(--font-data);}
+.tt-item:hover{background:rgba(124,92,252,.08);}
+.tt-sym{font-weight:700;color:var(--blue);}
+.tt-price{font-weight:600;color:var(--text);}
+.tt-chg{font-weight:700;}
 /* ═══ Key Metrics Strip (below header) ═══ */
 #sp-key-metrics{display:flex;overflow-x:auto;background:rgba(255,255,255,.018);border-bottom:1px solid var(--border);flex-shrink:0;scrollbar-width:none;}
 #sp-key-metrics::-webkit-scrollbar{display:none;}
@@ -1595,6 +1603,11 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
     <a href="/logout" class="btn btn-outline btn-sm" style="text-decoration:none">Sign Out</a>
   </div>
 </header>
+
+<!-- Portfolio Ticker Tape -->
+<div id="ticker-tape" style="display:none;background:rgba(255,255,255,.018);border-bottom:1px solid var(--border);overflow:hidden;height:28px;position:relative;">
+  <div id="ticker-tape-inner" style="display:flex;gap:0;position:absolute;top:0;left:0;white-space:nowrap;"></div>
+</div>
 
 <main>
 
@@ -1826,31 +1839,31 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
     <!-- Indices -->
     <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">MAJOR INDICES</div>
     <div class="indices-row" id="indices-row">
-      <div class="idx-card" onclick="openDrawer('^GSPC')" style="cursor:pointer">
+      <div class="idx-card" onclick="openStockPage('^GSPC')" style="cursor:pointer">
         <div class="idx-name">S&amp;P 500</div>
         <div class="idx-price" id="idx-GSPC">—</div>
         <div class="idx-chg" id="idxc-GSPC">—</div>
         <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-GSPC"></canvas></div>
       </div>
-      <div class="idx-card" onclick="openDrawer('^IXIC')" style="cursor:pointer">
+      <div class="idx-card" onclick="openStockPage('^IXIC')" style="cursor:pointer">
         <div class="idx-name">NASDAQ</div>
         <div class="idx-price" id="idx-IXIC">—</div>
         <div class="idx-chg" id="idxc-IXIC">—</div>
         <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-IXIC"></canvas></div>
       </div>
-      <div class="idx-card" onclick="openDrawer('^DJI')" style="cursor:pointer">
+      <div class="idx-card" onclick="openStockPage('^DJI')" style="cursor:pointer">
         <div class="idx-name">DOW JONES</div>
         <div class="idx-price" id="idx-DJI">—</div>
         <div class="idx-chg" id="idxc-DJI">—</div>
         <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-DJI"></canvas></div>
       </div>
-      <div class="idx-card" onclick="openDrawer('^RUT')" style="cursor:pointer">
+      <div class="idx-card" onclick="openStockPage('^RUT')" style="cursor:pointer">
         <div class="idx-name">RUSSELL 2000</div>
         <div class="idx-price" id="idx-RUT">—</div>
         <div class="idx-chg" id="idxc-RUT">—</div>
         <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-RUT"></canvas></div>
       </div>
-      <div class="idx-card" onclick="openDrawer('^VIX')" style="cursor:pointer">
+      <div class="idx-card" onclick="openStockPage('^VIX')" style="cursor:pointer">
         <div class="idx-name">VIX</div>
         <div class="idx-price" id="idx-VIX">—</div>
         <div class="idx-chg" id="idxc-VIX" style="color:var(--muted)">Volatility Index</div>
@@ -1984,6 +1997,11 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
     <div class="sp-lookup-hero">
       <div class="sp-lookup-title">Analyze Any Stock</div>
       <div class="sp-lookup-sub">Search any ticker for full financials, analyst ratings, price charts and more</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;">
+        ${['AAPL','MSFT','NVDA','TSLA','AMZN','META','GOOGL','NFLX','AMD','COIN','SPY','QQQ'].map(t=>
+          `<button onclick="openStockPage('${t}')" style="padding:4px 13px;border:1px solid rgba(124,92,252,.3);background:rgba(124,92,252,.08);color:var(--blue);border-radius:20px;font-size:.73rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--font-body);" onmouseover="this.style.background='rgba(124,92,252,.2)'" onmouseout="this.style.background='rgba(124,92,252,.08)'">${t}</button>`
+        ).join('')}
+      </div>
       <div class="sp-lookup-row">
         <div class="sp-lookup-wrap" id="sp-lookup-wrap">
           <input id="sp-lookup-input" class="sp-lookup-input" type="text"
@@ -2013,18 +2031,20 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
               <th style="text-align:left">Ticker</th>
               <th>Price</th>
               <th>Mkt Cap</th>
-              <th>P/E (TTM)</th>
+              <th>Revenue</th>
+              <th>Net Income</th>
+              <th>Net Margin</th>
+              <th>Rev Growth</th>
+              <th>P/E</th>
               <th>Fwd P/E</th>
-              <th>P/B</th>
-              <th>PEG</th>
-              <th>EPS (TTM)</th>
+              <th>EPS</th>
               <th>Beta</th>
               <th>Div Yield</th>
               <th>Rating</th>
             </tr>
           </thead>
           <tbody id="valuation-tbody">
-            <tr><td colspan="11" style="text-align:center;color:var(--muted);padding:24px">Switch to this tab to load data…</td></tr>
+            <tr><td colspan="13" style="text-align:center;color:var(--muted);padding:24px">Switch to this tab to load data…</td></tr>
           </tbody>
         </table>
       </div>
@@ -2102,6 +2122,7 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
         <div class="drawer-price-chg" id="d-chg">—</div>
       </div>
       <button id="drawer-wl-btn" class="btn btn-outline btn-sm" style="font-size:.75rem;padding:3px 10px;">+ Watchlist</button>
+      <button class="btn btn-outline btn-sm" style="font-size:.72rem;padding:4px 10px;margin-right:4px;" onclick="openStockPage(_drawerTicker)" title="Full analysis page">📊 Full Analysis</button>
       <button class="drawer-close" onclick="closeDrawer()">✕</button>
     </div>
   </div>
@@ -3029,6 +3050,9 @@ function renderCards(rs) {
   g('c-worst-s').textContent= worst ? f.pct(worst.change_pct) : '—';
   g('c-alerts').textContent = alc;
 
+  // ── Ticker tape ────────────────────────────────────────────────────────
+  _renderTickerTape(rs.filter(r => r.price > 0));
+
   // Coloured left accent borders based on values
   const dayCard = g('c-day')?.closest('.card');
   const totCard = g('c-tot')?.closest('.card');
@@ -3036,6 +3060,35 @@ function renderCards(rs) {
   if (totCard) { totCard.classList.remove('accent-green','accent-red','accent-blue'); if (hasPrices) totCard.classList.add(tp >= 0 ? 'accent-green' : 'accent-red'); }
   const valCard = g('c-value')?.closest('.card');
   if (valCard) { valCard.classList.remove('accent-green','accent-red'); valCard.classList.add('accent-blue'); }
+}
+
+// ═══════════════════════════════════════════════
+//  PORTFOLIO TICKER TAPE
+// ═══════════════════════════════════════════════
+function _renderTickerTape(rs) {
+  const tape = g('ticker-tape');
+  const inner = g('ticker-tape-inner');
+  if (!tape || !inner || !rs.length) return;
+  tape.style.display = 'block';
+  const makeItem = r => {
+    const up = (r.change_pct||0) >= 0;
+    const cls = up ? 'green' : 'red';
+    return `<div class="tt-item" onclick="openStockPage('${r.ticker}')">
+      <span class="tt-sym">${r.ticker}</span>
+      <span class="tt-price">$${(r.price||0).toFixed(2)}</span>
+      <span class="tt-chg ${cls}">${up?'+':''}${(r.change_pct||0).toFixed(2)}%</span>
+    </div>`;
+  };
+  // Duplicate items for seamless looping
+  const html = rs.map(makeItem).join('');
+  inner.innerHTML = html + html;
+  // Dynamic animation duration based on content width
+  requestAnimationFrame(() => {
+    const w = inner.scrollWidth / 2;
+    const speed = 60; // pixels per second
+    const dur = Math.max(15, w / speed);
+    inner.style.animation = `tickerScroll ${dur}s linear infinite`;
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -3446,7 +3499,9 @@ document.addEventListener('keydown', e => {
 // ═══════════════════════════════════════════════
 //  STOCK DETAIL DRAWER
 // ═══════════════════════════════════════════════
+var _drawerTicker = null;
 function openDrawer(ticker) {
+  _drawerTicker = ticker;
   if (!IS_SERVER) {
     showToast('⚠️ Start <strong>python server.py</strong> to view stock details', 'warning');
     return;
@@ -3858,11 +3913,15 @@ function renderMarket(mkt) {
     const el = g('idx-' + id), cel = g('idxc-' + id);
     if (!el) return;
     el.textContent = d.price ? (id === 'VIX' ? d.price.toFixed(2) : d.price.toLocaleString('en-US',{maximumFractionDigits:2})) : '—';
+    const c = d.change_pct || 0;
     if (id !== 'VIX' && cel) {
-      const c = d.change_pct || 0;
       cel.textContent = `${c >= 0 ? '+' : ''}${c.toFixed(2)}%`;
       cel.className = 'idx-chg ' + (c > 0 ? 'green' : c < 0 ? 'red' : '');
     }
+    // Colour the card border by performance
+    const card = el.closest('.idx-card');
+    if (card) card.style.borderLeftColor = c > 0 ? 'rgba(52,211,153,.6)' : c < 0 ? 'rgba(248,113,113,.6)' : '';
+    if (card) card.style.borderLeftWidth = '3px';
   });
 
   // Fear & Greed from VIX
@@ -3896,7 +3955,7 @@ function renderMarket(mkt) {
           ? '$' + c.price.toLocaleString('en-US', {maximumFractionDigits: 0})
           : c.price >= 1 ? '$' + c.price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
           : '$' + c.price.toFixed(4);
-        return `<div class="crypto-card" onclick="openDrawer('${sym}')">
+        return `<div class="crypto-card" onclick="openStockPage('${sym}')">
           <div class="crypto-icon">${CRYPTO_ICONS[sym] || '₿'}</div>
           <div class="crypto-name">${c.name}</div>
           <div class="crypto-price">${priceFmt}</div>
@@ -3916,7 +3975,7 @@ function renderMarket(mkt) {
     const bg = pct >= 0
       ? `rgba(38,166,65,${Math.min(0.8, 0.1 + pct * 0.08)})`
       : `rgba(248,81,73,${Math.min(0.8, 0.1 + Math.abs(pct) * 0.08)})`;
-    return `<div class="sec-tile" style="background:${bg};cursor:pointer" onclick="openDrawer('${sym}')" title="Click to view ${sym} details">
+    return `<div class="sec-tile" style="background:${bg};cursor:pointer" onclick="openStockPage('${sym}')" title="Click to view ${sym} details">
       <div class="sec-tile-name">${s.name}</div>
       <div class="sec-tile-pct">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div>
     </div>`;
@@ -3945,7 +4004,7 @@ function renderMovers(data) {
     const volRatioStr = m.vol_ratio > 1.5 ? ` <span style="color:var(--yellow);font-weight:700">🔥 ${m.vol_ratio}x</span>` : '';
     const inWL = _watchlist.some(w => w.ticker === m.symbol);
     const inPort = portfolio.some(h => h.ticker === m.symbol);
-    return `<div class="mover-row" onclick="openDrawer('${m.symbol}')">
+    return `<div class="mover-row" onclick="openStockPage('${m.symbol}')">
       <div class="mover-left">
         <div style="display:flex;align-items:center;gap:6px">
           <div class="mover-sym">${m.symbol}</div>
@@ -6099,8 +6158,8 @@ function _renderValuationTable() {
   const rows = portfolio.map(h => ({ holding: h, d: _analysisData[h.ticker] || {} }));
   if (!rows.length) return;
 
-  const sortCols = ['ticker','price','market_cap','pe_ratio','forward_pe','price_to_book','peg_ratio','eps','beta','dividend_yield','recommendation'];
-  const headers = ['Ticker','Price','Mkt Cap','P/E (TTM)','Fwd P/E','P/B','PEG','EPS (TTM)','Beta','Div Yield','Rating'];
+  const sortCols = ['ticker','price','market_cap','total_revenue','net_income','profit_margins','revenue_growth','pe_ratio','forward_pe','eps','beta','dividend_yield','recommendation'];
+  const headers = ['Ticker','Price','Mkt Cap','Revenue','Net Income','Net Margin','Rev Growth','P/E','Fwd P/E','EPS','Beta','Div Yield','Rating'];
 
   let sorted = [...rows];
   if (_analysisSortCol !== null) {
@@ -6124,14 +6183,19 @@ function _renderValuationTable() {
     const recLabel = d.recommendation ? d.recommendation.replace(/strong/i,'Strong ').trim() : '—';
     const recCls   = ['strongbuy','buy'].includes(recKey) ? 'rec-strongbuy' : ['sell','strongsell'].includes(recKey) ? 'rec-sell' : recKey==='hold' ? 'rec-hold' : 'rec-neutral';
     const chgCls   = (d.change||0) >= 0 ? 'green' : 'red';
+    const revG     = d.revenue_growth;
+    const revGCls  = revG == null ? '' : revG >= 0 ? 'green' : 'red';
+    const niCls    = (d.net_income||0) >= 0 ? 'green' : 'red';
     return `<tr onclick="openStockPage('${holding.ticker}')">
-      <td><div class="vt-ticker">${holding.ticker}</div><div class="vt-name">${(d.shortName||'').slice(0,22)}</div></td>
-      <td><span class="${chgCls}">${d.price ? f.usd(d.price) : '—'}</span></td>
+      <td><div class="vt-ticker">${holding.ticker}</div><div class="vt-name">${(d.shortName||'').slice(0,18)}</div></td>
+      <td><span class="${chgCls}">${d.price ? f.usd(d.price) : '—'}</span><br><span style="font-size:.66rem;color:var(--muted)">${d.change_pct != null ? (d.change_pct>=0?'+':'')+d.change_pct.toFixed(2)+'%' : ''}</span></td>
       <td>${d.market_cap ? f.big(d.market_cap) : '—'}</td>
+      <td>${d.total_revenue ? f.big(d.total_revenue) : '—'}</td>
+      <td class="${niCls}">${d.net_income ? f.big(d.net_income) : '—'}</td>
+      <td>${d.profit_margins != null ? (d.profit_margins*100).toFixed(1)+'%' : '—'}</td>
+      <td class="${revGCls}">${revG != null ? (revG>=0?'+':'')+( revG*100).toFixed(1)+'%' : '—'}</td>
       <td>${d.pe_ratio    ? d.pe_ratio.toFixed(1)+'x'    : '—'}</td>
       <td>${d.forward_pe  ? d.forward_pe.toFixed(1)+'x'  : '—'}</td>
-      <td>${d.price_to_book ? d.price_to_book.toFixed(2)+'x' : '—'}</td>
-      <td>${d.peg_ratio   ? d.peg_ratio.toFixed(2)       : '—'}</td>
       <td>${d.eps         ? '$'+d.eps.toFixed(2)         : '—'}</td>
       <td>${d.beta        ? d.beta.toFixed(2)            : '—'}</td>
       <td class="${(d.dividend_yield||0)>0?'green':''}">${d.dividend_yield ? (d.dividend_yield*100).toFixed(2)+'%' : '—'}</td>
@@ -6443,6 +6507,32 @@ async function loadSPChart(symbol, period, btn) {
       }]},
       options: opts,
     });
+
+    // ── Volume mini-bar chart ──────────────────────────────────────────
+    const volCanvas = g('sp-vol-chart');
+    if (volCanvas) {
+      if (volCanvas._chart) { volCanvas._chart.destroy(); }
+      const vols = pts.map(p => p.v || 0);
+      if (vols.some(v => v > 0)) {
+        const volOpts = {
+          responsive: true, maintainAspectRatio: false, animation: false,
+          plugins: { legend: {display:false}, tooltip: {enabled:false} },
+          scales: {
+            x: { display: false },
+            y: { display: false, min: 0 },
+          },
+        };
+        volCanvas._chart = new Chart(volCanvas, {
+          type: 'bar',
+          data: { labels, datasets: [{
+            data: vols,
+            backgroundColor: pts.map((p,i) => i>0 && p.c >= pts[i-1].c ? 'rgba(52,211,153,.5)' : 'rgba(248,113,113,.5)'),
+            borderWidth: 0,
+          }]},
+          options: volOpts,
+        });
+      }
+    }
   } catch(e) { console.warn('SP chart error:', e); }
 }
 
@@ -6644,13 +6734,34 @@ function _spRenderAnalyst(d) {
     </div>`;
 }
 
-// Close on Escape
+// Close on Escape; "/" shortcut to focus search
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && g('stock-page')?.classList.contains('open')) closeStockPage();
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    const si = g('header-search-input') || g('sp-lookup-input');
+    if (si) { si.focus(); si.select(); }
+  }
 });
 
 // Init recents on load
 window.addEventListener('DOMContentLoaded', () => { setTimeout(_updateSpRecentUI, 500); });
+
+// Scroll-to-top button in stock page
+(function(){
+  const spBody = document.getElementById('sp-body');
+  if (!spBody) return;
+  const btn = document.createElement('button');
+  btn.id = 'sp-scroll-top';
+  btn.title = 'Back to top';
+  btn.innerHTML = '↑';
+  btn.style.cssText = 'display:none;position:fixed;bottom:24px;right:24px;z-index:450;width:38px;height:38px;border-radius:50%;background:var(--blue);color:#fff;border:none;font-size:1.1rem;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.4);transition:opacity .2s;';
+  btn.onclick = () => spBody.scrollTo({top:0, behavior:'smooth'});
+  document.body.appendChild(btn);
+  spBody.addEventListener('scroll', () => {
+    btn.style.display = spBody.scrollTop > 300 ? 'block' : 'none';
+  });
+})();
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  EMBEDDED POSITION SIZE CALCULATOR (live)
@@ -6787,6 +6898,9 @@ function calcPSC() {
           <div class="sp-chart-lh">
             <span id="sp-chart-low">—</span>
             <span id="sp-chart-high">—</span>
+          </div>
+          <div style="position:relative;height:40px;margin-top:4px;opacity:.7;">
+            <canvas id="sp-vol-chart"></canvas>
           </div>
         </div>
         <!-- Stats sidebar -->
