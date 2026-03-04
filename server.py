@@ -782,6 +782,78 @@ def get_stock_detail(symbol):
             return {"symbol": symbol, "error": str(e)}
     return _from_cache(key, fetch)
 
+def get_stock_financials(symbol):
+    """Fetch income statement, balance sheet, cashflow + analyst rating breakdown."""
+    symbol = symbol.strip().upper()
+    key = f"financials:{symbol}"
+    def fetch():
+        import math
+        print(f"  📊 Financials: {symbol}")
+        result = {"symbol": symbol, "income": [], "balance": [], "cashflow": [], "ratings": None}
+        def sv(df, metric, col):
+            try:
+                if metric in df.index:
+                    v = df.loc[metric, col]
+                    return float(v) if v is not None and not (isinstance(v, float) and math.isnan(v)) else None
+                return None
+            except: return None
+        try:
+            stock = yf.Ticker(symbol)
+            # ── Income Statement ──────────────────────────────────────────────
+            try:
+                fin = stock.financials
+                if fin is not None and not fin.empty:
+                    for col in list(fin.columns)[:4]:
+                        row = {"year": str(col.year)}
+                        for k, m in [("revenue","Total Revenue"),("gross_profit","Gross Profit"),
+                                     ("operating_income","Operating Income"),("net_income","Net Income"),
+                                     ("ebitda","EBITDA"),("eps","Basic EPS")]:
+                            row[k] = sv(fin, m, col)
+                        result["income"].append(row)
+            except Exception as e: print(f"  Income err {symbol}: {e}")
+            # ── Balance Sheet ─────────────────────────────────────────────────
+            try:
+                bs = stock.balance_sheet
+                if bs is not None and not bs.empty:
+                    for col in list(bs.columns)[:4]:
+                        row = {"year": str(col.year)}
+                        for k, m in [("total_assets","Total Assets"),("total_debt","Total Debt"),
+                                     ("cash","Cash And Cash Equivalents"),("equity","Stockholders Equity"),
+                                     ("current_assets","Current Assets"),("current_liabilities","Current Liabilities")]:
+                            row[k] = sv(bs, m, col)
+                        result["balance"].append(row)
+            except Exception as e: print(f"  Balance err {symbol}: {e}")
+            # ── Cash Flow ─────────────────────────────────────────────────────
+            try:
+                cf = stock.cashflow
+                if cf is not None and not cf.empty:
+                    for col in list(cf.columns)[:4]:
+                        row = {"year": str(col.year)}
+                        for k, m in [("operating_cf","Operating Cash Flow"),("investing_cf","Investing Cash Flow"),
+                                     ("financing_cf","Financing Cash Flow"),("free_cf","Free Cash Flow"),
+                                     ("capex","Capital Expenditure")]:
+                            row[k] = sv(cf, m, col)
+                        result["cashflow"].append(row)
+            except Exception as e: print(f"  Cashflow err {symbol}: {e}")
+            # ── Analyst Recommendations Breakdown ─────────────────────────────
+            try:
+                recs = stock.recommendations
+                if recs is not None and not recs.empty:
+                    latest = recs.iloc[-1]
+                    result["ratings"] = {
+                        "strongBuy":  int(latest.get("strongBuy",  0)),
+                        "buy":        int(latest.get("buy",        0)),
+                        "hold":       int(latest.get("hold",       0)),
+                        "sell":       int(latest.get("sell",       0)),
+                        "strongSell": int(latest.get("strongSell", 0)),
+                        "period":     str(recs.index[-1])[:10] if len(recs) > 0 else "",
+                    }
+            except Exception as e: print(f"  Ratings err {symbol}: {e}")
+        except Exception as e:
+            result["error"] = str(e)
+        return result
+    return _from_cache(key, fetch, ttl=43200)  # 12-hour cache
+
 def get_stock_history(symbol, period='1mo'):
     symbol = symbol.strip().upper()
     key    = f"hist:{symbol}:{period}"
@@ -1139,6 +1211,10 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
             elif path == "/api/news":
                 syms = [s for s in qs.get("symbols", [""])[0].split(",") if s.strip()]
                 self.send_json(get_news(syms))
+
+            elif path.startswith("/api/stock/financials/"):
+                sym = path.split("/api/stock/financials/", 1)[-1].strip()
+                self.send_json(get_stock_financials(sym))
 
             elif path.startswith("/api/stock/history/"):
                 parts  = path.split("/api/stock/history/", 1)[-1].split("/")
