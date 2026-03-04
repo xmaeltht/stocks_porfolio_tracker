@@ -775,6 +775,7 @@ def get_stock_detail(symbol):
                 "target_price": flt("targetMeanPrice"), "target_high": flt("targetHighPrice"),
                 "target_low": flt("targetLowPrice"), "recommendation": info.get("recommendationKey", ""),
                 "analyst_count": info.get("numberOfAnalystOpinions", 0),
+                "recommendation_mean": flt("recommendationMean"),
                 "shares_outstanding": flt("sharesOutstanding"), "float_shares": flt("floatShares"),
                 # ── Extra financial fields from info ──────────────────────────
                 "total_revenue":      flt("totalRevenue"),
