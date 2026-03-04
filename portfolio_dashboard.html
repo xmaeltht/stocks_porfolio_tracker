@@ -282,7 +282,7 @@ function _renderValuationTable() {
     const recLabel = d.recommendation ? d.recommendation.replace(/strong/i,'Strong ').trim() : '—';
     const recCls   = ['strongbuy','buy'].includes(recKey) ? 'rec-strongbuy' : ['sell','strongsell'].includes(recKey) ? 'rec-sell' : recKey==='hold' ? 'rec-hold' : 'rec-neutral';
     const chgCls   = (d.change||0) >= 0 ? 'green' : 'red';
-    return `<tr onclick="openDrawer('${holding.ticker}')">
+    return `<tr onclick="openStockPage('${holding.ticker}')">
       <td><div class="vt-ticker">${holding.ticker}</div><div class="vt-name">${(d.shortName||'').slice(0,22)}</div></td>
       <td><span class="${chgCls}">${d.price ? f.usd(d.price) : '—'}</span></td>
       <td>${d.market_cap ? f.big(d.market_cap) : '—'}</td>
@@ -331,8 +331,7 @@ function _renderAnalystConsensus() {
 
     const tgtUpside = (d.target_price && d.price) ? ((d.target_price - d.price)/d.price*100).toFixed(1) : null;
     const rcls = ['strongbuy','buy'].includes(recKey)?'rec-strongbuy':['sell','strongsell'].includes(recKey)?'rec-sell':recKey==='hold'?'rec-hold':'rec-neutral';
-    return `<div class="analyst-card" onclick="openDrawer('${ticker}')">
-      <div class="analyst-card-header">
+    return `<div class="analyst-card" onclick="openStockPage('${ticker}')">      <div class="analyst-card-header">
         <span class="ac-ticker">${ticker}</span>
         <span class="ac-name">${(d.shortName||'').slice(0,25)}</span>
         <span class="rec-badge ${rcls}" style="margin-left:6px">${recLabel}</span>
@@ -343,6 +342,408 @@ function _renderAnalystConsensus() {
     </div>`;
   });
   g('analyst-consensus-body').innerHTML = cards.join('') || '<div style="color:var(--muted);font-size:.82rem">No data available</div>';
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  STOCK LOOKUP in Analysis Tab
+// ═══════════════════════════════════════════════════════════════════════════
+let _spRecentTickers = JSON.parse(localStorage.getItem('sp_recent') || '[]');
+
+function _updateSpRecentUI() {
+  const el = g('sp-lookup-recents');
+  if (!el) return;
+  if (!_spRecentTickers.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<span style="font-size:.72rem;color:var(--muted);margin-right:4px">Recent:</span>' +
+    _spRecentTickers.slice(0,8).map(t =>
+      `<button class="sp-recent-btn" onclick="openStockPage('${t}')">${t}</button>`
+    ).join('');
+}
+
+async function spLookupInput(inp) {
+  const q = inp.value.trim();
+  const drop = g('sp-lookup-drop');
+  if (!q || q.length < 1) { drop.style.display = 'none'; return; }
+  try {
+    const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+    const results = await r.json();
+    if (!results.length) { drop.style.display = 'none'; return; }
+    drop.innerHTML = results.slice(0,8).map(s =>
+      `<div class="search-result" onclick="openStockPage('${s.symbol}');g('sp-lookup-drop').style.display='none';g('sp-lookup-input').value='${s.symbol}'">
+        <strong>${s.symbol}</strong> <span style="color:var(--muted)">${(s.shortname||s.longname||'').slice(0,35)}</span>
+      </div>`).join('');
+    drop.style.display = 'block';
+  } catch(e) { drop.style.display = 'none'; }
+}
+
+function spLookupGo() {
+  const v = (g('sp-lookup-input')?.value || '').trim().toUpperCase();
+  if (v) { g('sp-lookup-drop') && (g('sp-lookup-drop').style.display='none'); openStockPage(v); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  FULL-SCREEN STOCK PAGE
+// ═══════════════════════════════════════════════════════════════════════════
+let _spTicker = null, _spChart = null, _spData = null, _spFinData = null, _spActiveTab = 'overview';
+
+function openStockPage(ticker) {
+  ticker = ticker.trim().toUpperCase();
+  _spTicker = ticker;
+  _spActiveTab = 'overview';
+  _spFinData = null;
+
+  // Add to recents
+  _spRecentTickers = [ticker, ..._spRecentTickers.filter(t => t !== ticker)].slice(0,10);
+  try { localStorage.setItem('sp_recent', JSON.stringify(_spRecentTickers)); } catch(e){}
+  _updateSpRecentUI();
+
+  // Show page
+  const page = g('stock-page');
+  page.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Reset
+  g('sp-ticker').textContent = ticker;
+  g('sp-name').textContent = '—';
+  g('sp-tags-row').innerHTML = '';
+  g('sp-price').textContent = '—';
+  g('sp-chg').textContent = '—';
+  g('sp-stats-col').innerHTML = '';
+  g('sp-news-list').innerHTML = '<div style="color:var(--muted);font-size:.82rem">Loading…</div>';
+  g('sp-about').style.display = 'none';
+  g('sp-fin-income').innerHTML = '<div style="padding:20px;color:var(--muted);font-size:.82rem;text-align:center"><span class="spinner"></span> Loading financials…</div>';
+  g('sp-fin-balance').innerHTML = '';
+  g('sp-fin-cashflow').innerHTML = '';
+  g('sp-analyst-content').innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:20px">Loading analyst data…</div>';
+
+  // Reset tabs
+  document.querySelectorAll('.sp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sp-panel').forEach(p => p.classList.remove('active'));
+  const ot = g('spt-overview'); if (ot) ot.classList.add('active');
+  const op = g('spp-overview'); if (op) op.classList.add('active');
+
+  // Watchlist button
+  const wlBtn = g('sp-wl-btn');
+  if (wlBtn) {
+    const isWatched = _watchlist.some(w => w.ticker === ticker);
+    wlBtn.textContent = isWatched ? '👁 Watching' : '+ Watchlist';
+    wlBtn.onclick = () => {
+      if (_watchlist.some(w => w.ticker === ticker)) removeFromWatchlist(ticker);
+      else { addToWatchlistSilent(ticker); wlBtn.textContent = '👁 Watching'; }
+    };
+  }
+
+  // Fetch stock detail
+  fetch(`/api/stock/${ticker}`)
+    .then(r => r.json())
+    .then(d => { _spData = d; _spRenderOverview(d); loadSPChart(ticker, '1mo', null); })
+    .catch(() => { g('sp-stats-col').innerHTML = '<div style="color:var(--red);padding:20px">⚠️ Failed to load — is the server running?</div>'; });
+
+  // Preload financials in background
+  setTimeout(() => _spLoadFinancials(ticker), 800);
+}
+
+function closeStockPage() {
+  const page = g('stock-page');
+  page.classList.remove('open');
+  document.body.style.overflow = '';
+  if (_spChart) { _spChart.destroy(); _spChart = null; }
+}
+
+function switchSPTab(name) {
+  _spActiveTab = name;
+  document.querySelectorAll('.sp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sp-panel').forEach(p => p.classList.remove('active'));
+  const btn = g('spt-' + name); if (btn) btn.classList.add('active');
+  const panel = g('spp-' + name); if (panel) panel.classList.add('active');
+  if (name === 'financials' && _spTicker) _spLoadFinancials(_spTicker);
+  if (name === 'analyst' && _spData) _spRenderAnalyst(_spData);
+}
+
+function _spRenderOverview(d) {
+  // Header
+  g('sp-ticker').textContent = d.symbol || _spTicker;
+  g('sp-name').textContent   = d.longName || d.shortName || _spTicker;
+  const tags = [];
+  if (d.sector)   tags.push(`<span class="sp-tag sp-tag-sector">${d.sector}</span>`);
+  if (d.industry) tags.push(`<span class="sp-tag sp-tag-exch">${d.industry}</span>`);
+  if (d.exchange) tags.push(`<span class="sp-tag sp-tag-exch">${d.exchange}</span>`);
+  g('sp-tags-row').innerHTML = tags.join('');
+
+  if (d.price) {
+    const chgPct = d.change_pct || 0;
+    g('sp-price').textContent = f.usd(d.price);
+    g('sp-price').className = 'sp-price-val ' + cc(d.change);
+    g('sp-chg').textContent = `${d.change>=0?'+':''}${f.usd(d.change)} (${f.pct(chgPct)})`;
+    g('sp-chg').className = 'sp-price-chg ' + cc(d.change);
+  }
+
+  // Key stats grid
+  const stats = [
+    ['Market Cap',    d.market_cap    ? f.big(d.market_cap)                        : '—'],
+    ['P/E (TTM)',     d.pe_ratio      ? d.pe_ratio.toFixed(2)+'x'                  : '—'],
+    ['Forward P/E',  d.forward_pe    ? d.forward_pe.toFixed(2)+'x'                : '—'],
+    ['EPS (TTM)',     d.eps           ? '$'+d.eps.toFixed(3)                       : '—'],
+    ['52W High',      d.week52_high   ? f.usd(d.week52_high)                       : '—'],
+    ['52W Low',       d.week52_low    ? f.usd(d.week52_low)                        : '—'],
+    ['Volume',        d.volume        ? Number(d.volume).toLocaleString()           : '—'],
+    ['Avg Volume',    d.avg_volume    ? Number(d.avg_volume).toLocaleString()       : '—'],
+    ['P/B Ratio',     d.price_to_book ? d.price_to_book.toFixed(2)+'x'            : '—'],
+    ['PEG Ratio',     d.peg_ratio     ? d.peg_ratio.toFixed(2)                    : '—'],
+    ['Beta',          d.beta          ? d.beta.toFixed(2)                          : '—'],
+    ['Div Yield',     d.dividend_yield? (d.dividend_yield*100).toFixed(2)+'%'     : '—'],
+    ['50D MA',        d.day50_ma      ? f.usd(d.day50_ma)                         : '—'],
+    ['200D MA',       d.day200_ma     ? f.usd(d.day200_ma)                        : '—'],
+    ['Short %Float',  d.short_pct_float? (d.short_pct_float*100).toFixed(1)+'%'  : '—'],
+    ['Employees',     d.employees     ? Number(d.employees).toLocaleString()       : '—'],
+  ];
+  g('sp-stats-col').innerHTML = stats.map(([l,v]) =>
+    `<div class="sp-stat"><div class="sp-stat-label">${l}</div><div class="sp-stat-val">${v}</div></div>`
+  ).join('');
+
+  // Description
+  if (d.description) {
+    const aboutEl = g('sp-about');
+    aboutEl.style.display = '';
+    const descEl = g('sp-desc');
+    descEl.textContent = d.description;
+    descEl.onclick = () => descEl.classList.toggle('expanded');
+  }
+
+  // News
+  const newsItems = (d.news||[]).filter(n=>n.title);
+  g('sp-news-list').innerHTML = newsItems.length
+    ? newsItems.map(n => `
+      <a class="sp-news-item" href="${n.link||'#'}" target="_blank" rel="noopener">
+        <div class="sp-news-pub">${n.publisher||''}</div>
+        <div class="sp-news-title">${n.title}</div>
+        <div class="sp-news-time">${n.time ? f.ago(n.time) : 'Recently'}</div>
+      </a>`).join('')
+    : '<div style="color:var(--muted);font-size:.82rem">No recent news available</div>';
+}
+
+// ── Stock page chart ──────────────────────────────────────────────────────
+async function loadSPChart(symbol, period, btn) {
+  if (btn) {
+    btn.closest('.sp-chart-periods').querySelectorAll('.sp-cp').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const canvas = g('sp-chart');
+  if (!canvas) return;
+  if (_spChart) { _spChart.destroy(); _spChart = null; }
+
+  try {
+    const r = await fetch(`/api/stock/history/${symbol}/${period}`);
+    if (!r.ok) return;
+    const pts = await r.json();
+    if (!pts || pts.length < 5) return;
+
+    const labels = pts.map(p => {
+      const d = new Date(p.t);
+      if (period==='1d') return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+      return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    });
+    const prices = pts.map(p => p.c);
+    const first = prices[0], last = prices[prices.length-1];
+    const isUp = last >= first;
+    const lineCol  = isUp ? '#34d399' : '#f87171';
+    const fillCol  = isUp ? 'rgba(52,211,153,.08)' : 'rgba(248,113,113,.08)';
+
+    const opts = _chartDefaults();
+    opts.scales.x.ticks.maxTicksLimit = 8;
+    opts.plugins.tooltip.callbacks = {
+      label: c => ' $' + Number(c.parsed.y).toFixed(2)
+    };
+
+    const minP = Math.min(...prices), maxP = Math.max(...prices);
+    g('sp-chart-low').textContent  = 'Low: ' + f.usd(minP);
+    g('sp-chart-high').textContent = 'High: ' + f.usd(maxP);
+
+    _spChart = new Chart(canvas, {
+      type: 'line',
+      data: { labels, datasets: [{
+        data: prices, borderColor: lineCol, backgroundColor: fillCol,
+        fill: true, tension: 0.2, pointRadius: 0, borderWidth: 2
+      }]},
+      options: opts,
+    });
+  } catch(e) { console.warn('SP chart error:', e); }
+}
+
+// ── Financials ────────────────────────────────────────────────────────────
+async function _spLoadFinancials(ticker) {
+  if (_spFinData && _spFinData.symbol === ticker) {
+    _spRenderFinancials(_spFinData);
+    if (_spActiveTab === 'analyst' && _spData) _spRenderAnalyst(_spData);
+    return;
+  }
+  try {
+    const r = await fetch(`/api/stock/financials/${ticker}`);
+    _spFinData = await r.json();
+    _drawerFinCache[ticker] = _spFinData;
+    if (_spFinData.ratings) _cachedRatings[ticker] = _spFinData.ratings;
+    _spRenderFinancials(_spFinData);
+    if (_spActiveTab === 'analyst' && _spData) _spRenderAnalyst(_spData);
+  } catch(e) {
+    g('sp-fin-income').innerHTML = '<div style="color:var(--red);padding:20px">⚠️ Failed to load financials</div>';
+  }
+}
+
+function switchSPFinTab(name) {
+  document.querySelectorAll('.sp-fst').forEach(b => b.classList.remove('active'));
+  const btn = g('sp-fst-' + name); if (btn) btn.classList.add('active');
+  ['income','balance','cashflow'].forEach(t => {
+    const w = g('sp-fin-' + t);
+    if (w) w.style.display = t === name ? '' : 'none';
+  });
+}
+
+function _spFmtFin(v) {
+  if (v == null) return '<span style="color:var(--muted)">—</span>';
+  const abs = Math.abs(v);
+  let s = abs >= 1e9 ? '$'+(v/1e9).toFixed(2)+'B' : abs>=1e6 ? '$'+(v/1e6).toFixed(1)+'M' : '$'+v.toLocaleString(undefined,{maximumFractionDigits:0});
+  const cls = v < 0 ? 'sp-fin-neg' : 'sp-fin-pos';
+  return `<span class="${cls}">${s}</span>`;
+}
+
+function _spBuildTable(rows, metrics) {
+  if (!rows||!rows.length) return '<div style="padding:20px;color:var(--muted);font-size:.85rem">No financial data available for this stock</div>';
+  const years = rows.map(r=>r.year);
+  let h = '<table class="sp-fin-table"><thead><tr><th>Metric</th>' + years.map(y=>`<th>${y}</th>`).join('') + '</tr></thead><tbody>';
+  for (const [key,label] of metrics) {
+    h += `<tr><td>${label}</td>` + rows.map(r=>`<td>${_spFmtFin(r[key])}</td>`).join('') + '</tr>';
+  }
+  return h + '</tbody></table>';
+}
+
+function _spRenderFinancials(d) {
+  const iw = g('sp-fin-income'), bw = g('sp-fin-balance'), cw = g('sp-fin-cashflow');
+  if (!iw||!bw||!cw) return;
+  iw.innerHTML = _spBuildTable(d.income, [
+    ['revenue','Total Revenue'],['gross_profit','Gross Profit'],
+    ['operating_income','Operating Income'],['ebitda','EBITDA'],
+    ['net_income','Net Income'],['eps','EPS (Basic)'],
+  ]);
+  bw.innerHTML = _spBuildTable(d.balance, [
+    ['total_assets','Total Assets'],['total_debt','Total Debt'],
+    ['cash','Cash & Equivalents'],['equity','Stockholders Equity'],
+    ['current_assets','Current Assets'],['current_liabilities','Current Liabilities'],
+  ]);
+  cw.innerHTML = _spBuildTable(d.cashflow, [
+    ['operating_cf','Operating Cash Flow'],['investing_cf','Investing Cash Flow'],
+    ['financing_cf','Financing Cash Flow'],['free_cf','Free Cash Flow'],
+    ['capex','Capital Expenditure'],
+  ]);
+}
+
+// ── Analyst ───────────────────────────────────────────────────────────────
+function _spRenderAnalyst(d) {
+  const el = g('sp-analyst-content');
+  if (!el) return;
+  const recKey   = (d.recommendation||'').toLowerCase().replace(/ /g,'');
+  const recLabel = d.recommendation ? d.recommendation.replace(/strong/i,'Strong ').trim() : 'N/A';
+  const recColor = ['strongbuy','buy'].includes(recKey)?'#34d399':['sell','strongsell'].includes(recKey)?'#f87171':'#fbbf24';
+  const tgtLow  = d.target_low   ? f.usd(d.target_low)  : '—';
+  const tgtMean = d.target_price ? f.usd(d.target_price) : '—';
+  const tgtHigh = d.target_high  ? f.usd(d.target_high) : '—';
+  const upside  = (d.target_price && d.price) ? ((d.target_price-d.price)/d.price*100).toFixed(1) : null;
+  const ratings = _spFinData?.ratings || _cachedRatings[_spTicker];
+  const total   = ratings ? Object.values(ratings).filter(v=>typeof v==='number').reduce((a,b)=>a+b,0) : 0;
+
+  const ratingBars = ratings && total ? `
+    <div style="margin-top:12px">
+      ${[['strongBuy','Strong Buy','#10b981'],['buy','Buy','#6ee7b7'],['hold','Hold','#fbbf24'],['sell','Sell','#f87171'],['strongSell','Strong Sell','#ef4444']].map(([k,l,c])=>{
+        const pct = total ? Math.round((ratings[k]||0)/total*100) : 0;
+        return `<div class="abd-row"><div class="abd-label">${l}</div>
+          <div class="abd-bar"><div class="abd-fill" style="width:${pct}%;background:${c}"></div></div>
+          <div class="abd-count">${ratings[k]||0}</div></div>`;
+      }).join('')}
+    </div>` : (ratings === null ? '' : '<div style="color:var(--muted);font-size:.8rem;margin-top:8px">No analyst breakdown available</div>');
+
+  el.innerHTML = `
+    <div class="sp-a-card">
+      <div class="sp-a-title">Analyst Consensus</div>
+      <div class="sp-a-consensus-big" style="color:${recColor}">${recLabel}</div>
+      <div class="sp-a-cnt">${d.analyst_count ? d.analyst_count + ' analyst ratings' : 'Analyst consensus'}</div>
+      ${ratingBars}
+    </div>
+    <div class="sp-a-card">
+      <div class="sp-a-title">Price Targets</div>
+      <div class="sp-a-tgt-row">
+        <div class="sp-a-tgt"><div class="sp-a-tgt-label">Low</div><div class="sp-a-tgt-val">${tgtLow}</div></div>
+        <div class="sp-a-tgt"><div class="sp-a-tgt-label">Mean</div><div class="sp-a-tgt-val" style="color:var(--blue)">${tgtMean}</div></div>
+        <div class="sp-a-tgt"><div class="sp-a-tgt-label">High</div><div class="sp-a-tgt-val">${tgtHigh}</div></div>
+      </div>
+      ${upside ? `<div class="sp-upside" style="color:${parseFloat(upside)>=0?'var(--green)':'var(--red)'}">${parseFloat(upside)>=0?'▲':'▼'} ${Math.abs(upside)}% upside from current $${d.price?.toFixed(2)||'—'}</div>` : ''}
+      <div style="margin-top:16px">
+        <div class="sp-a-title">Quick Stats</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${[['P/E (TTM)', d.pe_ratio?d.pe_ratio.toFixed(2)+'x':'—'],
+             ['Fwd P/E',  d.forward_pe?d.forward_pe.toFixed(2)+'x':'—'],
+             ['EPS',      d.eps?'$'+d.eps.toFixed(2):'—'],
+             ['Beta',     d.beta?d.beta.toFixed(2):'—'],
+             ['Mkt Cap',  d.market_cap?f.big(d.market_cap):'—'],
+             ['Div Yield',d.dividend_yield?(d.dividend_yield*100).toFixed(2)+'%':'—']
+          ].map(([l,v])=>`<div class="sp-stat"><div class="sp-stat-label">${l}</div><div class="sp-stat-val">${v}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// Close on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && g('stock-page')?.classList.contains('open')) closeStockPage();
+});
+
+// Init recents on load
+window.addEventListener('DOMContentLoaded', () => { setTimeout(_updateSpRecentUI, 500); });
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EMBEDDED POSITION SIZE CALCULATOR (live)
+// ═══════════════════════════════════════════════════════════════════════════
+function calcPSC() {
+  const account = parseFloat(g('psc-account')?.value) || 0;
+  const risk    = parseFloat(g('psc-risk')?.value) || 2;
+  const entry   = parseFloat(g('psc-entry')?.value) || 0;
+  const stop    = parseFloat(g('psc-stop')?.value) || 0;
+  const target  = parseFloat(g('psc-target')?.value) || 0;
+  const res     = g('psc-results');
+  if (!res) return;
+
+  if (!entry || !stop || entry <= 0 || stop <= 0) {
+    res.innerHTML = '<div class="psc-placeholder">Enter entry and stop prices to see calculation</div>';
+    return;
+  }
+  if (stop >= entry) {
+    res.innerHTML = '<div class="psc-warn-msg">⚠ Entry price must be greater than stop loss price.</div>';
+    return;
+  }
+
+  const riskDollar   = account > 0 ? account * risk / 100 : 0;
+  const riskPerShare = entry - stop;
+  const shares       = riskDollar > 0 && riskPerShare > 0 ? Math.floor(riskDollar / riskPerShare) : 0;
+  const totalCost    = shares * entry;
+  const maxLoss      = shares * riskPerShare;
+  const potGain      = target > entry ? shares * (target - entry) : 0;
+  const rr           = potGain > 0 && maxLoss > 0 ? (potGain / maxLoss).toFixed(2) : null;
+  const pctOfAcct    = account > 0 && totalCost > 0 ? (totalCost / account * 100).toFixed(1) : null;
+  const $ = v => '$' + Number(v).toLocaleString('en-US',{maximumFractionDigits:0});
+
+  let html2 = `
+    <div class="psc-metric-row"><span class="psc-ml">Shares to Buy</span><span class="psc-mv" style="color:var(--blue)">${shares > 0 ? shares.toLocaleString() : '—'}</span></div>
+    <div class="psc-metric-row"><span class="psc-ml">Total Cost</span><span class="psc-mv">${totalCost > 0 ? $(totalCost) : '—'}</span></div>
+    <div class="psc-metric-row"><span class="psc-ml">Max Risk</span><span class="psc-mv" style="color:var(--red)">${maxLoss > 0 ? '-'+$(maxLoss) : '—'}</span></div>
+    <div class="psc-metric-row"><span class="psc-ml">Potential Gain</span><span class="psc-mv" style="color:var(--green)">${potGain > 0 ? '+'+$(potGain) : '—'}</span></div>`;
+  if (rr || pctOfAcct) {
+    html2 += `<div class="psc-rr-bar">`;
+    if (rr) html2 += `Risk/Reward <strong>1 : ${rr}</strong>&nbsp;&nbsp;`;
+    if (pctOfAcct) html2 += `Position <strong>${pctOfAcct}% of account</strong>`;
+    html2 += '</div>';
+  }
+  if (shares === 0 && riskDollar > 0) {
+    html2 += '<div class="psc-warn-msg">⚠ Risk amount is too small for even 1 share at this stop distance.</div>';
+  }
+  res.innerHTML = html2;
 }
 
 </script>
@@ -2150,16 +2551,33 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
 
   <!-- ═══ ANALYSIS TAB ═══ -->
   <div class="tab-pane" id="tab-analysis">
-    <!-- Toolbar -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-      <h2 style="margin:0;font-size:1.05rem;font-weight:700">Portfolio Analysis</h2>
-      <button class="btn btn-outline btn-sm" onclick="refreshAnalysisTab()" id="analysis-refresh-btn" style="font-size:.76rem">⟳ Refresh</button>
+
+    <!-- ── Stock Lookup Hero ─────────────────────────────────── -->
+    <div class="sp-lookup-hero">
+      <div class="sp-lookup-title">Analyze Any Stock</div>
+      <div class="sp-lookup-sub">Search any ticker for full financials, analyst ratings, price charts and more</div>
+      <div class="sp-lookup-row">
+        <div class="sp-lookup-wrap" id="sp-lookup-wrap">
+          <input id="sp-lookup-input" class="sp-lookup-input" type="text"
+            placeholder="e.g. AAPL, TSLA, NVDA…" autocomplete="off" spellcheck="false"
+            oninput="spLookupInput(this)"
+            onkeydown="if(event.key==='Enter')spLookupGo()"/>
+          <div class="search-drop" id="sp-lookup-drop" style="display:none"></div>
+        </div>
+        <button class="btn btn-primary" onclick="spLookupGo()" style="padding:10px 22px;font-size:.9rem;font-weight:700">Analyze →</button>
+      </div>
+      <div class="sp-lookup-recents" id="sp-lookup-recents"></div>
+    </div>
+
+    <!-- ── Portfolio toolbar ─────────────────────────────────── -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <div class="analysis-section-title" style="margin:0;border:none;padding:0;font-size:.72rem">Portfolio Holdings</div>
+      <button class="btn btn-outline btn-sm" onclick="refreshAnalysisTab()" id="analysis-refresh-btn" style="font-size:.74rem">⟳ Refresh</button>
       <span id="analysis-last-updated" style="font-size:.72rem;color:var(--muted);margin-left:auto"></span>
     </div>
 
     <!-- Valuation Table -->
     <div class="analysis-section">
-      <div class="analysis-section-title">Valuation Comparison</div>
       <div style="overflow-x:auto">
         <table class="valuation-table" id="valuation-table">
           <thead>
@@ -2189,6 +2607,38 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
       <div class="analysis-section-title">Analyst Consensus</div>
       <div id="analyst-consensus-body">
         <div style="color:var(--muted);font-size:.82rem">Loading…</div>
+      </div>
+    </div>
+
+    <!-- ── Position Size Calculator ──────────────────────────── -->
+    <div class="analysis-section">
+      <div class="analysis-section-title">📐 Position Size Calculator</div>
+      <div class="psc-card">
+        <div class="psc-inputs">
+          <div class="psc-field">
+            <label>Account Size ($)</label>
+            <input id="psc-account" type="number" placeholder="10000" min="1" oninput="calcPSC()"/>
+          </div>
+          <div class="psc-field">
+            <label>Risk per Trade: <strong id="psc-risk-label">2%</strong></label>
+            <input id="psc-risk" type="range" min="0.5" max="10" step="0.5" value="2" oninput="document.getElementById('psc-risk-label').textContent=this.value+'%';calcPSC()"/>
+          </div>
+          <div class="psc-field">
+            <label>Entry Price ($)</label>
+            <input id="psc-entry" type="number" placeholder="142.50" step="0.01" min="0" oninput="calcPSC()"/>
+          </div>
+          <div class="psc-field">
+            <label>Stop Loss ($)</label>
+            <input id="psc-stop" type="number" placeholder="135.00" step="0.01" min="0" oninput="calcPSC()"/>
+          </div>
+          <div class="psc-field">
+            <label>Target Price ($) <span style="opacity:.6;font-weight:400">(optional)</span></label>
+            <input id="psc-target" type="number" placeholder="158.00" step="0.01" min="0" oninput="calcPSC()"/>
+          </div>
+        </div>
+        <div class="psc-results" id="psc-results">
+          <div class="psc-placeholder">Fill in your trade details to calculate position size</div>
+        </div>
       </div>
     </div>
 
@@ -6009,6 +6459,91 @@ function _renderFSContent(mode) {
       <button class="btn btn-outline btn-sm" onclick="closePosSizer()">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="calcPositionSize()">Calculate</button>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FULL-SCREEN STOCK PAGE
+     ═══════════════════════════════════════════ -->
+<div id="stock-page">
+  <!-- Header -->
+  <div id="sp-header">
+    <button class="sp-back-btn" onclick="closeStockPage()">← Back</button>
+    <div id="sp-id">
+      <div class="sp-ticker-big" id="sp-ticker">—</div>
+      <div class="sp-name-text" id="sp-name">—</div>
+    </div>
+    <div id="sp-tags-row"></div>
+    <div class="sp-price-area">
+      <div class="sp-price-val" id="sp-price">—</div>
+      <div class="sp-price-chg" id="sp-chg">—</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-left:auto;">
+      <button id="sp-wl-btn" class="btn btn-outline btn-sm">+ Watchlist</button>
+      <button class="sp-close-btn" onclick="closeStockPage()">✕</button>
+    </div>
+  </div>
+  <!-- Tab nav -->
+  <div class="sp-tab-nav">
+    <button class="sp-tab active" id="spt-overview"   onclick="switchSPTab('overview')">Overview</button>
+    <button class="sp-tab"        id="spt-financials" onclick="switchSPTab('financials')">Financials</button>
+    <button class="sp-tab"        id="spt-analyst"    onclick="switchSPTab('analyst')">Analyst</button>
+  </div>
+  <!-- Body -->
+  <div id="sp-body">
+
+    <!-- OVERVIEW PANEL -->
+    <div class="sp-panel active" id="spp-overview">
+      <div id="sp-overview-grid">
+        <!-- Chart column -->
+        <div id="sp-chart-col">
+          <div class="sp-chart-periods" id="sp-periods">
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'1d',this)">1D</button>
+            <button class="sp-cp active" onclick="loadSPChart(_spTicker,'1mo',this)">1M</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'3mo',this)">3M</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'6mo',this)">6M</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'1y',this)">1Y</button>
+          </div>
+          <div class="sp-chart-wrap">
+            <canvas id="sp-chart"></canvas>
+          </div>
+          <div class="sp-chart-lh">
+            <span id="sp-chart-low">—</span>
+            <span id="sp-chart-high">—</span>
+          </div>
+        </div>
+        <!-- Stats sidebar -->
+        <div id="sp-stats-col" class="sp-stats-grid"></div>
+      </div>
+      <!-- Description -->
+      <div id="sp-about" style="display:none">
+        <div class="sp-section-title">About</div>
+        <div class="sp-desc-text" id="sp-desc"></div>
+      </div>
+      <!-- News -->
+      <div id="sp-news-section">
+        <div class="sp-section-title">Latest News</div>
+        <div id="sp-news-list"></div>
+      </div>
+    </div>
+
+    <!-- FINANCIALS PANEL -->
+    <div class="sp-panel" id="spp-financials">
+      <div class="sp-fin-subtabs">
+        <button class="sp-fst active" id="sp-fst-income"   onclick="switchSPFinTab('income')">Income Statement</button>
+        <button class="sp-fst"        id="sp-fst-balance"  onclick="switchSPFinTab('balance')">Balance Sheet</button>
+        <button class="sp-fst"        id="sp-fst-cashflow" onclick="switchSPFinTab('cashflow')">Cash Flow</button>
+      </div>
+      <div id="sp-fin-income"   class="sp-fin-wrap"></div>
+      <div id="sp-fin-balance"  class="sp-fin-wrap" style="display:none"></div>
+      <div id="sp-fin-cashflow" class="sp-fin-wrap" style="display:none"></div>
+    </div>
+
+    <!-- ANALYST PANEL -->
+    <div class="sp-panel" id="spp-analyst">
+      <div id="sp-analyst-content"></div>
+    </div>
+
   </div>
 </div>
 </body>
