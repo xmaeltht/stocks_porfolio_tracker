@@ -452,6 +452,168 @@ EARNINGS_WATCHLIST = [
     'AVGO','CRM','ORCL','SHOP','COIN','HOOD','PLTR','ARM','MU',
 ]
 
+# Default tickers to always include in dividend calendar
+# Covers: Dividend Aristocrats, REITs, Utilities, Financials, Consumer, Healthcare, Energy, Tech, Industrials
+DIVIDEND_WATCHLIST = [
+    # ── Dividend Aristocrats / Blue-chip payers ─────────────────────────
+    'JNJ','PG','KO','PEP','MCD','MMM','CAT','GE','ITW','EMR',
+    'ABT','ADP','AFL','ATO','BEN','BKH','CL','CLX','CVX','XOM',
+    'ECL','ED','ESS','FRT','GWW','HRL','IBM','CINF','KMB','LEG',
+    'LOW','MKC','NDSN','NUE','O','OHI','PH','PPG','SWK','SYY',
+    'TGT','VFC','WBA','WMT','XEL','WEC','UGI','T','VZ','TROW',
+    'NKE','EXPD','CHRW','CTAS','CBT','DOV','FDS','GPC','SPGI',
+    # ── Consumer Staples ────────────────────────────────────────────────
+    'COST','MDLZ','K','STZ','HSY','CPB','HRL','MO','PM','BTI',
+    'DEO','BUD','CHD','EL','ENR','CLX','SJM','CAG','TSN','HRL',
+    # ── Healthcare ──────────────────────────────────────────────────────
+    'ABBV','PFE','MRK','LLY','BMY','AMGN','GILD','CI','CVS',
+    'HUM','UNH','MCK','ABC','CAH','MDT','BSX','SYK','EW','BAX',
+    # ── Financials / Insurance ──────────────────────────────────────────
+    'JPM','BAC','WFC','C','GS','MS','USB','PNC','TFC','RF',
+    'CFG','HBAN','KEY','FITB','MTB','PRU','MET','AIG','ALL','CB',
+    'TRV','HIG','L','AFL','BLK','IVZ','FII','STT','BK','NTRS',
+    'V','MA','AXP','DFS','COF','SYF','NDAQ','ICE',
+    # ── Utilities ───────────────────────────────────────────────────────
+    'NEE','DUK','SO','D','AEP','EXC','SRE','PEG','ED','EIX',
+    'WEC','XEL','ES','DTE','ETR','FE','CNP','NI','OGE','POR',
+    'AWK','CMS','LNT','EVRG','ATO','NWE','MGE','MGEE',
+    # ── Energy ──────────────────────────────────────────────────────────
+    'XOM','CVX','COP','EOG','PSX','VLO','MPC','OXY','SLB','HAL',
+    'KMI','WMB','OKE','EPD','ET','MMP','MPLX','PAA','AM','TRGP',
+    'DVN','PXD','FANG','HES','BKR','NOV',
+    # ── Real Estate / REITs ─────────────────────────────────────────────
+    'O','SPG','PLD','AMT','EQIX','CCI','PSA','EQR','AVB','VTR',
+    'WELL','ARE','BXP','KIM','REG','FRT','NNN','STAG','TRNO','EGP',
+    'OHI','SBAC','DLR','IRM','COLD','CBRE','HST','RHP','EPR',
+    'MPW','VICI','GLPI','GTY','ADC','NETSTREIT','NTST',
+    # ── Technology (dividend payers) ────────────────────────────────────
+    'MSFT','AAPL','CSCO','TXN','QCOM','AVGO','IBM','HPQ','HPE',
+    'INTC','ADI','KLAC','LRCX','MCHP','SWKS','AMAT','PAYX','ADP',
+    'ORCL','ACN','CTSH','CDW','JNPR','NTAP','STX','WDC',
+    # ── Industrials ─────────────────────────────────────────────────────
+    'HON','RTX','LMT','GD','NOC','BA','DE','ETN','PH','ROK',
+    'EMR','IR','AME','XYL','OTIS','CARR','JCI','TT','TDY','HWM',
+    'GWW','MSC','FAST','GPC','CHRW','EXPD','UPS','FDX',
+    # ── Telecom ─────────────────────────────────────────────────────────
+    'T','VZ','TMUS','LUMN','UNIT','USM','SHEN','NRDS',
+    # ── Materials ───────────────────────────────────────────────────────
+    'LIN','APD','SHW','PPG','NUE','STLD','RS','VMC','MLM','FCX',
+    'IP','PKG','SEE','SON','AVY','IFF','EMN','CE','RPM','DOW',
+    'LYB','OLN','ASH','TREX','UFPI',
+    # ── Consumer Discretionary ──────────────────────────────────────────
+    'HD','LOW','MCD','SBUX','YUM','DRI','CMG','HBI','RL','PVH',
+    'VFC','TPR','TJX','ROST','M','KSS','BBY','WHR','LKQ',
+]
+
+# ── Dividend calendar ──────────────────────────────────────────────────────────
+def _fetch_one_dividend(sym):
+    """Fetch dividend info for a single ticker. Returns dict or None."""
+    try:
+        t    = yf.Ticker(sym)
+        info = t.info
+
+        div_rate  = float(info.get("dividendRate")  or 0)
+        div_yield = float(info.get("dividendYield") or 0)
+        last_div  = float(info.get("lastDividendValue") or 0)
+
+        # Skip non-payers
+        if div_rate <= 0 and last_div <= 0:
+            return None
+
+        # Ex-dividend date
+        ex_ts = info.get("exDividendDate")
+        ex_date_str = None
+        if ex_ts:
+            try:
+                if isinstance(ex_ts, (list, tuple)):
+                    ex_ts = ex_ts[0]
+                ex_date_str = datetime.utcfromtimestamp(float(ex_ts)).strftime("%Y-%m-%d")
+            except Exception:
+                pass
+
+        # Payment / last dividend date
+        pay_ts = info.get("lastDividendDate")
+        pay_date_str = None
+        if pay_ts:
+            try:
+                pay_date_str = datetime.utcfromtimestamp(float(pay_ts)).strftime("%Y-%m-%d")
+            except Exception:
+                pass
+
+        # Estimate quarterly dividend from annual rate
+        quarterly = round(last_div if last_div > 0 else div_rate / 4, 4)
+
+        # Frequency label
+        freq_map = {1: "Monthly", 2: "Semi-Annual", 4: "Quarterly", 12: "Monthly"}
+        trailing = float(info.get("trailingAnnualDividendRate") or 0)
+        freq_label = "Quarterly"  # default
+        if quarterly > 0 and trailing > 0:
+            approx = round(trailing / quarterly)
+            freq_label = freq_map.get(approx, "Quarterly")
+
+        return {
+            "ticker":       sym,
+            "name":         info.get("shortName", sym),
+            "sector":       info.get("sector", ""),
+            "ex_div_date":  ex_date_str,
+            "pay_date":     pay_date_str,
+            "div_rate":     round(div_rate,  4),
+            "div_yield":    round(div_yield, 6),
+            "last_div":     round(last_div,  4),
+            "quarterly":    quarterly,
+            "frequency":    freq_label,
+        }
+    except Exception as e:
+        print(f"  Dividend {sym}: {e}")
+    return None
+
+
+def get_dividend_calendar(portfolio_tickers, watchlist_tickers):
+    """Fetch ex-div calendar for portfolio + watchlist + default dividend payers."""
+    all_tickers = list(dict.fromkeys(
+        [t.upper() for t in portfolio_tickers if t.strip()] +
+        [t.upper() for t in watchlist_tickers if t.strip()] +
+        DIVIDEND_WATCHLIST
+    ))[:250]   # allow large market-wide list
+
+    key = "divCal:" + ",".join(sorted(all_tickers))
+
+    def fetch():
+        results = []
+        # Use more workers for the large list; each call is lightweight (info dict only)
+        workers = min(32, len(all_tickers))
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            for item in pool.map(_fetch_one_dividend, all_tickers):
+                if item:
+                    results.append(item)
+        print(f"  💰 Dividend calendar: {len(results)} payers found from {len(all_tickers)} tickers")
+        return results
+
+    raw = _from_cache(key, fetch, ttl=3600 * 6)
+
+    # Recompute days_away fresh every time so cached data stays accurate
+    today = datetime.now().date()
+    out   = []
+    for item in raw:
+        ex_str   = item.get("ex_div_date")
+        days_away = None
+        if ex_str:
+            try:
+                days_away = (datetime.strptime(ex_str, "%Y-%m-%d").date() - today).days
+            except Exception:
+                pass
+        out.append({**item, "days_away": days_away})
+
+    # Sort: upcoming → recent (past 30d) → no-date
+    upcoming = sorted(
+        [x for x in out if x["days_away"] is not None and -30 <= x["days_away"] <= 90],
+        key=lambda x: x["days_away"]
+    )
+    no_date = [x for x in out if x.get("days_away") is None or
+               x["days_away"] > 90 or x["days_away"] < -30]
+    return upcoming + no_date
+
+
 ADMIN_USER = "ismael"
 
 # Futures / overnight market symbols
@@ -1430,7 +1592,7 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
             elif path == "/api/dividends":
                 syms = [s for s in qs.get("symbols", [""])[0].split(",") if s.strip()]
                 result = []
-                for sym in syms[:30]:  # cap at 30
+                for sym in syms[:30]:
                     meta_key = f"meta:{sym.upper()}"
                     m = _cache.get(meta_key, {}).get("data") or {}
                     ex = m.get("exDividendDate", "")
@@ -1440,6 +1602,11 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                         result.append({"ticker": sym.upper(), "exDividendDate": ex,
                                        "dividendRate": rate, "dividendYield": yld})
                 self.send_json(result)
+
+            elif path == "/api/dividend-calendar":
+                port_tickers = [s for s in qs.get("portfolio", [""])[0].split(",") if s.strip()]
+                wl_tickers   = [s for s in qs.get("watchlist", [""])[0].split(",") if s.strip()]
+                self.send_json(get_dividend_calendar(port_tickers, wl_tickers))
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
