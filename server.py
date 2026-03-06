@@ -463,8 +463,8 @@ DIVIDEND_WATCHLIST = [
     'TGT','VFC','WBA','WMT','XEL','WEC','UGI','T','VZ','TROW',
     'NKE','EXPD','CHRW','CTAS','CBT','DOV','FDS','GPC','SPGI',
     # ── Consumer Staples ────────────────────────────────────────────────
-    'COST','MDLZ','K','STZ','HSY','CPB','HRL','MO','PM','BTI',
-    'DEO','BUD','CHD','EL','ENR','CLX','SJM','CAG','TSN','HRL',
+    'KHC','GIS','COST','MDLZ','K','STZ','HSY','CPB','HRL','MO','PM','BTI',
+    'DEO','BUD','CHD','EL','ENR','CLX','SJM','CAG','TSN','HRL','PPC','INGR',
     # ── Healthcare ──────────────────────────────────────────────────────
     'ABBV','PFE','MRK','LLY','BMY','AMGN','GILD','CI','CVS',
     'HUM','UNH','MCK','ABC','CAH','MDT','BSX','SYK','EW','BAX',
@@ -473,6 +473,11 @@ DIVIDEND_WATCHLIST = [
     'CFG','HBAN','KEY','FITB','MTB','PRU','MET','AIG','ALL','CB',
     'TRV','HIG','L','AFL','BLK','IVZ','FII','STT','BK','NTRS',
     'V','MA','AXP','DFS','COF','SYF','NDAQ','ICE',
+    # ── BDCs (Business Development Companies) — high-yield monthly/quarterly
+    'MAIN','ARCC','GBDC','OBDC','HTGC','FSCO','ORCC','BXSL','TPVG',
+    'GAIN','GLAD','GOODX','SLRC','OXSQ','PFLT','PNNT','TCPC',
+    # ── Mortgage REITs / mREITs ─────────────────────────────────────────
+    'NLY','AGNC','MFA','TWO','ARR','CIM','DX','EARN','NYMT','IVR',
     # ── Utilities ───────────────────────────────────────────────────────
     'NEE','DUK','SO','D','AEP','EXC','SRE','PEG','ED','EIX',
     'WEC','XEL','ES','DTE','ETR','FE','CNP','NI','OGE','POR',
@@ -485,7 +490,8 @@ DIVIDEND_WATCHLIST = [
     'O','SPG','PLD','AMT','EQIX','CCI','PSA','EQR','AVB','VTR',
     'WELL','ARE','BXP','KIM','REG','FRT','NNN','STAG','TRNO','EGP',
     'OHI','SBAC','DLR','IRM','COLD','CBRE','HST','RHP','EPR',
-    'MPW','VICI','GLPI','GTY','ADC','NETSTREIT','NTST',
+    'MPW','VICI','GLPI','GTY','ADC','NTST','WPC','NHI','IIPR',
+    'LAND','GOOD','PINE','BRSP','UNIT','DEA','GMRE',
     # ── Technology (dividend payers) ────────────────────────────────────
     'MSFT','AAPL','CSCO','TXN','QCOM','AVGO','IBM','HPQ','HPE',
     'INTC','ADI','KLAC','LRCX','MCHP','SWKS','AMAT','PAYX','ADP',
@@ -495,7 +501,12 @@ DIVIDEND_WATCHLIST = [
     'EMR','IR','AME','XYL','OTIS','CARR','JCI','TT','TDY','HWM',
     'GWW','MSC','FAST','GPC','CHRW','EXPD','UPS','FDX',
     # ── Telecom ─────────────────────────────────────────────────────────
-    'T','VZ','TMUS','LUMN','UNIT','USM','SHEN','NRDS',
+    'T','VZ','TMUS','LUMN','USM','SHEN',
+    # ── International / ADRs (major dividend payers) ────────────────────
+    'ENB','TRP','BCE','TD','RY','BNS','BMO','CM',   # Canada
+    'BP','SHEL','GSK','AZN','SNY','RHHBY',           # Europe
+    'RIO','BHP','VALE',                               # Mining
+    'MFC','SLF','POW',                                # Canadian financials
     # ── Materials ───────────────────────────────────────────────────────
     'LIN','APD','SHW','PPG','NUE','STLD','RS','VMC','MLM','FCX',
     'IP','PKG','SEE','SON','AVY','IFF','EMN','CE','RPM','DOW',
