@@ -707,6 +707,40 @@ tbody tr.clickable{cursor:pointer;}
 .chip-upcoming{background:#0d2244;color:var(--blue);border:1px solid var(--blue);}
 .chip-past{background:var(--border);color:var(--muted);}
 
+/* ── Dividend Calendar ─────────────────────────────────── */
+.div-cal-section{margin-bottom:22px;}
+.div-cal-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.div-cal-tab{font-size:.72rem;font-weight:700;padding:4px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;font-family:inherit;}
+.div-cal-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.div-cal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+.div-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;border-left:3px solid var(--border);cursor:pointer;transition:border-color .15s,transform .1s;}
+.div-card:hover{border-color:var(--blue);transform:translateY(-1px);}
+.div-card.holding{border-left-color:var(--green);}
+.div-card.watchlist{border-left-color:var(--blue);}
+.div-card.ex-today{border-left-color:var(--yellow);box-shadow:0 0 0 1px rgba(234,179,8,.25);}
+.div-card.ex-soon{border-left-color:var(--orange, #f97316);}
+.div-card.ex-past{opacity:.72;}
+.div-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+.div-card-ticker{font-size:.98rem;font-weight:800;color:var(--blue);font-family:monospace;}
+.div-card-badge{font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:10px;border:1px solid;}
+.dcb-today{background:rgba(234,179,8,.12);color:#f9c22e;border-color:#f9c22e;}
+.dcb-soon{background:rgba(249,115,22,.12);color:#f97316;border-color:#f97316;}
+.dcb-upcoming{background:#0d2244;color:var(--blue);border-color:var(--blue);}
+.dcb-past{background:var(--border);color:var(--muted);border-color:transparent;}
+.dcb-holding{background:rgba(34,197,94,.12);color:var(--green);border-color:var(--green);}
+.div-card-name{font-size:.68rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:7px;}
+.div-card-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px;}
+.div-card-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.div-card-val{font-size:.8rem;font-weight:700;}
+.div-card-divider{height:1px;background:var(--border);margin:7px 0;}
+.div-card-income{font-size:.7rem;color:var(--green);font-weight:700;margin-top:5px;}
+.div-card-freq{font-size:.62rem;color:var(--muted);margin-top:2px;}
+.div-empty{color:var(--muted);font-size:.82rem;text-align:center;padding:24px;grid-column:1/-1;}
+.div-cal-summary{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+.div-sum-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:7px 14px;display:flex;flex-direction:column;align-items:center;min-width:90px;}
+.div-sum-num{font-size:1.3rem;font-weight:800;}
+.div-sum-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;}
+
 /* ════════════════════════════════════════════════════════
    PRICE LADDER  —  entry / exit / stop-loss panel
    ════════════════════════════════════════════════════════ */
@@ -1802,12 +1836,12 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
       </table>
     </div>
 
-    <!-- DIVIDEND CALENDAR -->
-    <div id="div-cal-section" style="display:none;">
+    <!-- DIVIDEND CALENDAR (portfolio tab) -->
+    <div id="port-div-section" style="display:none;">
       <div class="section-bar" style="margin-bottom:10px;">
         <div class="section-title">💵 Upcoming Dividends</div>
       </div>
-      <div class="div-cal-grid" id="div-cal-grid"></div>
+      <div class="div-cal-grid" id="port-div-grid"></div>
     </div>
 
     <!-- NEWS -->
@@ -1921,6 +1955,21 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
     <div class="earnings-section" id="earnings-section">
       <div class="earnings-grid" id="earnings-grid">
         <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading earnings… <span class="spinner"></span></div>
+      </div>
+    </div>
+
+    <!-- DIVIDEND CALENDAR -->
+    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">💰 EX-DIVIDEND CALENDAR</div>
+    <div class="div-cal-section" id="div-cal-section">
+      <div class="div-cal-summary" id="div-cal-summary"></div>
+      <div class="div-cal-tabs">
+        <button class="div-cal-tab active" onclick="switchDivCalTab('upcoming')" id="dct-upcoming">Upcoming (30d)</button>
+        <button class="div-cal-tab" onclick="switchDivCalTab('thisweek')" id="dct-thisweek">This Week</button>
+        <button class="div-cal-tab" onclick="switchDivCalTab('recent')" id="dct-recent">Recent (past 30d)</button>
+        <button class="div-cal-tab" onclick="switchDivCalTab('all')" id="dct-all">All Payers</button>
+      </div>
+      <div class="div-cal-grid" id="div-cal-grid">
+        <div class="div-empty">Loading dividend calendar… <span class="spinner"></span></div>
       </div>
     </div>
 
@@ -3276,7 +3325,7 @@ async function refresh() {
   Object.assign(quotes, q);
   const rs = rows();
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart(); renderNews(n);
-  loadDividendCalendar(rs);
+  loadPortDividendCalendar(rs);
   renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
   g('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -3495,7 +3544,6 @@ document.addEventListener('keydown', e => {
 // ═══════════════════════════════════════════════
 //  STOCK DETAIL DRAWER
 // ═══════════════════════════════════════════════
-var _drawerTicker = null;
 function openDrawer(ticker) {
   _drawerTicker = ticker;
   if (!IS_SERVER) {
@@ -3882,6 +3930,7 @@ async function loadMarket(force=false) {
     if (IS_SERVER) loadEarningsCalendar(true);  // always force-refresh on market tab load
     if (IS_SERVER) loadFutures();
     if (IS_SERVER) loadExtendedHours();
+    if (IS_SERVER) loadDividendCalendar();
   } catch(e) { showToast('⚠️ Failed to load market data', 'error', 4000); }
 }
 
@@ -4418,12 +4467,11 @@ function renderPerfChart(data, spyPts) {
 let _watchlist = [];
 
 // ═══════════════════════════════════════════════
-//  DIVIDEND CALENDAR
+//  PORTFOLIO DIVIDEND WIDGET (portfolio tab only)
 // ═══════════════════════════════════════════════
-async function loadDividendCalendar(rs) {
-  const sec = g('div-cal-section'), grid = g('div-cal-grid');
+async function loadPortDividendCalendar(rs) {
+  const sec = g('port-div-section'), grid = g('port-div-grid');
   if (!sec || !grid || !IS_SERVER) return;
-  // rs = rows() from portfolio. Filter to holdings that pay dividends.
   const divHolders = rs.filter(r => r.dividendRate > 0 || r.exDividendDate);
   if (!divHolders.length) { sec.style.display = 'none'; return; }
 
@@ -5714,6 +5762,187 @@ function renderEarningsCalendar(items) {
       <div class="earnings-date ${dateColor}">📅 ${it.earnings_date}</div>
       ${epsStr ? `<div class="earnings-eps">${epsStr}</div>` : ''}
       ${it.sector ? `<div class="earnings-eps">${it.sector}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  DIVIDEND CALENDAR
+// ═══════════════════════════════════════════════
+let _divCalData    = [];
+let _divCalTab     = 'upcoming';   // upcoming | thisweek | recent | all
+let _divCalLoaded  = false;
+
+async function loadDividendCalendar(force=false) {
+  if (_divCalLoaded && !force) return;
+  _divCalLoaded = true;
+  const grid = g('div-cal-grid');
+  if (!grid || !IS_SERVER) return;
+  grid.innerHTML = '<div class="div-empty">Loading… <span class="spinner"></span></div>';
+
+  try {
+    const portTickers = portfolio.map(h => h.ticker).join(',');
+    // Pull watchlist tickers from the rendered watchlist items
+    const wlTickers = Array.from(document.querySelectorAll('[data-wl-ticker]'))
+                           .map(el => el.dataset.wlTicker).join(',');
+    const url = `/api/dividend-calendar?portfolio=${encodeURIComponent(portTickers)}&watchlist=${encodeURIComponent(wlTickers)}`;
+    const r   = await fetch(url);
+    if (!r.ok) throw new Error('fetch failed');
+    _divCalData = await r.json();
+    renderDividendCalendar();
+  } catch(e) {
+    if (grid) grid.innerHTML = '<div class="div-empty">Unable to load dividend data right now.</div>';
+  }
+}
+
+function switchDivCalTab(tab) {
+  _divCalTab = tab;
+  ['upcoming','thisweek','recent','all'].forEach(t => {
+    const el = g('dct-' + t);
+    if (el) el.classList.toggle('active', t === tab);
+  });
+  renderDividendCalendar();
+}
+
+function renderDividendCalendar() {
+  const grid    = g('div-cal-grid');
+  const summary = g('div-cal-summary');
+  if (!grid) return;
+
+  const todayMs = new Date(new Date().toISOString().slice(0,10) + 'T00:00:00').getTime();
+  const portSet = new Set(portfolio.map(h => h.ticker));
+  const wlSet   = new Set(
+    Array.from(document.querySelectorAll('[data-wl-ticker]')).map(el => el.dataset.wlTicker)
+  );
+
+  // Recompute days_away client-side for accuracy
+  const items = _divCalData.map(it => {
+    let daysAway = null;
+    if (it.ex_div_date) {
+      const exMs = new Date(it.ex_div_date + 'T00:00:00').getTime();
+      daysAway   = Math.round((exMs - todayMs) / 86400000);
+    }
+    return { ...it, days_away: daysAway };
+  });
+
+  // Summary chips
+  const exThisWeek  = items.filter(x => x.days_away !== null && x.days_away >= 0 && x.days_away <= 7);
+  const exThisMonth = items.filter(x => x.days_away !== null && x.days_away >= 0 && x.days_away <= 30);
+  const exToday     = items.filter(x => x.days_away === 0);
+  const portPayers  = items.filter(x => portSet.has(x.ticker) && x.div_rate > 0);
+  const annualIncome = portPayers.reduce((s, x) => {
+    const h = portfolio.find(p => p.ticker === x.ticker);
+    return s + (h ? (x.div_rate || 0) * h.shares : 0);
+  }, 0);
+
+  if (summary) {
+    summary.innerHTML = [
+      { num: exToday.length,     lbl: 'Ex-Div Today',  color: exToday.length ? '#f9c22e' : '' },
+      { num: exThisWeek.length,  lbl: 'This Week',      color: '' },
+      { num: exThisMonth.length, lbl: 'This Month',     color: '' },
+      { num: portPayers.length,  lbl: 'Portfolio Payers', color: 'var(--green)' },
+      annualIncome > 0
+        ? { num: '$' + (annualIncome >= 1000 ? (annualIncome/1000).toFixed(1)+'K' : annualIncome.toFixed(0)),
+            lbl: 'Est. Annual Income', color: 'var(--green)' }
+        : null,
+    ].filter(Boolean).map(c => `
+      <div class="div-sum-chip">
+        <div class="div-sum-num" style="color:${c.color || 'var(--text)'}">${c.num}</div>
+        <div class="div-sum-lbl">${c.lbl}</div>
+      </div>
+    `).join('');
+  }
+
+  // Filter by active tab
+  let filtered;
+  if (_divCalTab === 'upcoming')  filtered = items.filter(x => x.days_away !== null && x.days_away >= 0 && x.days_away <= 30).sort((a,b) => a.days_away - b.days_away);
+  else if (_divCalTab === 'thisweek') filtered = items.filter(x => x.days_away !== null && x.days_away >= 0 && x.days_away <= 7).sort((a,b) => a.days_away - b.days_away);
+  else if (_divCalTab === 'recent')   filtered = items.filter(x => x.days_away !== null && x.days_away >= -30 && x.days_away < 0).sort((a,b) => b.days_away - a.days_away);
+  else filtered = [...items].sort((a,b) => {
+    // All: sort portfolio+watchlist first, then by upcoming date
+    const aP = portSet.has(a.ticker) ? 0 : wlSet.has(a.ticker) ? 1 : 2;
+    const bP = portSet.has(b.ticker) ? 0 : wlSet.has(b.ticker) ? 1 : 2;
+    if (aP !== bP) return aP - bP;
+    const aD = a.days_away ?? 999;
+    const bD = b.days_away ?? 999;
+    return aD - bD;
+  });
+
+  if (!filtered.length) {
+    const msgs = {
+      upcoming:  'No ex-dividend dates in the next 30 days.',
+      thisweek:  'No ex-dividend dates this week.',
+      recent:    'No recent ex-dividend dates in the past 30 days.',
+      all:       'No dividend-paying stocks found.',
+    };
+    grid.innerHTML = `<div class="div-empty">${msgs[_divCalTab] || 'No data.'}</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(it => {
+    const d        = it.days_away;
+    const isToday  = d === 0;
+    const isPast   = d !== null && d < 0;
+    const isHolding = portSet.has(it.ticker);
+    const isWL      = wlSet.has(it.ticker);
+
+    // Card class
+    let cardCls = 'div-card';
+    if (isHolding) cardCls += ' holding';
+    else if (isWL) cardCls += ' watchlist';
+    if (isToday)   cardCls += ' ex-today';
+    else if (!isPast && d !== null && d <= 3) cardCls += ' ex-soon';
+    else if (isPast) cardCls += ' ex-past';
+
+    // Day chip
+    let badgeHtml = '';
+    if (isToday)          badgeHtml = '<span class="div-card-badge dcb-today">🔔 EX-DIV TODAY</span>';
+    else if (isPast && d !== null) badgeHtml = `<span class="div-card-badge dcb-past">${Math.abs(d)}d ago</span>`;
+    else if (d !== null && d <= 3) badgeHtml = `<span class="div-card-badge dcb-soon">In ${d}d</span>`;
+    else if (d !== null)           badgeHtml = `<span class="div-card-badge dcb-upcoming">In ${d}d</span>`;
+
+    // Holding badge
+    const holdBadge = isHolding
+      ? '<span class="div-card-badge dcb-holding" style="margin-left:4px">Portfolio</span>'
+      : isWL ? '<span class="div-card-badge dcb-upcoming" style="margin-left:4px">Watchlist</span>' : '';
+
+    // Annual income for holdings
+    let incomeHtml = '';
+    if (isHolding && it.div_rate > 0) {
+      const h = portfolio.find(p => p.ticker === it.ticker);
+      if (h && h.shares > 0) {
+        const annual = it.div_rate * h.shares;
+        const quarterly = it.quarterly * h.shares;
+        incomeHtml = `<div class="div-card-income">💵 ~$${annual.toFixed(2)}/yr · $${quarterly.toFixed(2)}/qtr</div>`;
+      }
+    }
+
+    const yieldPct  = it.div_yield ? (it.div_yield * 100).toFixed(2) + '%' : '—';
+    const quarterly = it.quarterly ? '$' + it.quarterly.toFixed(4) : '—';
+    const exDateFmt = it.ex_div_date ? new Date(it.ex_div_date + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    const payFmt    = it.pay_date    ? new Date(it.pay_date    + 'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+
+    return `
+    <div class="${cardCls}" onclick="openStockPage('${it.ticker}')">
+      <div class="div-card-header">
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+          <span class="div-card-ticker">${it.ticker}</span>
+          ${holdBadge}
+        </div>
+        ${badgeHtml}
+      </div>
+      <div class="div-card-name" title="${it.name}">${it.name}</div>
+      <div class="div-card-divider"></div>
+      <div class="div-card-row">
+        <div><div class="div-card-label">Ex-Div Date</div><div class="div-card-val" style="${isToday ? 'color:var(--yellow)' : ''}">${exDateFmt}</div></div>
+        <div><div class="div-card-label">Pay Date</div><div class="div-card-val" style="font-size:.73rem">${payFmt}</div></div>
+      </div>
+      <div class="div-card-row" style="margin-top:6px">
+        <div><div class="div-card-label">Div / Share</div><div class="div-card-val green">${quarterly}</div></div>
+        <div><div class="div-card-label">Annual Yield</div><div class="div-card-val green">${yieldPct}</div></div>
+      </div>
+      ${incomeHtml}
+      <div class="div-card-freq">${it.frequency || 'Quarterly'} · ${it.sector || ''}</div>
     </div>`;
   }).join('');
 }
