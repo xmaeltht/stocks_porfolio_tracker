@@ -452,6 +452,73 @@ EARNINGS_WATCHLIST = [
     'AVGO','CRM','ORCL','SHOP','COIN','HOOD','PLTR','ARM','MU',
 ]
 
+# ── Growth picks watchlist ────────────────────────────────────────────────────
+GROWTH_WATCHLIST = [
+    'NVDA','META','AMZN','GOOGL','MSFT','TSLA','AMD','AVGO','TSM','ASML',
+    'PLTR','COIN','RKLB','IONQ','SMCI','CRWD','NET','ZS','DDOG','SNOW',
+    'MDB','SHOP','MELI','SE','NU','SOFI','DUOL','CAVA','APP','AXON',
+    'ASTS','RCAT','SOUN','LUNR','HWM','GEV','VST','CEG','NRG','FTAI',
+]
+
+def _fetch_growth_one(sym):
+    try:
+        info = yf.Ticker(sym).info
+        cur  = info.get('currentPrice') or info.get('regularMarketPrice') or 0
+        tgt  = info.get('targetMeanPrice') or 0
+        if not cur or not tgt or tgt <= cur:
+            return None
+        upside = round((tgt / cur - 1) * 100, 1)
+        if upside < 25:
+            return None
+        return {
+            'ticker':     sym,
+            'name':       info.get('shortName', sym),
+            'current':    round(cur, 2),
+            'target':     round(tgt, 2),
+            'upside':     upside,
+            'sector':     info.get('sector', '—'),
+            'rev_growth': round((info.get('revenueGrowth') or 0) * 100, 1),
+            'fwd_pe':     round(info.get('forwardPE') or 0, 1),
+            'analysts':   info.get('numberOfAnalystOpinions') or 0,
+        }
+    except:
+        return None
+
+def get_growth_picks():
+    cached = _from_cache('growth_picks', lambda: None, 0)
+    if cached is not None:
+        return cached
+    with ThreadPoolExecutor(max_workers=16) as ex:
+        results = list(ex.map(_fetch_growth_one, GROWTH_WATCHLIST))
+    picks = sorted([r for r in results if r], key=lambda x: x['upside'], reverse=True)[:10]
+    _cache['growth_picks'] = {'ts': time.time(), 'data': picks, 'ttl': 21600}
+    return picks
+
+# ── Correlation matrix ────────────────────────────────────────────────────────
+def get_correlation_matrix(tickers):
+    if not tickers or len(tickers) < 2:
+        return {'error': 'Need at least 2 tickers'}
+    tickers = tickers[:15]  # cap at 15
+    key = 'corr_' + '_'.join(sorted(tickers))
+    cached = _from_cache(key, lambda: None, 0)
+    if cached is not None:
+        return cached
+    try:
+        raw = yf.download(tickers, period='3mo', progress=False, auto_adjust=True)
+        if raw.empty:
+            return {'error': 'No price data'}
+        closes = raw['Close'] if 'Close' in raw.columns else raw
+        if isinstance(closes, type(raw)) and hasattr(closes, 'columns'):
+            pass
+        else:
+            closes = raw['Close']
+        corr = closes.pct_change().corr().round(2)
+        result = {'tickers': list(corr.columns), 'matrix': corr.values.tolist()}
+        _cache[key] = {'ts': time.time(), 'data': result, 'ttl': 86400}
+        return result
+    except Exception as e:
+        return {'error': str(e)}
+
 # Default tickers to always include in dividend calendar
 # Covers: Dividend Aristocrats, REITs, Utilities, Financials, Consumer, Healthcare, Energy, Tech, Industrials
 DIVIDEND_WATCHLIST = [
@@ -1618,6 +1685,13 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                 port_tickers = [s for s in qs.get("portfolio", [""])[0].split(",") if s.strip()]
                 wl_tickers   = [s for s in qs.get("watchlist", [""])[0].split(",") if s.strip()]
                 self.send_json(get_dividend_calendar(port_tickers, wl_tickers))
+
+            elif path == "/api/correlation":
+                tickers = [s for s in qs.get("tickers", [""])[0].split(",") if s.strip()]
+                self.send_json(get_correlation_matrix(tickers))
+
+            elif path == "/api/growth-picks":
+                self.send_json(get_growth_picks())
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:

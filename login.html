@@ -4,6 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <title>maelkloud — Sign In</title>
+<link rel="icon" href="/icon.png" type="image/png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -14,10 +18,12 @@
 }
 html{min-height:100%;overflow-y:auto;}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
   background:var(--bg);color:var(--text);
   min-height:100vh;display:flex;flex-direction:column;
   align-items:center;overflow-x:hidden;overflow-y:auto;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
 /* ── Full-screen animated background ── */
@@ -66,13 +72,13 @@ body{
   box-shadow:0 0 0 1px rgba(79,142,255,.4),0 6px 28px rgba(79,142,255,.35);
 }
 .logo-icon svg{width:24px;height:24px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.logo-name{font-size:1.65rem;font-weight:800;letter-spacing:-.05em;}
+.logo-name{font-size:1.7rem;font-weight:800;letter-spacing:-.04em;}
 .logo-name span{color:var(--blue);}
 
 /* ── Tagline ── */
 .tagline{
-  font-size:1.05rem;color:var(--muted);margin-bottom:30px;
-  text-align:center;letter-spacing:.01em;
+  font-size:1rem;color:var(--muted);margin-bottom:30px;
+  text-align:center;letter-spacing:.01em;line-height:1.55;
 }
 .tagline strong{color:rgba(200,215,240,.7);font-weight:600;}
 
@@ -111,8 +117,8 @@ body{
 /* ── Form fields ── */
 .form-group{margin-bottom:16px;}
 .form-group label{
-  display:block;font-size:.7rem;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;
+  display:block;font-size:.72rem;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;
 }
 .input-wrap{position:relative;}
 .input-icon{
@@ -126,8 +132,8 @@ body{
   border:1px solid var(--border);
   border-radius:10px;
   color:var(--text);
-  padding:11px 38px;
-  font-size:.9rem;outline:none;
+  padding:12px 38px;
+  font-size:.95rem;outline:none;
   transition:border-color .2s,box-shadow .2s,background .2s;
   font-family:inherit;
 }
@@ -148,10 +154,10 @@ body{
 
 /* ── Submit ── */
 .btn{
-  width:100%;padding:13px;
+  width:100%;padding:14px;
   background:linear-gradient(135deg,var(--blue2) 0%,var(--blue) 100%);
   color:#fff;border:none;border-radius:10px;
-  font-size:.92rem;font-weight:700;cursor:pointer;
+  font-size:.95rem;font-weight:700;cursor:pointer;
   transition:all .2s;margin-top:8px;
   display:flex;align-items:center;justify-content:center;gap:8px;
   font-family:inherit;
