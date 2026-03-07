@@ -1764,29 +1764,36 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
 .sp-recent-btn{padding:3px 12px;border:1px solid rgba(124,92,252,.25);background:rgba(124,92,252,.1);color:var(--blue);border-radius:20px;font-size:.74rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font-body);}
 .sp-recent-btn:hover{background:rgba(124,92,252,.2);}
 /* ════ Heat Map ════ */
-.hm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:5px;margin-top:4px;}
-.hm-tile{border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;}
-.hm-tile:hover{transform:scale(1.04);box-shadow:0 6px 20px rgba(0,0,0,.5);z-index:2;}
-.hm-ticker{font-size:.85rem;font-weight:800;font-family:var(--font-data);letter-spacing:.02em;}
-.hm-change{font-size:1.1rem;font-weight:700;margin:5px 0 3px;font-family:var(--font-data);}
-.hm-value{font-size:.68rem;opacity:.6;}
-.hm-empty{color:var(--muted);font-size:.82rem;padding:20px 0;}
-/* colour bands */
-.hm-up5 {background:#064e3b;color:#34d399;}.hm-up3{background:#065f46;color:#6ee7b7;}
-.hm-up1 {background:#047857;color:#a7f3d0;}.hm-up {background:#059669;color:#d1fae5;}
-.hm-flat{background:#1e1e3a;color:#9ca3af;}
-.hm-dn  {background:#7f1d1d;color:#fca5a5;}.hm-dn1{background:#991b1b;color:#f87171;}
-.hm-dn3 {background:#7f1d1d;color:#ef4444;}.hm-dn5{background:#450a0a;color:#dc2626;}
+.hm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;margin-top:4px;}
+.hm-tile{border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s,filter .15s;position:relative;border:1px solid rgba(255,255,255,.06);}
+.hm-tile:hover{transform:scale(1.05);box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:2;filter:brightness(1.15);}
+.hm-ticker{font-size:.9rem;font-weight:800;font-family:var(--font-data);letter-spacing:.02em;}
+.hm-change{font-size:1.15rem;font-weight:900;margin:6px 0 4px;font-family:var(--font-data);letter-spacing:-.01em;}
+.hm-value{font-size:.66rem;opacity:.7;font-family:var(--font-body);}
+.hm-empty{color:var(--muted);font-size:.82rem;padding:28px 0;text-align:center;}
+/* colour bands — green spectrum */
+.hm-up5{background:linear-gradient(145deg,#064e3b,#065f46);color:#6ee7b7;border-color:rgba(52,211,153,.2);}
+.hm-up3{background:linear-gradient(145deg,#065f46,#047857);color:#a7f3d0;border-color:rgba(52,211,153,.18);}
+.hm-up1{background:linear-gradient(145deg,#047857,#059669);color:#d1fae5;border-color:rgba(52,211,153,.15);}
+.hm-up {background:linear-gradient(145deg,#059669,#10b981);color:#ecfdf5;border-color:rgba(52,211,153,.12);}
+/* neutral */
+.hm-flat{background:linear-gradient(145deg,#1e1e3a,#252542);color:#9ca3af;border-color:rgba(124,92,252,.1);}
+/* red spectrum */
+.hm-dn {background:linear-gradient(145deg,#7f1d1d,#991b1b);color:#fecaca;border-color:rgba(248,113,113,.15);}
+.hm-dn1{background:linear-gradient(145deg,#991b1b,#b91c1c);color:#fca5a5;border-color:rgba(248,113,113,.2);}
+.hm-dn3{background:linear-gradient(145deg,#7f1d1d,#6b1919);color:#f87171;border-color:rgba(248,113,113,.22);}
+.hm-dn5{background:linear-gradient(145deg,#450a0a,#7f1d1d);color:#ef4444;border-color:rgba(248,113,113,.28);}
 
 /* ════ What-If Simulator ════ */
-.whatif-row{display:grid;grid-template-columns:64px 1fr 80px 80px;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.whatif-row{display:grid;grid-template-columns:80px 1fr 90px 90px;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04);}
 .whatif-row:last-of-type{border-bottom:none;}
-.wi-ticker{font-size:.84rem;font-weight:800;font-family:var(--font-data);color:var(--blue);}
-.wi-slider-wrap{display:flex;flex-direction:column;gap:3px;}
-.wi-label{font-size:.68rem;color:var(--muted);text-align:center;}
-.wi-slider{width:100%;accent-color:var(--blue);cursor:pointer;}
-.wi-impact{font-size:.84rem;font-weight:700;font-family:var(--font-data);text-align:right;}
-.wi-pct{font-size:.78rem;font-weight:600;text-align:right;font-family:var(--font-data);}
+.wi-ticker{font-size:.86rem;font-weight:800;font-family:var(--font-data);color:var(--blue);cursor:pointer;line-height:1.2;}
+.wi-ticker:hover{color:#c4b5fd;}
+.wi-slider-wrap{display:flex;flex-direction:column;gap:4px;}
+.wi-label{font-size:.7rem;font-weight:600;color:var(--muted);text-align:center;font-family:var(--font-body);}
+.wi-slider{width:100%;accent-color:var(--purple);cursor:pointer;height:4px;}
+.wi-impact{font-size:.86rem;font-weight:800;font-family:var(--font-data);text-align:right;}
+.wi-pct{font-size:.72rem;font-weight:500;text-align:right;font-family:var(--font-data);color:var(--muted)!important;}
 .whatif-summary{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-top:16px;display:flex;justify-content:space-around;gap:16px;flex-wrap:wrap;}
 .whatif-sum-item{text-align:center;}
 .whatif-sum-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
@@ -4038,7 +4045,15 @@ function switchTab(name) {
   if (btn) btn.classList.add('active');
   if (name === 'market'   && IS_SERVER) loadMarket();
   if (name === 'journal'  && IS_SERVER) loadJournal();
-  if (name === 'analysis' && IS_SERVER) { loadAnalysisTab(); buildHeatMap(); buildWhatIf(); loadCorrelationMatrix(); loadGrowthPicks(); }
+  if (name === 'analysis' && IS_SERVER) {
+    loadAnalysisTab();
+    // If quotes haven't been loaded yet, refresh first then build widgets
+    if (portfolio.length > 0 && Object.keys(quotes).length === 0) {
+      refresh().then(() => { buildHeatMap(); buildWhatIf(); loadCorrelationMatrix(); loadGrowthPicks(); });
+    } else {
+      buildHeatMap(); buildWhatIf(); loadCorrelationMatrix(); loadGrowthPicks();
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -7262,17 +7277,22 @@ window.addEventListener('DOMContentLoaded', () => {
 function buildHeatMap() {
   const grid = g('hm-grid');
   if (!grid) return;
-  const holds = portfolio.filter(h => h.ticker && h.price > 0);
-  if (!holds.length) { grid.innerHTML = '<div class="hm-empty">Add stocks to your portfolio to see the heat map</div>'; return; }
+  // Use rows() so we get live price + change_pct from quotes
+  const all = rows();
+  const holds = all.filter(h => h.price > 0);
+  if (!holds.length) {
+    const noQuotes = all.length > 0;
+    grid.innerHTML = `<div class="hm-empty">${noQuotes ? '⏳ Waiting for price data… switch to Portfolio tab first to load quotes' : 'Add stocks to your portfolio to see the heat map'}</div>`;
+    return;
+  }
 
-  const totalVal = holds.reduce((s, h) => s + (h.price * h.shares), 0);
+  const totalVal = holds.reduce((s, h) => s + h.value, 0);
 
   // sort by market value descending so biggest positions come first
-  const sorted = [...holds].sort((a,b) => (b.price*b.shares) - (a.price*a.shares));
+  const sorted = [...holds].sort((a,b) => b.value - a.value);
 
   grid.innerHTML = sorted.map(h => {
     const pct  = h.change_pct || 0;
-    const val  = h.price * h.shares;
     const sign = pct >= 0 ? '+' : '';
     let cls = 'hm-flat';
     if      (pct >=  5) cls = 'hm-up5';
@@ -7283,11 +7303,11 @@ function buildHeatMap() {
     else if (pct <= -3) cls = 'hm-dn3';
     else if (pct <= -1) cls = 'hm-dn1';
     else if (pct <   0) cls = 'hm-dn';
-    const weight = Math.round(val / totalVal * 100);
-    return `<div class="hm-tile ${cls}" onclick="openStockPage('${h.ticker}')" title="${h.ticker} — ${sign}${pct.toFixed(2)}% · $${val.toLocaleString('en-US',{maximumFractionDigits:0})}">
+    const weight = totalVal > 0 ? Math.round(h.value / totalVal * 100) : 0;
+    return `<div class="hm-tile ${cls}" onclick="openStockPage('${h.ticker}')" title="${h.ticker} — ${sign}${pct.toFixed(2)}% · $${h.value.toLocaleString('en-US',{maximumFractionDigits:0})}">
       <div class="hm-ticker">${h.ticker}</div>
       <div class="hm-change">${sign}${pct.toFixed(2)}%</div>
-      <div class="hm-value">${weight}% of portfolio</div>
+      <div class="hm-value">${weight}% of port</div>
     </div>`;
   }).join('');
 }
@@ -7295,23 +7315,33 @@ function buildHeatMap() {
 // ═══════════════════════════════════════════════════════════════════════════
 //  2. WHAT-IF SIMULATOR
 // ═══════════════════════════════════════════════════════════════════════════
+// Cache of rows() snapshot used by What-If so updateWhatIf can reference live price data
+let _wiHolds = [];
+
 function buildWhatIf() {
   const wrap = g('whatif-rows');
   const summ = g('whatif-summary');
   if (!wrap) return;
-  const holds = portfolio.filter(h => h.ticker && h.price > 0);
-  if (!holds.length) { wrap.innerHTML = '<div style="color:var(--muted);font-size:.82rem">Add stocks to your portfolio to use the simulator</div>'; return; }
+  // Use rows() so we get live price + value from quotes
+  const all = rows();
+  _wiHolds = all.filter(h => h.price > 0);
+  if (!_wiHolds.length) {
+    const noQuotes = all.length > 0;
+    wrap.innerHTML = `<div style="color:var(--muted);font-size:.82rem;padding:8px 0">${noQuotes ? '⏳ Waiting for price data… switch to Portfolio tab first to load quotes' : 'Add stocks to your portfolio to use the simulator'}</div>`;
+    if (summ) summ.style.display = 'none';
+    return;
+  }
 
-  wrap.innerHTML = holds.map((h, i) => {
-    const val = h.price * h.shares;
+  wrap.innerHTML = _wiHolds.map((h, i) => {
+    const sign = h.change_pct >= 0 ? '+' : '';
     return `<div class="whatif-row">
-      <div class="wi-ticker" onclick="openStockPage('${h.ticker}')">${h.ticker}</div>
+      <div class="wi-ticker" onclick="openStockPage('${h.ticker}')" title="${h.name || h.ticker}">${h.ticker}<div style="font-size:.65rem;color:var(--muted);font-weight:400;font-family:var(--font-body)">${sign}${(h.change_pct||0).toFixed(2)}% today</div></div>
       <div class="wi-slider-wrap">
         <input type="range" class="wi-slider" id="wi-sl-${i}" min="-60" max="60" step="1" value="0" oninput="updateWhatIf(${i}, this.value)"/>
-        <div class="wi-label" id="wi-lbl-${i}">0%</div>
+        <div class="wi-label" id="wi-lbl-${i}">0% change</div>
       </div>
       <div class="wi-impact" id="wi-imp-${i}" style="color:var(--muted)">$0</div>
-      <div class="wi-pct" id="wi-pct-${i}" style="color:var(--muted)">0%</div>
+      <div class="wi-pct" id="wi-pct-${i}" style="color:var(--muted);font-size:.72rem">$${h.value.toLocaleString('en-US',{maximumFractionDigits:0})}</div>
     </div>`;
   }).join('');
 
@@ -7324,26 +7354,24 @@ function updateWhatIf(idx, val) {
   const imp = g(`wi-imp-${idx}`);
   const pct = g(`wi-pct-${idx}`);
   if (!lbl) return;
-  const h   = portfolio.filter(p => p.price > 0)[idx];
+  const h = _wiHolds[idx];
   if (!h) return;
-  const v   = parseFloat(val);
-  const impact = h.price * h.shares * v / 100;
-  lbl.textContent = (v >= 0 ? '+' : '') + v + '%';
+  const v      = parseFloat(val);
+  const impact = h.value * v / 100;
+  lbl.textContent = (v >= 0 ? '+' : '') + v + '% change';
   const color = v > 0 ? 'var(--green)' : v < 0 ? 'var(--red)' : 'var(--muted)';
   if (imp) { imp.style.color = color; imp.textContent = (impact >= 0 ? '+$' : '-$') + Math.abs(impact).toLocaleString('en-US',{maximumFractionDigits:0}); }
-  if (pct) { pct.style.color = color; pct.textContent = (v >= 0 ? '+' : '') + v + '%'; }
+  if (pct) { pct.style.color = 'var(--muted)'; pct.textContent = '$' + h.value.toLocaleString('en-US',{maximumFractionDigits:0}); }
   updateWhatIfSummary();
 }
 
 function updateWhatIfSummary() {
-  const holds = portfolio.filter(h => h.price > 0);
   let baseTotal = 0, newTotal = 0;
-  holds.forEach((h, i) => {
+  _wiHolds.forEach((h, i) => {
     const sl  = g(`wi-sl-${i}`);
     const pct = sl ? parseFloat(sl.value) / 100 : 0;
-    const val = h.price * h.shares;
-    baseTotal += val;
-    newTotal  += val * (1 + pct);
+    baseTotal += h.value;
+    newTotal  += h.value * (1 + pct);
   });
   const delta = newTotal - baseTotal;
   const deltaPct = baseTotal > 0 ? (delta / baseTotal * 100) : 0;
@@ -7413,22 +7441,36 @@ async function loadGrowthPicks(force=false) {
     const r = await fetch('/api/growth-picks');
     const picks = await r.json();
     if (!picks.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:.82rem">No growth picks available right now</div>'; return; }
-    grid.innerHTML = picks.map(p => `
+    grid.innerHTML = picks.map((p, rank) => {
+      const barW = Math.min(100, p.upside / 1.5); // 150% upside = full bar
+      const revColor = p.rev_growth > 0 ? 'var(--green)' : 'var(--red)';
+      const upsideColor = p.upside >= 100 ? 'var(--green)' : p.upside >= 50 ? '#34d399' : '#6ee7b7';
+      return `
       <div class="growth-card" onclick="openStockPage('${p.ticker}')">
         <div class="growth-top">
-          <div class="growth-ticker">${p.ticker}</div>
+          <div>
+            <div class="growth-ticker">${p.ticker}</div>
+            <div class="growth-name">${p.name}</div>
+          </div>
           <div class="growth-sector">${(p.sector||'').split(' ')[0]}</div>
         </div>
-        <div class="growth-name">${p.name}</div>
-        <div class="growth-upside">+${p.upside}%</div>
-        <div class="growth-upside-label">analyst upside to 1-yr target</div>
+        <div style="margin:14px 0 4px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+            <div class="growth-upside" style="color:${upsideColor}">+${p.upside}%</div>
+            <div class="growth-upside-label" style="font-size:.68rem;color:var(--muted)">analyst upside</div>
+          </div>
+          <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${barW}%;background:linear-gradient(90deg,#059669,#34d399);border-radius:3px;transition:width .8s ease"></div>
+          </div>
+        </div>
         <div class="growth-stats">
           <div><div class="growth-stat-label">Current</div><div class="growth-stat-val">$${p.current}</div></div>
-          <div><div class="growth-stat-label">Target</div><div class="growth-stat-val">$${p.target}</div></div>
-          <div><div class="growth-stat-label">Rev Growth</div><div class="growth-stat-val" style="color:${p.rev_growth>0?'var(--green)':'var(--red)'}">${p.rev_growth>0?'+':''}${p.rev_growth}%</div></div>
+          <div><div class="growth-stat-label">1yr Target</div><div class="growth-stat-val" style="color:var(--green)">$${p.target}</div></div>
+          <div><div class="growth-stat-label">Rev Growth</div><div class="growth-stat-val" style="color:${revColor}">${p.rev_growth>0?'+':''}${p.rev_growth}%</div></div>
           <div><div class="growth-stat-label">Fwd P/E</div><div class="growth-stat-val">${p.fwd_pe||'—'}</div></div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     grid.innerHTML += '<div class="growth-disclaimer" style="grid-column:1/-1">Based on analyst consensus 1-year price targets via Yahoo Finance. Past performance ≠ future results. Not financial advice.</div>';
     _growthLoaded = true;
   } catch(e) {
