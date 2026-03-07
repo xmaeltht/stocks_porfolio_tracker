@@ -11,6 +11,7 @@ Usage:
 
 import json, os, sys, time, threading, webbrowser
 import sqlite3, hashlib, secrets, resource
+import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
@@ -516,6 +517,328 @@ def get_correlation_matrix(tickers):
         result = {'tickers': list(corr.columns), 'matrix': corr.values.tolist()}
         _cache[key] = {'ts': time.time(), 'data': result, 'ttl': 86400}
         return result
+    except Exception as e:
+        return {'error': str(e)}
+
+# ── Entry Point Analyzer ──────────────────────────────────────────────────────
+def _calc_rsi(closes, period=14):
+    """Wilder's RSI."""
+    if len(closes) < period + 1:
+        return 50.0
+    deltas = [closes[i] - closes[i-1] for i in range(1, len(closes))]
+    gains = [d if d > 0 else 0 for d in deltas]
+    losses = [-d if d < 0 else 0 for d in deltas]
+    avg_gain = sum(gains[:period]) / period
+    avg_loss = sum(losses[:period]) / period
+    for i in range(period, len(gains)):
+        avg_gain = (avg_gain * (period - 1) + gains[i]) / period
+        avg_loss = (avg_loss * (period - 1) + losses[i]) / period
+    if avg_loss == 0:
+        return 100.0
+    rs = avg_gain / avg_loss
+    return round(100 - 100 / (1 + rs), 2)
+
+def _calc_sma(closes, period):
+    if len(closes) < period:
+        return None
+    return sum(closes[-period:]) / period
+
+def _calc_ema(closes, period):
+    if len(closes) < period:
+        return None
+    k = 2 / (period + 1)
+    ema = sum(closes[:period]) / period
+    for price in closes[period:]:
+        ema = price * k + ema * (1 - k)
+    return ema
+
+def _calc_bollinger(closes, period=20, std_mult=2):
+    if len(closes) < period:
+        return None, None, None
+    window = closes[-period:]
+    mid = sum(window) / period
+    variance = sum((p - mid) ** 2 for p in window) / period
+    std = math.sqrt(variance)
+    return mid - std_mult * std, mid, mid + std_mult * std
+
+def _find_pivot_levels(highs, lows, closes, window=5):
+    """Find pivot support/resistance levels from recent price history."""
+    levels = []
+    n = len(closes)
+    for i in range(window, n - window):
+        # Pivot low (support)
+        if lows[i] == min(lows[i-window:i+window+1]):
+            levels.append(('support', lows[i]))
+        # Pivot high (resistance)
+        if highs[i] == max(highs[i-window:i+window+1]):
+            levels.append(('resistance', highs[i]))
+    # Cluster nearby levels (within 1.5% of each other)
+    clustered = []
+    used = set()
+    price_ref = closes[-1]
+    for i, (kind, lvl) in enumerate(levels):
+        if i in used:
+            continue
+        group = [lvl]
+        for j, (k2, l2) in enumerate(levels):
+            if j != i and j not in used and abs(lvl - l2) / price_ref < 0.015:
+                group.append(l2)
+                used.add(j)
+        used.add(i)
+        clustered.append((kind, round(sum(group) / len(group), 2), len(group)))
+    # Sort by strength (hit count) and proximity to current price
+    clustered.sort(key=lambda x: (-x[2], abs(x[1] - price_ref)))
+    return clustered[:8]
+
+def _calc_fibonacci(closes, highs, lows, lookback=60):
+    """Fibonacci retracement of the most recent swing high→low."""
+    if len(closes) < lookback:
+        lookback = len(closes)
+    seg_highs = highs[-lookback:]
+    seg_lows  = lows[-lookback:]
+    swing_high = max(seg_highs)
+    swing_low  = min(seg_lows)
+    diff = swing_high - swing_low
+    if diff == 0:
+        return {}
+    return {
+        '23.6': round(swing_high - 0.236 * diff, 2),
+        '38.2': round(swing_high - 0.382 * diff, 2),
+        '50.0': round(swing_high - 0.500 * diff, 2),
+        '61.8': round(swing_high - 0.618 * diff, 2),
+        '78.6': round(swing_high - 0.786 * diff, 2),
+        'swing_high': round(swing_high, 2),
+        'swing_low':  round(swing_low, 2),
+    }
+
+def get_entry_analysis(ticker):
+    ticker = ticker.upper().strip()
+    cache_key = f'entry_{ticker}'
+    cached = _from_cache(cache_key, lambda: None, 0)
+    if cached is not None:
+        return cached
+
+    try:
+        t = yf.Ticker(ticker)
+        hist = t.history(period='6mo', interval='1d', auto_adjust=True)
+        if hist.empty or len(hist) < 30:
+            return {'error': f'Insufficient price history for {ticker}'}
+
+        closes  = hist['Close'].tolist()
+        highs   = hist['High'].tolist()
+        lows    = hist['Low'].tolist()
+        volumes = hist['Volume'].tolist()
+        price   = closes[-1]
+
+        # ── RSI ──────────────────────────────────────────────────────
+        rsi = _calc_rsi(closes, 14)
+        if   rsi < 25:  rsi_score = 28; rsi_signal = 'Extremely Oversold'
+        elif rsi < 32:  rsi_score = 22; rsi_signal = 'Oversold'
+        elif rsi < 45:  rsi_score = 15; rsi_signal = 'Mildly Oversold'
+        elif rsi < 55:  rsi_score = 8;  rsi_signal = 'Neutral'
+        elif rsi < 65:  rsi_score = 4;  rsi_signal = 'Slightly Extended'
+        elif rsi < 75:  rsi_score = 0;  rsi_signal = 'Overbought'
+        else:           rsi_score = -5; rsi_signal = 'Extremely Overbought'
+
+        # ── Moving Averages ───────────────────────────────────────────
+        sma20  = _calc_sma(closes, 20)
+        sma50  = _calc_sma(closes, 50)
+        sma200 = _calc_sma(closes, 200)
+
+        ma_score = 0
+        ma_signals = []
+        def _pct_from(ma):
+            return round((price / ma - 1) * 100, 2) if ma else None
+
+        pct20  = _pct_from(sma20)
+        pct50  = _pct_from(sma50)
+        pct200 = _pct_from(sma200)
+
+        if sma20 and abs(pct20) < 2:
+            ma_score += 8; ma_signals.append(f'At 20-day MA (${sma20:.2f})')
+        elif sma20 and -5 < pct20 < 0:
+            ma_score += 12; ma_signals.append(f'Just below 20-day MA — potential bounce (${sma20:.2f})')
+        if sma50 and abs(pct50) < 2:
+            ma_score += 12; ma_signals.append(f'At 50-day MA (${sma50:.2f}) — strong support')
+        elif sma50 and -5 < pct50 < 0:
+            ma_score += 15; ma_signals.append(f'Testing 50-day MA from below (${sma50:.2f})')
+        if sma200 and abs(pct200) < 3:
+            ma_score += 18; ma_signals.append(f'At 200-day MA (${sma200:.2f}) — major support')
+        elif sma200 and -6 < pct200 < 0:
+            ma_score += 15; ma_signals.append(f'Near 200-day MA (${sma200:.2f})')
+        # Golden/death cross context
+        if sma50 and sma200:
+            if sma50 > sma200:
+                ma_score += 5; ma_signals.append('Golden Cross active (50MA > 200MA — uptrend)')
+            else:
+                ma_score -= 5; ma_signals.append('Death Cross active (50MA < 200MA — downtrend)')
+        if not ma_signals:
+            ma_signals.append(f'Price extended from MAs (20MA: ${sma20:.2f}, 50MA: ${sma50:.2f})' if sma20 and sma50 else 'Insufficient MA data')
+
+        # ── Bollinger Bands ───────────────────────────────────────────
+        bb_lower, bb_mid, bb_upper = _calc_bollinger(closes, 20, 2)
+        bb_score = 0; bb_signal = 'No BB data'
+        if bb_lower and bb_upper:
+            bb_width = bb_upper - bb_lower
+            bb_pos   = (price - bb_lower) / bb_width if bb_width > 0 else 0.5
+            if   bb_pos <= 0.05: bb_score = 22; bb_signal = f'At/below lower band (${bb_lower:.2f}) — squeeze buy zone'
+            elif bb_pos <= 0.15: bb_score = 18; bb_signal = f'Near lower band (${bb_lower:.2f}) — strong mean-reversion setup'
+            elif bb_pos <= 0.30: bb_score = 12; bb_signal = f'Lower third of Bollinger Bands — favorable zone'
+            elif bb_pos <= 0.50: bb_score = 6;  bb_signal = f'Below midline (${bb_mid:.2f}) — neutral to slightly favorable'
+            elif bb_pos <= 0.70: bb_score = 2;  bb_signal = f'Above midline — wait for pullback'
+            elif bb_pos <= 0.90: bb_score = 0;  bb_signal = f'Approaching upper band (${bb_upper:.2f}) — extended'
+            else:                bb_score = -5; bb_signal = f'At/above upper band (${bb_upper:.2f}) — overbought'
+
+        # ── MACD ──────────────────────────────────────────────────────
+        macd_line = None; signal_line = None; macd_score = 0; macd_signal = 'Insufficient data'
+        if len(closes) >= 35:
+            ema12 = _calc_ema(closes, 12)
+            ema26 = _calc_ema(closes, 26)
+            if ema12 and ema26:
+                macd_line = ema12 - ema26
+                # build MACD history for signal line (EMA-9 of MACD)
+                macd_hist = []
+                for i in range(26, len(closes)):
+                    e12 = _calc_ema(closes[:i+1], 12)
+                    e26 = _calc_ema(closes[:i+1], 26)
+                    if e12 and e26:
+                        macd_hist.append(e12 - e26)
+                signal_line = _calc_ema(macd_hist, 9) if len(macd_hist) >= 9 else None
+                if signal_line:
+                    histogram = macd_line - signal_line
+                    if macd_line > signal_line:
+                        if histogram > 0 and len(macd_hist) >= 2 and (macd_hist[-1] - macd_hist[-2]) > 0:
+                            macd_score = 18; macd_signal = 'Bullish MACD crossover — momentum building'
+                        else:
+                            macd_score = 10; macd_signal = 'MACD above signal — bullish momentum'
+                    else:
+                        if abs(macd_line - signal_line) < abs(signal_line) * 0.05:
+                            macd_score = 8; macd_signal = 'MACD approaching crossover — watch for reversal'
+                        else:
+                            macd_score = 2; macd_signal = 'MACD below signal — bearish momentum'
+
+        # ── Support / Resistance + Fibonacci ──────────────────────────
+        pivot_levels = _find_pivot_levels(highs, lows, closes, window=5)
+        fib = _calc_fibonacci(closes, highs, lows, lookback=90)
+
+        # Find the nearest support level below current price
+        supports = [(kind, lvl, cnt) for kind, lvl, cnt in pivot_levels if kind == 'support' and lvl < price]
+        supports.sort(key=lambda x: price - x[1])  # closest first
+        nearest_support = supports[0][1] if supports else None
+        second_support  = supports[1][1] if len(supports) > 1 else None
+
+        # Find nearby Fibonacci levels acting as support
+        fib_supports = []
+        if fib:
+            for label, lvl in fib.items():
+                if label in ('swing_high', 'swing_low'):
+                    continue
+                if lvl < price and abs(price - lvl) / price < 0.08:
+                    fib_supports.append((label, lvl))
+        fib_supports.sort(key=lambda x: price - x[1])
+
+        sr_score = 0; sr_signals = []
+        if nearest_support:
+            pct_above = (price / nearest_support - 1) * 100
+            if pct_above < 1.5:
+                sr_score += 22; sr_signals.append(f'At pivot support ${nearest_support:.2f} — strong floor')
+            elif pct_above < 4:
+                sr_score += 15; sr_signals.append(f'Near pivot support ${nearest_support:.2f} ({pct_above:.1f}% above)')
+            elif pct_above < 8:
+                sr_score += 8;  sr_signals.append(f'Pivot support at ${nearest_support:.2f} ({pct_above:.1f}% below current)')
+            else:
+                sr_score += 3;  sr_signals.append(f'Nearest support: ${nearest_support:.2f} ({pct_above:.1f}% away)')
+        if fib_supports:
+            label, lvl = fib_supports[0]
+            pct = (price / lvl - 1) * 100
+            if pct < 2:
+                sr_score += 15; sr_signals.append(f'At Fibonacci {label}% retracement (${lvl:.2f})')
+            elif pct < 5:
+                sr_score += 10; sr_signals.append(f'Near Fibonacci {label}% retracement (${lvl:.2f})')
+        if not sr_signals:
+            sr_signals.append('No nearby support levels — price may be in a gap')
+
+        # ── Volume ────────────────────────────────────────────────────
+        vol_score = 0; vol_signal = 'Normal volume'
+        avg_vol = sum(volumes[-20:]) / min(20, len(volumes))
+        recent_vol = sum(volumes[-3:]) / 3 if len(volumes) >= 3 else volumes[-1]
+        last3_closes = closes[-3:]
+        is_accumulating = all(last3_closes[i] >= last3_closes[i-1] for i in range(1, len(last3_closes)))
+        is_distributing  = all(last3_closes[i] <= last3_closes[i-1] for i in range(1, len(last3_closes)))
+        vol_ratio = recent_vol / avg_vol if avg_vol > 0 else 1
+        if vol_ratio > 1.5 and is_accumulating:
+            vol_score = 12; vol_signal = f'High volume on up-moves ({vol_ratio:.1f}x avg) — institutional accumulation'
+        elif vol_ratio > 1.5 and is_distributing:
+            vol_score = -3; vol_signal = f'High volume on down-moves ({vol_ratio:.1f}x avg) — distribution'
+        elif vol_ratio < 0.6:
+            vol_score = 5;  vol_signal = f'Low volume pullback ({vol_ratio:.1f}x avg) — healthy consolidation'
+        else:
+            vol_score = 4;  vol_signal = f'Volume near average ({vol_ratio:.1f}x) — no strong signal'
+
+        # ── Composite Score ───────────────────────────────────────────
+        total_score = rsi_score + min(ma_score, 25) + bb_score + macd_score + min(sr_score, 25) + vol_score
+        total_score = max(0, min(100, total_score))
+
+        if   total_score >= 75: grade = 'A';  recommendation = 'Strong Entry Zone'
+        elif total_score >= 58: grade = 'B';  recommendation = 'Good Entry Zone'
+        elif total_score >= 42: grade = 'C';  recommendation = 'Moderate Setup'
+        elif total_score >= 25: grade = 'D';  recommendation = 'Wait for Better Setup'
+        else:                   grade = 'F';  recommendation = 'Avoid / Extended'
+
+        # ── Entry Zone & Targets ──────────────────────────────────────
+        # Entry zone: current price down to nearest support (or -2% if no support close)
+        entry_low  = nearest_support if nearest_support and (price - nearest_support) / price < 0.06 else round(price * 0.97, 2)
+        entry_high = round(price * 1.005, 2)  # within 0.5% of current
+        # Stop loss: below nearest support with a 1.5% buffer, or -6%
+        stop_loss = round((nearest_support * 0.985) if nearest_support else price * 0.94, 2)
+        risk_pct  = round((price - stop_loss) / price * 100, 2)
+        # Targets from Fibonacci swing_high or resistance
+        resistances = [(kind, lvl, cnt) for kind, lvl, cnt in pivot_levels if kind == 'resistance' and lvl > price]
+        resistances.sort(key=lambda x: x[1])
+        tgt1 = resistances[0][1] if resistances else round(price * 1.08, 2)
+        tgt2 = resistances[1][1] if len(resistances) > 1 else round(price * 1.15, 2)
+        tgt3 = fib.get('swing_high') if fib and fib.get('swing_high', 0) > tgt2 else round(price * 1.25, 2)
+
+        reward1 = round((tgt1 / price - 1) * 100, 2)
+        rr1     = round(reward1 / risk_pct, 2) if risk_pct > 0 else 0
+
+        result = {
+            'ticker': ticker,
+            'price': round(price, 2),
+            'score': total_score,
+            'grade': grade,
+            'recommendation': recommendation,
+            'entry_zone': {'low': entry_low, 'high': entry_high},
+            'stop_loss': stop_loss,
+            'risk_pct': risk_pct,
+            'targets': [
+                {'price': round(tgt1, 2), 'upside': reward1, 'label': 'Target 1 (Nearest resistance)'},
+                {'price': round(tgt2, 2), 'upside': round((tgt2/price-1)*100, 2), 'label': 'Target 2'},
+                {'price': round(tgt3, 2), 'upside': round((tgt3/price-1)*100, 2), 'label': 'Target 3 (Full swing)'},
+            ],
+            'rr_ratio': rr1,
+            'signals': {
+                'rsi':     {'score': rsi_score,  'value': rsi,   'signal': rsi_signal,  'label': 'RSI (14)'},
+                'ma':      {'score': min(ma_score,25), 'signal': '; '.join(ma_signals[:2]), 'label': 'Moving Averages',
+                            'values': {'sma20': round(sma20,2) if sma20 else None,
+                                       'sma50': round(sma50,2) if sma50 else None,
+                                       'sma200': round(sma200,2) if sma200 else None}},
+                'bb':      {'score': bb_score,   'signal': bb_signal, 'label': 'Bollinger Bands',
+                            'values': {'lower': round(bb_lower,2) if bb_lower else None,
+                                       'mid':   round(bb_mid,2) if bb_mid else None,
+                                       'upper': round(bb_upper,2) if bb_upper else None}},
+                'macd':    {'score': macd_score,  'signal': macd_signal, 'label': 'MACD'},
+                'sr':      {'score': min(sr_score,25), 'signal': '; '.join(sr_signals[:2]), 'label': 'Support & Fibonacci',
+                            'levels': [{'type': k, 'price': l} for k, l, _ in (supports[:3] if supports else [])]},
+                'volume':  {'score': vol_score,  'signal': vol_signal, 'label': 'Volume Analysis'},
+            },
+            'fibonacci': fib,
+            'pivot_levels': [{'type': k, 'price': l, 'strength': c} for k, l, c in pivot_levels[:6]],
+        }
+
+        _cache[cache_key] = {'ts': time.time(), 'data': result, 'ttl': 1800}  # 30 min cache
+        return result
+
     except Exception as e:
         return {'error': str(e)}
 
@@ -1692,6 +2015,13 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
 
             elif path == "/api/growth-picks":
                 self.send_json(get_growth_picks())
+
+            elif path == "/api/entry-analysis":
+                sym = qs.get("ticker", [""])[0].strip().upper()
+                if not sym:
+                    self.send_error(400)
+                else:
+                    self.send_json(get_entry_analysis(sym))
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
