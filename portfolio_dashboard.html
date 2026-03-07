@@ -1808,6 +1808,93 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
 .corr-table td{font-size:.78rem;font-weight:600;padding:8px 10px;text-align:center;font-family:var(--font-data);border:1px solid rgba(255,255,255,.04);transition:background .15s;}
 .corr-table td:first-child{font-weight:800;color:var(--blue);text-align:left;white-space:nowrap;}
 
+/* ════ Entry Point Analyzer ════ */
+.ea-search-row{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.ea-input-wrap{flex:1;min-width:200px;position:relative;display:flex;align-items:center;}
+.ea-search-icon{position:absolute;left:12px;font-size:.9rem;pointer-events:none;}
+.ea-input{width:100%;background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.28);border-radius:10px;
+  color:#f0f0ff;font-family:var(--font-data);font-size:1rem;font-weight:700;padding:10px 14px 10px 36px;
+  transition:border-color .15s,box-shadow .15s;letter-spacing:.02em;}
+.ea-input:focus{border-color:rgba(124,92,252,.65);box-shadow:0 0 0 3px rgba(124,92,252,.15);outline:none;}
+.ea-input::placeholder{color:rgba(107,107,154,.5);font-weight:400;letter-spacing:0;}
+.ea-btn{flex-shrink:0;padding:10px 22px!important;font-size:.88rem!important;font-weight:700!important;}
+.ea-chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.ea-chip{padding:3px 11px;border:1px solid rgba(124,92,252,.28);background:rgba(124,92,252,.08);
+  color:var(--blue);border-radius:20px;font-size:.72rem;font-weight:700;cursor:pointer;
+  transition:all .15s;font-family:var(--font-data);}
+.ea-chip:hover{background:rgba(124,92,252,.2);border-color:rgba(124,92,252,.5);}
+/* Score header */
+.ea-header{display:flex;gap:20px;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;}
+.ea-score-ring{position:relative;width:88px;height:88px;flex-shrink:0;}
+.ea-ring-svg{width:100%;height:100%;transform:rotate(-90deg);}
+.ea-ring-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:7;}
+.ea-ring-fill{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:201;stroke-dashoffset:201;transition:stroke-dashoffset 1s ease,stroke .5s;}
+.ea-score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ea-score-num{font-size:1.5rem;font-weight:900;font-family:var(--font-data);line-height:1;}
+.ea-score-grade{font-size:.72rem;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-top:1px;}
+.ea-header-info{flex:1;min-width:140px;}
+.ea-ticker-display{font-size:1.6rem;font-weight:900;font-family:var(--font-data);color:#f0f0ff;line-height:1;margin-bottom:6px;}
+.ea-rec-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.74rem;font-weight:700;margin-bottom:8px;}
+.ea-rec-A{background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3);}
+.ea-rec-B{background:rgba(52,211,153,.1);color:#6ee7b7;border:1px solid rgba(52,211,153,.2);}
+.ea-rec-C{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);}
+.ea-rec-D{background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.25);}
+.ea-rec-F{background:rgba(248,113,113,.15);color:#ef4444;border:1px solid rgba(248,113,113,.3);}
+.ea-price-row{display:flex;align-items:baseline;gap:7px;}
+.ea-price-label{font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.ea-price-val{font-size:1.1rem;font-weight:800;font-family:var(--font-data);color:#f0f0ff;}
+/* Entry zones */
+.ea-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:600px){.ea-zones{grid-template-columns:1fr;}}
+.ea-zone-card{border-radius:12px;padding:14px 16px;border:1px solid rgba(255,255,255,.06);}
+.ea-zone-entry{background:linear-gradient(135deg,rgba(52,211,153,.12),rgba(52,211,153,.06));border-color:rgba(52,211,153,.2);}
+.ea-zone-stop {background:linear-gradient(135deg,rgba(248,113,113,.1),rgba(248,113,113,.05));border-color:rgba(248,113,113,.2);}
+.ea-zone-target{background:linear-gradient(135deg,rgba(124,92,252,.12),rgba(124,92,252,.06));border-color:rgba(124,92,252,.2);}
+.ea-zone-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px;}
+.ea-zone-range{font-size:1.1rem;font-weight:900;font-family:var(--font-data);line-height:1.2;margin-bottom:4px;}
+.ea-zone-entry .ea-zone-range{color:#34d399;}
+.ea-zone-stop .ea-zone-range{color:#f87171;}
+.ea-zone-target .ea-zone-range{color:#c4b5fd;}
+.ea-zone-sub{font-size:.7rem;color:var(--muted);}
+.ea-targets-list{font-size:.82rem;font-family:var(--font-data);font-weight:700;}
+/* Signal breakdown */
+.ea-signals-title{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+.ea-signals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:16px;}
+.ea-signal-card{background:rgba(124,92,252,.05);border:1px solid rgba(124,92,252,.12);border-radius:11px;padding:13px 15px;}
+.ea-sig-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.ea-sig-label{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.ea-sig-score{font-size:.78rem;font-weight:800;font-family:var(--font-data);padding:2px 8px;border-radius:8px;}
+.ea-sig-score.pos{background:rgba(52,211,153,.15);color:#34d399;}
+.ea-sig-score.mid{background:rgba(251,191,36,.12);color:#fbbf24;}
+.ea-sig-score.neg{background:rgba(248,113,113,.12);color:#f87171;}
+.ea-sig-bar-track{height:4px;background:rgba(255,255,255,.08);border-radius:2px;margin-bottom:7px;overflow:hidden;}
+.ea-sig-bar-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+.ea-sig-text{font-size:.76rem;color:var(--text);line-height:1.4;}
+.ea-sig-value{font-size:.72rem;color:var(--muted);margin-top:3px;font-family:var(--font-data);}
+/* Levels table */
+.ea-levels-wrap{margin-bottom:16px;}
+.ea-levels-toggle{font-size:.74rem;color:var(--blue);cursor:pointer;margin-bottom:8px;display:inline-flex;align-items:center;gap:4px;transition:opacity .15s;}
+.ea-levels-toggle:hover{opacity:.75;}
+.ea-levels-table{width:100%;border-collapse:collapse;font-size:.78rem;display:none;}
+.ea-levels-table.open{display:table;}
+.ea-levels-table th{font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:6px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,.06);}
+.ea-levels-table td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.03);font-family:var(--font-data);}
+.ea-disclaimer{font-size:.68rem;color:var(--muted);padding:10px 14px;background:rgba(255,255,255,.02);border-radius:8px;border-left:2px solid rgba(124,92,252,.2);line-height:1.5;}
+/* Stock page entry panel */
+.sp-entry-score-bar{display:flex;gap:16px;align-items:center;padding:18px;background:rgba(124,92,252,.06);border-radius:12px;border:1px solid rgba(124,92,252,.14);margin-bottom:18px;}
+.sp-entry-grade{font-size:2.4rem;font-weight:900;font-family:var(--font-data);width:56px;text-align:center;}
+.sp-entry-info{flex:1;}
+.sp-entry-rec{font-size:.9rem;font-weight:700;margin-bottom:4px;}
+.sp-entry-score-row{display:flex;align-items:center;gap:8px;}
+.sp-entry-score-track{flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;}
+.sp-entry-score-fill{height:100%;border-radius:3px;transition:width 1s ease;}
+.sp-entry-score-label{font-size:.72rem;font-family:var(--font-data);font-weight:700;width:32px;}
+/* light mode */
+[data-theme="light"] .ea-input{background:rgba(109,40,217,.06)!important;border-color:rgba(109,40,217,.22)!important;color:#0e0e18!important;}
+[data-theme="light"] .ea-chip{background:rgba(109,40,217,.07)!important;border-color:rgba(109,40,217,.2)!important;color:#6d28d9!important;}
+[data-theme="light"] .ea-signal-card{background:rgba(109,40,217,.04)!important;border-color:rgba(109,40,217,.1)!important;}
+[data-theme="light"] .sp-entry-score-bar{background:rgba(109,40,217,.05)!important;border-color:rgba(109,40,217,.12)!important;}
+
 /* ════ Growth Picks ════ */
 .growth-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:4px;}
 .growth-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;}
@@ -2382,7 +2469,86 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       </div>
     </div>
 
-    <!-- ── 4. TOP GROWTH PICKS ───────────────────────────────── -->
+    <!-- ── 4. ENTRY POINT ANALYZER ──────────────────────────── -->
+    <div class="analysis-section" id="entry-analyzer-section">
+      <div class="analysis-section-title">🎯 Entry Point Analyzer <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Multi-signal technical entry scoring · not financial advice</span></div>
+
+      <!-- Search row -->
+      <div class="ea-search-row">
+        <div class="ea-input-wrap">
+          <span class="ea-search-icon">🔍</span>
+          <input id="ea-input" class="ea-input" type="text" placeholder="Enter ticker — AAPL, NVDA, TSLA…"
+            autocomplete="off" spellcheck="false"
+            onkeydown="if(event.key==='Enter')runEntryAnalysis()"
+            oninput="this.value=this.value.toUpperCase()"/>
+        </div>
+        <button class="btn btn-primary ea-btn" onclick="runEntryAnalysis()" id="ea-btn">Analyze Entry</button>
+      </div>
+
+      <!-- Quick-pick chips -->
+      <div class="ea-chips" id="ea-chips">
+        <span style="font-size:.7rem;color:var(--muted);margin-right:4px">Quick:</span>
+      </div>
+
+      <!-- Results panel (hidden until analysis runs) -->
+      <div id="ea-result" style="display:none;margin-top:18px">
+
+        <!-- Score header -->
+        <div class="ea-header">
+          <div class="ea-score-ring" id="ea-score-ring">
+            <svg viewBox="0 0 80 80" class="ea-ring-svg">
+              <circle cx="40" cy="40" r="32" class="ea-ring-track"/>
+              <circle cx="40" cy="40" r="32" class="ea-ring-fill" id="ea-ring-fill"/>
+            </svg>
+            <div class="ea-score-inner">
+              <div class="ea-score-num" id="ea-score-num">—</div>
+              <div class="ea-score-grade" id="ea-score-grade">—</div>
+            </div>
+          </div>
+          <div class="ea-header-info">
+            <div class="ea-ticker-display" id="ea-ticker-display">—</div>
+            <div class="ea-rec-badge" id="ea-rec-badge">—</div>
+            <div class="ea-price-row">
+              <span class="ea-price-label">Current Price</span>
+              <span class="ea-price-val" id="ea-price-val">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entry zone + targets -->
+        <div class="ea-zones">
+          <div class="ea-zone-card ea-zone-entry">
+            <div class="ea-zone-label">📥 Entry Zone</div>
+            <div class="ea-zone-range" id="ea-entry-range">—</div>
+            <div class="ea-zone-sub" id="ea-entry-sub">Best buy range</div>
+          </div>
+          <div class="ea-zone-card ea-zone-stop">
+            <div class="ea-zone-label">🛑 Stop Loss</div>
+            <div class="ea-zone-range" id="ea-stop-val">—</div>
+            <div class="ea-zone-sub" id="ea-risk-sub">—% risk</div>
+          </div>
+          <div class="ea-zone-card ea-zone-target">
+            <div class="ea-zone-label">🎯 Targets</div>
+            <div class="ea-targets-list" id="ea-targets-list">—</div>
+            <div class="ea-zone-sub" id="ea-rr-sub">R:R ratio —</div>
+          </div>
+        </div>
+
+        <!-- Signal breakdown -->
+        <div class="ea-signals-title">Signal Breakdown</div>
+        <div class="ea-signals-grid" id="ea-signals-grid"></div>
+
+        <!-- Fibonacci & Pivot levels (collapsible) -->
+        <div class="ea-levels-wrap" id="ea-levels-wrap"></div>
+
+        <div class="ea-disclaimer">Based on 6 months of price data. Technical analysis does not guarantee future results. Always use your own judgment and risk management.</div>
+      </div>
+
+      <div id="ea-loading" style="display:none;padding:24px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Analyzing entry signals…</div>
+      <div id="ea-error" style="display:none;padding:16px 0;color:var(--red);font-size:.84rem"></div>
+    </div>
+
+    <!-- ── 5. TOP GROWTH PICKS ───────────────────────────────── -->
     <div class="analysis-section">
       <div class="analysis-section-title">🚀 Top Growth Picks <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Based on analyst consensus price targets · not financial advice</span></div>
       <div class="growth-grid" id="growth-grid">
@@ -6791,6 +6957,7 @@ function openStockPage(ticker) {
   _spTicker = ticker;
   _spActiveTab = 'overview';
   _spFinData = null;
+  _spEntryLoaded = null;  // reset so new ticker re-fetches entry analysis
 
   // Add to recents
   _spRecentTickers = [ticker, ..._spRecentTickers.filter(t => t !== ticker)].slice(0,10);
@@ -6858,6 +7025,7 @@ function switchSPTab(name) {
   const panel = g('spp-' + name); if (panel) panel.classList.add('active');
   if (name === 'financials' && _spTicker) _spLoadFinancials(_spTicker);
   if (name === 'analyst' && _spData) _spRenderAnalyst(_spData);
+  if (name === 'entry' && _spTicker && IS_SERVER) loadSPEntryAnalysis(_spTicker);
 }
 
 function _spRenderOverview(d) {
@@ -7272,6 +7440,215 @@ window.addEventListener('DOMContentLoaded', () => {
 })();
 
 // ═══════════════════════════════════════════════════════════════════════════
+//  ENTRY POINT ANALYZER
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Quick-pick chips for the analysis tab
+(function() {
+  const chips = g('ea-chips');
+  if (!chips) return;
+  ['AAPL','NVDA','TSLA','MSFT','AMZN','META','AMD','SPY'].forEach(t => {
+    const el = document.createElement('span');
+    el.className = 'ea-chip';
+    el.textContent = t;
+    el.onclick = () => { g('ea-input').value = t; runEntryAnalysis(); };
+    chips.appendChild(el);
+  });
+})();
+
+async function runEntryAnalysis() {
+  const input  = g('ea-input');
+  const ticker = (input?.value || '').trim().toUpperCase();
+  if (!ticker) { input?.focus(); return; }
+
+  const btn    = g('ea-btn');
+  const result = g('ea-result');
+  const loader = g('ea-loading');
+  const errEl  = g('ea-error');
+
+  if (result) result.style.display = 'none';
+  if (errEl)  errEl.style.display  = 'none';
+  if (loader) loader.style.display = 'block';
+  if (btn)    { btn.disabled = true; btn.textContent = 'Analyzing…'; }
+
+  try {
+    const r    = await fetch(`/api/entry-analysis?ticker=${encodeURIComponent(ticker)}`);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+    renderEntryResult(data, 'ea');
+    if (result) result.style.display = 'block';
+  } catch(e) {
+    if (errEl) { errEl.style.display = 'block'; errEl.textContent = '⚠️ ' + e.message; }
+  } finally {
+    if (loader) loader.style.display = 'none';
+    if (btn)    { btn.disabled = false; btn.textContent = 'Analyze Entry'; }
+  }
+}
+
+// Render entry analysis data into a container.
+// containerPrefix: 'ea' (analysis tab) or 'spe' (stock page).
+function renderEntryResult(d, prefix) {
+  const score = d.score || 0;
+  const grade = d.grade || '—';
+
+  // Score colour
+  const scoreColor = score >= 75 ? '#34d399' : score >= 58 ? '#6ee7b7' : score >= 42 ? '#fbbf24' : score >= 25 ? '#f87171' : '#ef4444';
+
+  if (prefix === 'ea') {
+    // ── Circular ring ──
+    const ring = g('ea-ring-fill');
+    if (ring) {
+      const circumference = 2 * Math.PI * 32; // r=32
+      ring.style.stroke = scoreColor;
+      ring.style.strokeDashoffset = circumference - (score / 100) * circumference;
+    }
+    const sn = g('ea-score-num');   if (sn) { sn.textContent = score; sn.style.color = scoreColor; }
+    const sg = g('ea-score-grade'); if (sg) sg.textContent = grade;
+
+    const td = g('ea-ticker-display'); if (td) td.textContent = d.ticker;
+    const rb = g('ea-rec-badge');
+    if (rb) { rb.textContent = d.recommendation; rb.className = `ea-rec-badge ea-rec-${grade}`; }
+    const pv = g('ea-price-val'); if (pv) pv.textContent = `$${d.price}`;
+
+    // Entry zone
+    const er = g('ea-entry-range');
+    if (er) er.textContent = `$${d.entry_zone.low} – $${d.entry_zone.high}`;
+    const sv = g('ea-stop-val');
+    if (sv) sv.textContent = `$${d.stop_loss}`;
+    const rs = g('ea-risk-sub');
+    if (rs) rs.textContent = `${d.risk_pct}% risk from entry`;
+    const tl = g('ea-targets-list');
+    if (tl) tl.innerHTML = d.targets.map(t =>
+      `<div>T${d.targets.indexOf(t)+1}: <span style="color:#c4b5fd">$${t.price}</span> <span style="color:var(--green);font-size:.72rem">+${t.upside}%</span></div>`
+    ).join('');
+    const rr = g('ea-rr-sub');
+    if (rr) rr.textContent = `R:R ratio = ${d.rr_ratio}:1`;
+
+    // Signals grid
+    const sg2 = g('ea-signals-grid');
+    if (sg2) sg2.innerHTML = _renderSignalCards(d.signals);
+
+    // Fibonacci + pivot levels
+    const lw = g('ea-levels-wrap');
+    if (lw) lw.innerHTML = _renderLevelsTable(d);
+
+  } else if (prefix === 'spe') {
+    // Stock page compact summary
+    const el = g('sp-entry-content');
+    if (!el) return;
+    const gradeColor = score >= 75 ? '#34d399' : score >= 58 ? '#6ee7b7' : score >= 42 ? '#fbbf24' : '#f87171';
+    el.innerHTML = `
+      <div class="sp-entry-score-bar">
+        <div class="sp-entry-grade" style="color:${gradeColor}">${grade}</div>
+        <div class="sp-entry-info">
+          <div class="sp-entry-rec" style="color:${gradeColor}">${d.recommendation}</div>
+          <div class="sp-entry-score-row">
+            <div class="sp-entry-score-track">
+              <div class="sp-entry-score-fill" style="width:${score}%;background:${gradeColor}"></div>
+            </div>
+            <div class="sp-entry-score-label" style="color:${gradeColor}">${score}/100</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+        <div style="background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.18);border-radius:10px;padding:12px">
+          <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Entry Zone</div>
+          <div style="font-size:.95rem;font-weight:800;font-family:var(--font-data);color:#34d399">$${d.entry_zone.low} – $${d.entry_zone.high}</div>
+        </div>
+        <div style="background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.18);border-radius:10px;padding:12px">
+          <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Stop Loss</div>
+          <div style="font-size:.95rem;font-weight:800;font-family:var(--font-data);color:#f87171">$${d.stop_loss} <span style="font-size:.72rem">(-${d.risk_pct}%)</span></div>
+        </div>
+        <div style="background:rgba(124,92,252,.08);border:1px solid rgba(124,92,252,.18);border-radius:10px;padding:12px">
+          <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">R:R Ratio</div>
+          <div style="font-size:.95rem;font-weight:800;font-family:var(--font-data);color:#c4b5fd">${d.rr_ratio}:1</div>
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Targets</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          ${d.targets.map((t,i) => `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(124,92,252,.05);border:1px solid rgba(124,92,252,.1);border-radius:8px">
+            <span style="font-size:.74rem;color:var(--muted)">T${i+1} ${t.label.split('(')[1]?.replace(')','') || ''}</span>
+            <span style="font-family:var(--font-data);font-weight:800;color:#f0f0ff">$${t.price}</span>
+            <span style="font-family:var(--font-data);font-weight:700;color:var(--green);font-size:.82rem">+${t.upside}%</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="ea-signals-title">Signal Breakdown</div>
+      <div class="ea-signals-grid">${_renderSignalCards(d.signals)}</div>
+      ${_renderLevelsTable(d)}
+      <div class="ea-disclaimer" style="margin-top:12px">Based on 6 months of price data. Technical analysis does not guarantee future results. Not financial advice.</div>`;
+  }
+}
+
+function _renderSignalCards(signals) {
+  const maxScores = {rsi:28, ma:25, bb:22, macd:18, sr:25, volume:12};
+  return Object.entries(signals).map(([key, s]) => {
+    const max   = maxScores[key] || 20;
+    const pct   = Math.min(100, Math.max(0, s.score / max * 100));
+    const cls   = s.score >= max * 0.6 ? 'pos' : s.score >= max * 0.25 ? 'mid' : 'neg';
+    const barC  = s.score >= max * 0.6 ? '#34d399' : s.score >= max * 0.25 ? '#fbbf24' : '#f87171';
+    let extra = '';
+    if (key === 'rsi' && s.value)   extra = `RSI = ${s.value}`;
+    if (key === 'ma' && s.values)   extra = Object.entries(s.values).filter(([,v])=>v).map(([k,v])=>`${k.toUpperCase()}: $${v}`).join(' · ');
+    if (key === 'bb' && s.values)   extra = s.values.lower ? `BB: $${s.values.lower} – $${s.values.upper}` : '';
+    return `<div class="ea-signal-card">
+      <div class="ea-sig-top">
+        <span class="ea-sig-label">${s.label}</span>
+        <span class="ea-sig-score ${cls}">${s.score >= 0 ? '+' : ''}${s.score} pts</span>
+      </div>
+      <div class="ea-sig-bar-track"><div class="ea-sig-bar-fill" style="width:${pct}%;background:${barC}"></div></div>
+      <div class="ea-sig-text">${s.signal}</div>
+      ${extra ? `<div class="ea-sig-value">${extra}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function _renderLevelsTable(d) {
+  const hasFib    = d.fibonacci && Object.keys(d.fibonacci).length > 2;
+  const hasPivots = d.pivot_levels && d.pivot_levels.length > 0;
+  if (!hasFib && !hasPivots) return '';
+
+  const fibRows = hasFib ? Object.entries(d.fibonacci)
+    .filter(([k]) => !['swing_high','swing_low'].includes(k))
+    .map(([k,v]) => `<tr><td style="color:var(--muted)">Fib ${k}%</td><td>$${v}</td><td style="color:var(--muted)">Retracement</td></tr>`)
+    .join('') : '';
+
+  const pivotRows = hasPivots ? d.pivot_levels.map(l =>
+    `<tr><td style="color:${l.type==='support'?'var(--green)':'var(--red)'}">${l.type==='support'?'Support':'Resistance'}</td><td>$${l.price}</td><td style="color:var(--muted)">Strength: ${l.strength}</td></tr>`
+  ).join('') : '';
+
+  return `<div class="ea-levels-wrap">
+    <div class="ea-levels-toggle" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.ea-toggle-arrow').textContent=this.nextElementSibling.classList.contains('open')?'▲':'▼'">
+      <span class="ea-toggle-arrow">▼</span> Show key price levels (Fibonacci + Support/Resistance)
+    </div>
+    <table class="ea-levels-table">
+      <thead><tr><th>Type</th><th>Price</th><th>Info</th></tr></thead>
+      <tbody>${fibRows}${pivotRows}</tbody>
+    </table>
+  </div>`;
+}
+
+// Called when stock page opens — load entry analysis for the stock page tab
+let _spEntryLoaded = null;
+async function loadSPEntryAnalysis(ticker) {
+  if (_spEntryLoaded === ticker) return;
+  const el = g('sp-entry-content');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Analyzing entry signals for ' + ticker + '…</div>';
+  try {
+    const r    = await fetch(`/api/entry-analysis?ticker=${encodeURIComponent(ticker)}`);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+    renderEntryResult(data, 'spe');
+    _spEntryLoaded = ticker;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);padding:16px 0;font-size:.84rem">⚠️ Could not load entry analysis: ${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 //  1. PORTFOLIO HEAT MAP
 // ═══════════════════════════════════════════════════════════════════════════
 function buildHeatMap() {
@@ -7543,6 +7920,7 @@ async function loadGrowthPicks(force=false) {
     <button class="sp-tab active" id="spt-overview"   onclick="switchSPTab('overview')">Overview</button>
     <button class="sp-tab"        id="spt-financials" onclick="switchSPTab('financials')">Financials</button>
     <button class="sp-tab"        id="spt-analyst"    onclick="switchSPTab('analyst')">Analyst</button>
+    <button class="sp-tab"        id="spt-entry"      onclick="switchSPTab('entry')">🎯 Entry</button>
   </div>
   <!-- Body -->
   <div id="sp-body">
@@ -7600,6 +7978,13 @@ async function loadGrowthPicks(force=false) {
     <!-- ANALYST PANEL -->
     <div class="sp-panel" id="spp-analyst">
       <div id="sp-analyst-content"></div>
+    </div>
+
+    <!-- ENTRY ANALYSIS PANEL (tab added dynamically when stock page opens) -->
+    <div class="sp-panel" id="spp-entry">
+      <div id="sp-entry-content">
+        <div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Loading entry analysis…</div>
+      </div>
     </div>
 
   </div>
