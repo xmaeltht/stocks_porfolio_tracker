@@ -378,10 +378,17 @@ tbody tr.clickable{cursor:pointer;}
 .fg-sentiment{font-size:.9rem;font-weight:700;margin-top:2px;}
 
 .sectors-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:18px;}
-.sec-tile{border-radius:var(--radius);padding:11px 13px;cursor:default;border:1px solid transparent;transition:border-color .15s;}
-.sec-tile:hover{border-color:var(--border);}
-.sec-tile-name{font-size:.7rem;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:4px;line-height:1.2;}
-.sec-tile-pct{font-size:1.1rem;font-weight:800;color:#fff;}
+.sec-tile{
+  border-radius:12px;padding:13px 14px 10px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.06);
+  transition:transform .15s,box-shadow .15s,border-color .15s;
+  position:relative;overflow:hidden;
+}
+.sec-tile:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.4);border-color:rgba(255,255,255,.15);}
+.sec-tile-name{font-size:.68rem;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:6px;line-height:1.2;text-transform:uppercase;letter-spacing:.04em;}
+.sec-tile-pct{font-size:1.15rem;font-weight:800;color:#fff;font-family:var(--font-data);letter-spacing:-.01em;}
+.sec-tile-bar{height:3px;border-radius:2px;margin-top:8px;background:rgba(255,255,255,.2);position:relative;overflow:hidden;}
+.sec-tile-bar-fill{height:100%;border-radius:2px;background:rgba(255,255,255,.5);transition:width .5s ease;}
 
 .movers-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
 @media(max-width:600px){.movers-grid{grid-template-columns:1fr;}}
@@ -982,39 +989,50 @@ header{
 .card{
   background:var(--surface)!important;
   border:1px solid var(--border)!important;
-  border-radius:14px!important;
+  border-radius:16px!important;
   box-shadow:var(--shadow-sm)!important;
   padding:18px 20px!important;
   position:relative;overflow:hidden;
-  transition:border-color .18s,box-shadow .18s,transform .18s!important;
+  transition:border-color .2s,box-shadow .2s,transform .2s!important;
 }
+/* Subtle top-right glow per accent */
+.card.accent-green{background:linear-gradient(135deg,var(--surface) 60%,rgba(52,211,153,.04))!important;}
+.card.accent-red  {background:linear-gradient(135deg,var(--surface) 60%,rgba(248,113,113,.04))!important;}
+.card.accent-blue {background:linear-gradient(135deg,var(--surface) 60%,rgba(124,92,252,.05))!important;}
 .card::after{display:none!important;}
 .card::before{
   content:'';position:absolute;top:0;left:0;width:3px;height:100%;
   background:transparent;border-radius:2px 0 0 2px;transition:background .3s;
 }
-.card.accent-green::before{background:var(--green)!important;}
-.card.accent-red::before  {background:var(--red)!important;}
-.card.accent-blue::before {background:var(--purple)!important;}
+.card.accent-green::before{background:linear-gradient(180deg,var(--green),rgba(52,211,153,.3))!important;}
+.card.accent-red::before  {background:linear-gradient(180deg,var(--red),rgba(248,113,113,.3))!important;}
+.card.accent-blue::before {background:linear-gradient(180deg,var(--purple),rgba(124,92,252,.3))!important;}
 .card.clickable:hover{
-  border-color:rgba(124,92,252,.35)!important;
-  box-shadow:0 0 0 1px rgba(124,92,252,.12),0 8px 28px rgba(0,0,0,.5)!important;
+  border-color:rgba(124,92,252,.4)!important;
+  box-shadow:0 0 0 1px rgba(124,92,252,.15),0 10px 32px rgba(0,0,0,.55)!important;
   transform:translateY(-2px)!important;
 }
 .card-label{
-  font-family:var(--font-body)!important;font-size:.65rem!important;
+  font-family:var(--font-body)!important;font-size:.66rem!important;
   color:var(--muted)!important;text-transform:uppercase!important;
-  letter-spacing:.09em!important;font-weight:600!important;margin-bottom:6px!important;
+  letter-spacing:.1em!important;font-weight:600!important;margin-bottom:8px!important;
 }
 .card-value{
-  font-family:var(--font-data)!important;font-size:1.48rem!important;
-  font-weight:500!important;letter-spacing:-.02em!important;color:#f0f0ff!important;
+  font-family:var(--font-data)!important;font-size:1.5rem!important;
+  font-weight:600!important;letter-spacing:-.02em!important;color:#f0f0ff!important;
+  line-height:1.15!important;
 }
-.card-sub{font-size:.74rem!important;color:var(--muted)!important;margin-top:3px!important;}
-[data-theme="light"] .card{background:#fff!important;border-color:#e4e2f8!important;box-shadow:0 1px 4px rgba(14,14,24,.08)!important;}
+.card.accent-green .card-value{color:var(--green)!important;}
+.card.accent-red   .card-value{color:var(--red)!important;}
+.card-sub{font-size:.75rem!important;color:var(--muted)!important;margin-top:5px!important;}
+[data-theme="light"] .card{background:#fff!important;border-color:#e4e2f8!important;box-shadow:0 2px 8px rgba(14,14,24,.07)!important;}
+[data-theme="light"] .card.accent-green{background:linear-gradient(135deg,#fff 60%,rgba(5,150,105,.04))!important;}
+[data-theme="light"] .card.accent-red  {background:linear-gradient(135deg,#fff 60%,rgba(220,38,38,.04))!important;}
 [data-theme="light"] .card-value{color:#0e0e18!important;}
-[data-theme="light"] .card.clickable:hover{border-color:rgba(109,40,217,.3)!important;box-shadow:0 8px 24px rgba(14,14,24,.1)!important;}
-.card-skeleton{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:14px!important;}
+[data-theme="light"] .card.accent-green .card-value{color:#059669!important;}
+[data-theme="light"] .card.accent-red   .card-value{color:#dc2626!important;}
+[data-theme="light"] .card.clickable:hover{border-color:rgba(109,40,217,.3)!important;box-shadow:0 8px 28px rgba(14,14,24,.1)!important;}
+.card-skeleton{background:var(--surface)!important;border:1px solid var(--border)!important;border-radius:16px!important;}
 
 /* ── 7. TAB NAV ─────────────────────────────────────── */
 .tab-nav{
@@ -1044,11 +1062,17 @@ header{
 
 /* ── 8. SECTION TITLES ──────────────────────────────── */
 .section-title{
-  font-family:var(--font-body)!important;font-size:.72rem!important;font-weight:700!important;
-  letter-spacing:.1em!important;text-transform:uppercase!important;color:var(--muted)!important;
+  font-family:var(--font-body)!important;
+  font-size:.76rem!important;font-weight:700!important;
+  letter-spacing:.07em!important;text-transform:uppercase!important;
+  color:rgba(220,225,255,.8)!important;
+  display:flex!important;align-items:center!important;gap:8px!important;
+  padding-left:11px!important;
+  border-left:2px solid var(--purple)!important;
+  margin-bottom:16px!important;margin-top:4px!important;
 }
 .section-title::before{display:none!important;}
-[data-theme="light"] .section-title{color:#7272a8!important;}
+[data-theme="light"] .section-title{color:#1e1b4b!important;border-left-color:#6d28d9!important;}
 
 /* ── 9. TABLE ───────────────────────────────────────── */
 .table-wrap{
@@ -1384,6 +1408,144 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
 ::-webkit-scrollbar-thumb:hover{background:rgba(124,92,252,.55);}
 [data-theme="light"] ::-webkit-scrollbar-thumb{background:rgba(109,40,217,.22);}
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:rgba(109,40,217,.42);}
+/* ── 25. INDICES & FUTURES CARDS ENHANCED ─────────────── */
+.idx-card,.futures-card,.crypto-card{
+  border-radius:14px!important;padding:16px 18px!important;
+  position:relative!important;overflow:hidden!important;
+  transition:border-color .2s,transform .2s,box-shadow .2s!important;
+}
+.idx-card::after,.futures-card::after{
+  content:'';position:absolute;top:0;left:0;width:100%;height:2px;
+  border-radius:14px 14px 0 0;
+}
+.idx-card.up-card::after,.futures-card.up-card::after{background:linear-gradient(90deg,var(--green),transparent)!important;}
+.idx-card.dn-card::after,.futures-card.dn-card::after{background:linear-gradient(90deg,var(--red),transparent)!important;}
+.idx-price,.futures-price{font-size:1.35rem!important;font-weight:800!important;letter-spacing:-.02em!important;line-height:1.1!important;}
+.idx-chg,.futures-chg{font-size:.82rem!important;font-weight:700!important;margin-top:4px!important;display:inline-flex!important;align-items:center!important;gap:4px!important;}
+.idx-name,.futures-name{font-size:.67rem!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:.06em!important;margin-bottom:6px!important;}
+.futures-icon{font-size:1.2rem!important;margin-bottom:6px!important;}
+.idx-spark-wrap{opacity:.65;transition:opacity .2s!important;}
+.idx-card:hover .idx-spark-wrap{opacity:1!important;}
+[data-theme="light"] .idx-card::after,[data-theme="light"] .futures-card::after{opacity:.7!important;}
+
+/* ── 26. SECTOR TILES ENHANCED ─────────────────────────── */
+.sectors-grid{gap:10px!important;}
+.sec-tile{border-radius:14px!important;padding:14px 14px 11px!important;}
+.sec-tile-name{font-size:.65rem!important;letter-spacing:.06em!important;margin-bottom:8px!important;}
+.sec-tile-pct{font-size:1.2rem!important;font-weight:900!important;}
+.sec-tile-bar{height:3px!important;margin-top:10px!important;}
+
+/* ── 27. CONTENT SPACING ───────────────────────────────── */
+.tab-content > *{margin-bottom:22px!important;}
+.cards-row{gap:14px!important;margin-bottom:22px!important;}
+.cards-row-3,.cards-row-4{gap:12px!important;margin-bottom:22px!important;}
+
+/* ── 28. ANALYSIS TAB SECTIONS ─────────────────────────── */
+.analysis-section{
+  background:var(--surface)!important;
+  border:1px solid var(--border)!important;
+  border-radius:16px!important;
+  padding:20px!important;
+  margin-bottom:16px!important;
+  box-shadow:var(--shadow-sm)!important;
+}
+.analysis-section-title{
+  font-family:var(--font-body)!important;
+  font-size:.76rem!important;font-weight:700!important;
+  letter-spacing:.07em!important;text-transform:uppercase!important;
+  color:rgba(220,225,255,.85)!important;
+  display:flex!important;align-items:center!important;gap:8px!important;
+  padding:0 0 14px 12px!important;
+  border-left:3px solid var(--purple)!important;
+  border-bottom:1px solid rgba(124,92,252,.12)!important;
+  margin-bottom:20px!important;
+}
+[data-theme="light"] .analysis-section{background:#fff!important;border-color:#e4e2f8!important;}
+[data-theme="light"] .analysis-section-title{color:#1e1b4b!important;border-left-color:#6d28d9!important;border-bottom-color:rgba(109,40,217,.1)!important;}
+
+/* ── 29. GROWTH CARDS ENHANCED ─────────────────────────── */
+.growth-grid{gap:14px!important;margin-top:0!important;}
+.growth-card{
+  border-radius:14px!important;padding:18px!important;
+  position:relative!important;overflow:hidden!important;
+  transition:border-color .18s,transform .18s,box-shadow .18s!important;
+}
+.growth-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0;
+  background:linear-gradient(90deg,var(--green),transparent);
+}
+.growth-card:hover{
+  border-color:rgba(52,211,153,.35)!important;
+  transform:translateY(-3px)!important;
+  box-shadow:0 8px 28px rgba(52,211,153,.1),0 2px 8px rgba(0,0,0,.4)!important;
+}
+[data-theme="light"] .growth-card{background:#fff!important;border-color:#e4e2f8!important;}
+[data-theme="light"] .growth-card:hover{border-color:rgba(5,150,105,.3)!important;box-shadow:0 8px 24px rgba(5,150,105,.08)!important;}
+
+/* ── 30. HEAT MAP TILES ENHANCED ───────────────────────── */
+.hm-grid{gap:7px!important;margin-top:0!important;}
+.hm-tile{border-radius:12px!important;padding:16px 10px!important;}
+
+/* ── 31. WHATIF SIMULATOR ENHANCED ────────────────────── */
+.whatif-summary{
+  background:linear-gradient(135deg,rgba(124,92,252,.08),rgba(124,92,252,.04))!important;
+  border:1px solid rgba(124,92,252,.2)!important;
+  border-radius:14px!important;padding:18px 24px!important;
+  margin-top:18px!important;
+}
+.whatif-sum-label{font-family:var(--font-body)!important;font-size:.66rem!important;letter-spacing:.08em!important;}
+.whatif-sum-val{font-size:1.3rem!important;font-weight:900!important;letter-spacing:-.01em!important;}
+[data-theme="light"] .whatif-summary{background:rgba(109,40,217,.06)!important;border-color:rgba(109,40,217,.18)!important;}
+
+/* ── 32. CORRELATION TABLE ENHANCED ───────────────────── */
+.corr-scroll{border-radius:10px!important;border:1px solid rgba(124,92,252,.12)!important;overflow:hidden!important;overflow-x:auto!important;}
+.corr-table th{background:rgba(124,92,252,.06)!important;padding:9px 12px!important;font-size:.7rem!important;}
+.corr-table td{padding:9px 12px!important;font-size:.8rem!important;}
+[data-theme="light"] .corr-scroll{border-color:#e4e2f8!important;}
+[data-theme="light"] .corr-table th{background:#f5f4ff!important;}
+
+/* ── 33. TABLE ROW STRIPE ──────────────────────────────── */
+tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
+[data-theme="light"] tbody tr:nth-child(even){background:rgba(109,40,217,.015)!important;}
+
+/* ── 34. INDICES / FUTURES ROW ─────────────────────────── */
+.indices-row{gap:12px!important;margin-bottom:22px!important;}
+.futures-row{gap:10px!important;margin-bottom:22px!important;}
+
+/* ── 35. SECTION TITLE INLINE-STYLE OVERRIDE ───────────── */
+.section-title[style]{
+  font-size:.76rem!important;
+  margin-bottom:16px!important;
+}
+
+/* ── 36. PORTFOLIO CARDS CONTAINER ────────────────────── */
+.cards{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;
+  gap:14px!important;
+  margin-bottom:22px!important;
+}
+
+/* ── 37. MOVERS PANEL POLISH ───────────────────────────── */
+.movers-panel{border-radius:14px!important;}
+.movers-header{border-radius:14px 14px 0 0!important;padding:12px 16px!important;}
+.mover-row{padding:9px 16px!important;transition:background .12s!important;}
+.mover-sym{font-weight:700!important;font-size:.84rem!important;}
+.mover-name{font-size:.72rem!important;}
+.mover-chg{font-family:var(--font-data)!important;font-weight:700!important;font-size:.84rem!important;}
+
+/* ── 38. NEWS CARD POLISH ──────────────────────────────── */
+.news-card{border-radius:14px!important;transition:border-color .18s,transform .18s,box-shadow .18s!important;}
+.news-card:hover{transform:translateY(-2px)!important;}
+.news-title{line-height:1.45!important;}
+
+/* ── 39. WATCHLIST POLISH ──────────────────────────────── */
+.watchlist-card{border-radius:14px!important;}
+.watchlist-header{border-radius:14px 14px 0 0!important;padding:12px 16px!important;}
+.wl-sym{font-weight:700!important;font-size:.84rem!important;}
+.wl-price{font-family:var(--font-data)!important;font-weight:600!important;}
+.wl-chg{font-family:var(--font-data)!important;font-weight:700!important;font-size:.82rem!important;}
+
 @keyframes flashUp  {0%{color:var(--green);transform:scale(1.04)}60%{color:var(--green)}100%{transform:scale(1)}}
 @keyframes flashDown{0%{color:var(--red); transform:scale(1.04)}60%{color:var(--red)}100%{transform:scale(1)}}
 
@@ -1392,7 +1554,13 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
    ════════════════════════════════════════════════════════ */
 #tab-analysis{padding:18px 0;}
 .analysis-section{margin-bottom:28px;}
-.analysis-section-title{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.analysis-section-title{
+  font-size:.76rem;font-weight:700;color:rgba(220,225,255,.8);text-transform:uppercase;
+  letter-spacing:.07em;margin-bottom:16px;padding:0 0 10px 11px;
+  border-left:2px solid var(--purple);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+}
+[data-theme="light"] .analysis-section-title{color:#1e1b4b;border-left-color:#6d28d9;}
 .valuation-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
 .valuation-table th{font-size:.66rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
 .valuation-table th:first-child{text-align:left;}
@@ -3894,7 +4062,8 @@ async function loadFutures() {
       const hasData = f.price > 0;
       const cls = f.change_pct > 0 ? 'green' : f.change_pct < 0 ? 'red' : '';
       const arrow = f.change_pct >= 0 ? '▲ +' : '▼ ';
-      return `<div class="futures-card" onclick="openDrawer('${f.symbol}')" style="cursor:pointer" title="Click for details">
+      const dirClass = f.change_pct > 0 ? 'up-card' : f.change_pct < 0 ? 'dn-card' : '';
+      return `<div class="futures-card ${dirClass}" onclick="openDrawer('${f.symbol}')" style="cursor:pointer" title="Click for details">
         <div class="futures-icon">${f.icon}</div>
         <div class="futures-name">${f.name}</div>
         <div class="futures-price">${hasData ? f.price.toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
@@ -4043,10 +4212,12 @@ function renderMarket(mkt) {
       cel.textContent = `${c >= 0 ? '+' : ''}${c.toFixed(2)}%`;
       cel.className = 'idx-chg ' + (c > 0 ? 'green' : c < 0 ? 'red' : '');
     }
-    // Colour the card border by performance
+    // Colour the card by performance (top-accent via CSS class)
     const card = el.closest('.idx-card');
-    if (card) card.style.borderLeftColor = c > 0 ? 'rgba(52,211,153,.6)' : c < 0 ? 'rgba(248,113,113,.6)' : '';
-    if (card) card.style.borderLeftWidth = '3px';
+    if (card) {
+      card.classList.toggle('up-card', c > 0);
+      card.classList.toggle('dn-card', c < 0);
+    }
   });
 
   // Fear & Greed from VIX
@@ -4097,12 +4268,15 @@ function renderMarket(mkt) {
   const sorted = Object.entries(secs).sort((a,b) => b[1].change_pct - a[1].change_pct);
   g('sectors-grid').innerHTML = sorted.map(([sym, s]) => {
     const pct = s.change_pct || 0;
+    const absPct = Math.abs(pct);
     const bg = pct >= 0
-      ? `rgba(38,166,65,${Math.min(0.8, 0.1 + pct * 0.08)})`
-      : `rgba(248,81,73,${Math.min(0.8, 0.1 + Math.abs(pct) * 0.08)})`;
-    return `<div class="sec-tile" style="background:${bg};cursor:pointer" onclick="openStockPage('${sym}')" title="Click to view ${sym} details">
+      ? `rgba(38,166,65,${Math.min(0.82, 0.08 + pct * 0.09)})`
+      : `rgba(248,81,73,${Math.min(0.82, 0.08 + absPct * 0.09)})`;
+    const barWidth = Math.min(100, absPct * 18); // ~5.5% change fills bar
+    return `<div class="sec-tile" style="background:${bg};cursor:pointer" onclick="openStockPage('${sym}')" title="${s.name} — ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%">
       <div class="sec-tile-name">${s.name}</div>
       <div class="sec-tile-pct">${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%</div>
+      <div class="sec-tile-bar"><div class="sec-tile-bar-fill" style="width:${barWidth}%"></div></div>
     </div>`;
   }).join('');
 }
