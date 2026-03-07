@@ -2139,7 +2139,7 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
         <div class="psc-inputs">
           <div class="psc-field">
             <label>Account Size ($)</label>
-            <input id="psc-account" type="number" placeholder="10000" min="1" oninput="calcPSC()"/>
+            <input id="psc-account" type="number" placeholder="10000" value="10000" min="1" oninput="calcPSC()"/>
           </div>
           <div class="psc-field">
             <label>Risk per Trade: <strong id="psc-risk-label">2%</strong></label>
@@ -2147,16 +2147,17 @@ footer{background:transparent!important;border-top:1px solid var(--border)!impor
           </div>
           <div class="psc-field">
             <label>Entry Price ($)</label>
-            <input id="psc-entry" type="number" placeholder="142.50" step="0.01" min="0" oninput="calcPSC()"/>
+            <input id="psc-entry" type="number" placeholder="0.00" value="142.50" step="0.01" min="0" oninput="calcPSC()"/>
           </div>
           <div class="psc-field">
             <label>Stop Loss ($)</label>
-            <input id="psc-stop" type="number" placeholder="135.00" step="0.01" min="0" oninput="calcPSC()"/>
+            <input id="psc-stop" type="number" placeholder="0.00" value="135.00" step="0.01" min="0" oninput="calcPSC()"/>
           </div>
           <div class="psc-field">
             <label>Target Price ($) <span style="opacity:.6;font-weight:400">(optional)</span></label>
-            <input id="psc-target" type="number" placeholder="158.00" step="0.01" min="0" oninput="calcPSC()"/>
+            <input id="psc-target" type="number" placeholder="0.00" value="158.00" step="0.01" min="0" oninput="calcPSC()"/>
           </div>
+          <div style="font-size:.68rem;color:var(--muted);margin-top:-6px;">Example values — replace with your trade levels</div>
         </div>
         <div class="psc-results" id="psc-results">
           <div class="psc-placeholder">Fill in your trade details to calculate position size</div>
@@ -3819,7 +3820,7 @@ function switchTab(name) {
   if (btn) btn.classList.add('active');
   if (name === 'market'   && IS_SERVER) loadMarket();
   if (name === 'journal'  && IS_SERVER) loadJournal();
-  if (name === 'analysis' && IS_SERVER) loadAnalysisTab();
+  if (name === 'analysis' && IS_SERVER) { loadAnalysisTab(); calcPSC(); }
 }
 
 // ═══════════════════════════════════════════════
@@ -7000,6 +7001,7 @@ document.addEventListener('keydown', e => {
 
 // Init recents + popular chips on load
 window.addEventListener('DOMContentLoaded', () => {
+  calcPSC(); // show default example result on load
   setTimeout(_updateSpRecentUI, 500);
   const chips = g('sp-popular-chips');
   if (chips) {
