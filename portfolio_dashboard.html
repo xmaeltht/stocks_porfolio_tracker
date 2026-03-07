@@ -574,6 +574,9 @@ tbody tr.clickable{cursor:pointer;}
   .header-right{gap:5px;}
   .header-search input{width:130px;}
   .header-search input:focus{width:160px;}
+  /* Stock detail page tabs — scrollable on narrow screens */
+  .sp-tab-nav{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 12px;}
+  .sp-tab{flex-shrink:0;white-space:nowrap;}
 }
 
 /* ═══ MOBILE RESPONSIVE ═══ */
@@ -612,12 +615,38 @@ tbody tr.clickable{cursor:pointer;}
   .cards-row2{grid-template-columns:1fr 1fr;gap:8px;}
   .health-grid{grid-template-columns:1fr!important;}
   .health-insights{max-height:220px;}
+  /* Stock detail page */
+  #sp-header{padding:10px 14px;gap:8px;}
+  #sp-body{padding:16px 14px;}
+  .sp-back-btn{padding:5px 10px;font-size:.78rem;}
+  .sp-chart-wrap{height:220px;}
+  /* Toast: full-width centered on mobile */
+  #toast-container{right:12px;left:12px;bottom:16px;align-items:stretch;}
+  .toast{max-width:100%;}
+  /* Position size card stacks on narrow */
+  .psc-card{grid-template-columns:1fr;}
 }
 @media(max-width:480px){
   .card-value{font-size:.95rem;}
   main{padding:8px 10px;}
   .header-search{display:none;}
   #market-badge{display:none;}
+  .analytics-grid{grid-template-columns:1fr;}
+  .cards-row2{grid-template-columns:1fr;}
+  .cards{grid-template-columns:1fr 1fr;}
+  .sp-stats-grid{grid-template-columns:1fr 1fr;}
+  #sp-body{padding:12px 10px;}
+  .sp-a-tgt-row{flex-wrap:wrap;}
+  .sp-a-tgt{flex:1 1 80px;}
+}
+
+/* Safe area insets — notched/Dynamic Island iPhones */
+@supports(padding:env(safe-area-inset-bottom)){
+  header{padding-top:max(10px,calc(8px + env(safe-area-inset-top,0px)));}
+  #qpanel{padding-bottom:env(safe-area-inset-bottom,0);}
+  #toast-container{bottom:calc(24px + env(safe-area-inset-bottom,0));}
+  #stock-page{padding-top:env(safe-area-inset-top,0);}
+  footer{padding-bottom:calc(20px + env(safe-area-inset-bottom,0));}
 }
 
 /* CRYPTO SECTION */
