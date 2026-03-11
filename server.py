@@ -851,6 +851,267 @@ def get_stress_test(holdings):
     except Exception as e:
         return {'error': str(e)}
 
+# ── Portfolio Backtesting ─────────────────────────────────────────────────────
+def get_backtest(holdings, start_year=None):
+    """Compare hypothetical buy-and-hold of current holdings since start_year."""
+    if not holdings:
+        return {'error': 'No holdings'}
+    start_year = start_year or 2020
+    start_date = f'{start_year}-01-01'
+    cache_key  = f'backtest_{"_".join(sorted(h["ticker"] for h in holdings))}_{start_year}'
+    def fetch():
+        try:
+            syms = [h['ticker'] for h in holdings if h.get('ticker')]
+            if not syms:
+                return {'error': 'No tickers'}
+            # Fetch 1-day interval history for the period
+            period_map = {2020:'5y', 2019:'6y', 2018:'7y', 2021:'4y', 2022:'3y', 2023:'2y'}
+            period = period_map.get(start_year, '5y')
+            # Get all tickers in parallel
+            all_hist = {}
+            def _one(sym):
+                try:
+                    h = yf.Ticker(sym).history(period=period, interval='1d', auto_adjust=True)
+                    return sym, h
+                except:
+                    return sym, None
+            with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
+                for sym, hist in pool.map(_one, syms):
+                    if hist is not None and not hist.empty:
+                        all_hist[sym] = hist
+
+            if not all_hist:
+                return {'error': 'No historical data available'}
+
+            # Find common start date across all tickers
+            from datetime import datetime as _dt
+            start_dt = _dt.strptime(start_date, '%Y-%m-%d')
+            # Build equal-weight portfolio (1 share each, normalised)
+            # Use portfolio weights based on current shares × price
+            q = get_quotes(syms)
+            total_cost = sum(
+                float(h.get('shares',0)) * q.get(h['ticker'],{}).get('regularMarketPrice',0)
+                for h in holdings
+            )
+            if total_cost <= 0:
+                # Fall back to equal weight
+                weights = {s: 1.0/len(syms) for s in syms}
+            else:
+                weights = {}
+                for h in holdings:
+                    val = float(h.get('shares',0)) * q.get(h['ticker'],{}).get('regularMarketPrice',0)
+                    weights[h['ticker']] = val / total_cost if total_cost > 0 else 1.0/len(syms)
+
+            # Build portfolio time series: weighted sum of normalised prices
+            # Normalise each ticker to 100 at first available date
+            series = {}
+            for sym, hist in all_hist.items():
+                dates = [str(d)[:10] for d in hist.index]
+                closes = hist['Close'].tolist()
+                # Filter to dates >= start_date
+                pairs = [(d, c) for d, c in zip(dates, closes) if d >= start_date and c > 0]
+                if not pairs:
+                    continue
+                base = pairs[0][1]
+                series[sym] = {d: (c/base)*100 for d,c in pairs}
+
+            if not series:
+                return {'error': 'Insufficient historical data from start date'}
+
+            # Get all unique dates sorted
+            all_dates = sorted(set(d for s in series.values() for d in s.keys()))
+            # Only monthly points to keep payload small
+            monthly = []
+            last_m = ''
+            for d in all_dates:
+                m = d[:7]  # YYYY-MM
+                if m != last_m:
+                    monthly.append(d)
+                    last_m = m
+            # Build portfolio value series
+            port_series = []
+            spy_series  = []
+            # Fetch SPY for comparison
+            try:
+                spy_hist = yf.Ticker('SPY').history(period=period, interval='1d', auto_adjust=True)
+                spy_dates  = [str(d)[:10] for d in spy_hist.index]
+                spy_closes = spy_hist['Close'].tolist()
+                spy_pairs = [(d,c) for d,c in zip(spy_dates, spy_closes) if d >= start_date and c > 0]
+                spy_base = spy_pairs[0][1] if spy_pairs else 0
+                spy_map = {d: (c/spy_base)*100 for d,c in spy_pairs} if spy_base > 0 else {}
+            except:
+                spy_map = {}
+
+            for d in monthly:
+                # weighted average of normalised prices
+                val = 0
+                total_w = 0
+                for sym, s_map in series.items():
+                    w = weights.get(sym, 1.0/len(series))
+                    # find closest available date
+                    if d in s_map:
+                        val += s_map[d] * w
+                        total_w += w
+                    else:
+                        # use last known price
+                        avail = sorted(k for k in s_map if k <= d)
+                        if avail:
+                            val += s_map[avail[-1]] * w
+                            total_w += w
+                if total_w > 0:
+                    port_series.append({'date': d, 'value': round(val/total_w, 2)})
+                spy_val = spy_map.get(d)
+                if not spy_val:
+                    avail = sorted(k for k in spy_map if k <= d)
+                    spy_val = spy_map[avail[-1]] if avail else None
+                spy_series.append({'date': d, 'value': round(spy_val, 2) if spy_val else None})
+
+            # Compute stats
+            if port_series:
+                start_val = port_series[0]['value']
+                end_val   = port_series[-1]['value']
+                total_ret = round(end_val - start_val, 2)
+                total_pct = round((end_val/start_val - 1)*100, 2) if start_val else 0
+                # CAGR
+                years = len(monthly) / 12
+                cagr  = round(((end_val/start_val)**(1/years) - 1)*100, 2) if years > 0 and start_val > 0 else 0
+                # Max drawdown
+                peak = start_val; max_dd = 0
+                for pt in port_series:
+                    if pt['value'] > peak: peak = pt['value']
+                    dd = (pt['value'] - peak) / peak * 100 if peak > 0 else 0
+                    if dd < max_dd: max_dd = dd
+                # Best/worst ticker
+                ticker_rets = {}
+                for sym, s_map in series.items():
+                    vals = sorted(s_map.items())
+                    if len(vals) >= 2:
+                        ticker_rets[sym] = round((vals[-1][1]/vals[0][1] - 1)*100, 1)
+                best_ticker = max(ticker_rets, key=ticker_rets.get) if ticker_rets else None
+                worst_ticker = min(ticker_rets, key=ticker_rets.get) if ticker_rets else None
+            else:
+                total_pct = cagr = max_dd = 0
+                best_ticker = worst_ticker = None
+                ticker_rets = {}
+
+            spy_ret = 0
+            if spy_series:
+                s_vals = [p['value'] for p in spy_series if p['value']]
+                if len(s_vals) >= 2:
+                    spy_ret = round((s_vals[-1]/s_vals[0] - 1)*100, 2)
+
+            return {
+                'start_year':   start_year,
+                'port_series':  port_series,
+                'spy_series':   spy_series,
+                'total_pct':    total_pct,
+                'cagr':         cagr,
+                'max_drawdown': round(max_dd, 2),
+                'spy_total':    spy_ret,
+                'ticker_rets':  ticker_rets,
+                'best_ticker':  best_ticker,
+                'worst_ticker': worst_ticker,
+                'tickers':      list(series.keys()),
+            }
+        except Exception as e:
+            return {'error': str(e)}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+# ── Economic Calendar ─────────────────────────────────────────────────────────
+ECON_EVENTS = [
+    # These are key recurring event types; actual dates come from yfinance earnings calendars + hardcoded patterns
+    {'event': 'FOMC Meeting', 'category': 'fed', 'impact': 'high'},
+    {'event': 'CPI Release', 'category': 'inflation', 'impact': 'high'},
+    {'event': 'PCE Inflation', 'category': 'inflation', 'impact': 'high'},
+    {'event': 'Jobs Report (NFP)', 'category': 'employment', 'impact': 'high'},
+    {'event': 'GDP Estimate', 'category': 'growth', 'impact': 'high'},
+    {'event': 'Retail Sales', 'category': 'consumer', 'impact': 'medium'},
+    {'event': 'PPI Release', 'category': 'inflation', 'impact': 'medium'},
+    {'event': 'Fed Chair Speech', 'category': 'fed', 'impact': 'high'},
+    {'event': 'ISM Manufacturing', 'category': 'manufacturing', 'impact': 'medium'},
+    {'event': 'Consumer Confidence', 'category': 'consumer', 'impact': 'medium'},
+    {'event': 'Jobless Claims', 'category': 'employment', 'impact': 'medium'},
+    {'event': 'Housing Starts', 'category': 'housing', 'impact': 'low'},
+    {'event': 'Durable Goods Orders', 'category': 'manufacturing', 'impact': 'medium'},
+]
+
+def get_economic_calendar(user_tickers=None):
+    """Returns upcoming economic events + earnings dates for portfolio tickers."""
+    cache_key = f'econ_cal_{("|".join(sorted(user_tickers)) if user_tickers else "")}'
+    def fetch():
+        from datetime import datetime as _dt, timedelta as _td
+        events = []
+        today  = _dt.now()
+        today_str = today.strftime('%Y-%m-%d')
+
+        # Fetch earnings dates for user tickers
+        if user_tickers:
+            def _get_next_earnings(sym):
+                try:
+                    cal = yf.Ticker(sym).calendar
+                    if cal is not None and not cal.empty and 'Earnings Date' in cal.index:
+                        nd = cal.loc['Earnings Date']
+                        d = str(nd.iloc[0])[:10] if hasattr(nd,'iloc') else str(nd)[:10]
+                        if d >= today_str:
+                            return {'date': d, 'event': f'{sym} Earnings', 'category': 'earnings',
+                                    'impact': 'high', 'ticker': sym}
+                except: pass
+                return None
+            with ThreadPoolExecutor(max_workers=min(_YF_WORKERS, len(user_tickers))) as pool:
+                for result in pool.map(_get_next_earnings, user_tickers):
+                    if result: events.append(result)
+
+        # Add approximate upcoming macro events (simplified — real dates shift monthly)
+        # We generate approximate dates for recurring events
+        import calendar as _cal
+        # First Friday of each month = NFP
+        # Second/third Tues/Wed of certain months = FOMC
+        for month_offset in range(0, 3):
+            m = (today.month + month_offset - 1) % 12 + 1
+            y = today.year + ((today.month + month_offset - 1) // 12)
+            # First Friday = NFP
+            first_day = _dt(y, m, 1)
+            days_to_fri = (4 - first_day.weekday()) % 7
+            nfp_date = first_day + _td(days=days_to_fri)
+            if str(nfp_date)[:10] >= today_str:
+                events.append({'date': str(nfp_date)[:10], 'event': 'Jobs Report (NFP)',
+                                'category': 'employment', 'impact': 'high', 'ticker': None})
+            # ~12th of month = CPI
+            cpi_date = _dt(y, m, 12)
+            if str(cpi_date)[:10] >= today_str:
+                events.append({'date': str(cpi_date)[:10], 'event': 'CPI Release',
+                                'category': 'inflation', 'impact': 'high', 'ticker': None})
+            # ~28th = PCE
+            last_day = _cal.monthrange(y, m)[1]
+            pce_day  = min(28, last_day)
+            pce_date = _dt(y, m, pce_day)
+            if str(pce_date)[:10] >= today_str:
+                events.append({'date': str(pce_date)[:10], 'event': 'PCE Inflation',
+                                'category': 'inflation', 'impact': 'high', 'ticker': None})
+            # Retail Sales ~15th
+            rs_date = _dt(y, m, 15)
+            if str(rs_date)[:10] >= today_str:
+                events.append({'date': str(rs_date)[:10], 'event': 'Retail Sales',
+                                'category': 'consumer', 'impact': 'medium', 'ticker': None})
+            # Jobless Claims = every Thursday (first Thursday of month shown)
+            first_day = _dt(y, m, 1)
+            days_to_thu = (3 - first_day.weekday()) % 7
+            thu_date = first_day + _td(days=days_to_thu)
+            if str(thu_date)[:10] >= today_str:
+                events.append({'date': str(thu_date)[:10], 'event': 'Jobless Claims',
+                                'category': 'employment', 'impact': 'medium', 'ticker': None})
+
+        # Sort and deduplicate
+        seen = set()
+        unique = []
+        for e in sorted(events, key=lambda x: x['date']):
+            key = (e['date'], e['event'])
+            if key not in seen:
+                seen.add(key)
+                unique.append(e)
+        return {'events': unique[:40]}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
 def get_entry_analysis(ticker):
     ticker = ticker.upper().strip()
     cache_key = f'entry_{ticker}'
@@ -2286,6 +2547,30 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
             elif path == "/api/stress-test":
                 holdings = db_get_portfolio(user["user_id"])
                 self.send_json(get_stress_test(holdings))
+
+            elif path == "/api/backtest":
+                holdings   = db_get_portfolio(user["user_id"])
+                start_year = int(qs.get("start_year", ["2020"])[0])
+                self.send_json(get_backtest(holdings, start_year))
+
+            elif path == "/api/economic-calendar":
+                holdings  = db_get_portfolio(user["user_id"])
+                tickers   = [h['ticker'] for h in holdings if h.get('ticker')]
+                self.send_json(get_economic_calendar(tickers))
+
+            elif path == "/api/db-backup":
+                import shutil, io
+                backup_path = os.path.join(BASE_DIR, 'maelkloud_backup.db')
+                shutil.copy2(DB_PATH, backup_path)
+                with open(backup_path, 'rb') as f:
+                    data = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/octet-stream')
+                self.send_header('Content-Disposition', 'attachment; filename="maelkloud_backup.db"')
+                self.send_header('Content-Length', str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+                return
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
