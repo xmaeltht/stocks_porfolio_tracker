@@ -2058,6 +2058,128 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
 [data-theme="light"] .alert-row{background:rgba(0,0,0,.015);}
 [data-theme="light"] .alert-form input,[data-theme="light"] .alert-form select{background:#fff;}
 
+/* ════ Portfolio Backtesting ════ */
+.bt-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.bt-year-btn{padding:5px 13px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.76rem;font-weight:700;border-radius:8px;cursor:pointer;font-family:var(--font-data);transition:all .15s;}
+.bt-year-btn.active{background:rgba(124,92,252,.15);color:var(--blue);border-color:rgba(124,92,252,.35);}
+.bt-year-btn:hover:not(.active){color:var(--text);border-color:var(--blue);}
+.bt-stats-row{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;flex-wrap:wrap;margin-bottom:18px;}
+.bt-stat{flex:1;min-width:100px;padding:12px 16px;border-right:1px solid var(--border);text-align:center;}
+.bt-stat:last-child{border-right:none;}
+.bt-stat-label{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.bt-stat-val{font-size:1.2rem;font-weight:900;font-family:var(--font-data);}
+.bt-chart-wrap{position:relative;height:240px;margin-bottom:14px;}
+.bt-ticker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px;}
+.bt-ticker-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center;}
+.bt-ticker-sym{font-size:.82rem;font-weight:800;color:var(--blue);font-family:var(--font-data);}
+.bt-ticker-ret{font-size:1.1rem;font-weight:900;font-family:var(--font-data);}
+.bt-pos{color:#34d399;}
+.bt-neg{color:#f87171;}
+[data-theme="light"] .bt-stat-row,.bt-stats-row{border-color:#e4e2f8;}
+[data-theme="light"] .bt-ticker-card{background:#fff;border-color:#e4e2f8;}
+
+/* ════ Economic Calendar ════ */
+.econ-cal-grid{display:flex;flex-direction:column;gap:4px;margin-top:8px;}
+.econ-event{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;transition:background .12s;cursor:default;}
+.econ-event:hover{background:rgba(124,92,252,.04);}
+.econ-date{font-size:.72rem;font-family:var(--font-data);font-weight:700;color:var(--muted);width:72px;flex-shrink:0;}
+.econ-impact{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.econ-impact.high{background:#f87171;}
+.econ-impact.medium{background:#fbbf24;}
+.econ-impact.low{background:#6ee7b7;}
+.econ-name{flex:1;font-size:.84rem;font-weight:600;}
+.econ-cat{font-size:.65rem;padding:2px 8px;border-radius:8px;font-weight:700;text-transform:capitalize;flex-shrink:0;}
+.econ-cat-earnings{background:rgba(56,139,253,.12);color:#388bfd;}
+.econ-cat-fed{background:rgba(248,113,113,.12);color:#f87171;}
+.econ-cat-inflation{background:rgba(251,191,36,.1);color:#fbbf24;}
+.econ-cat-employment{background:rgba(52,211,153,.1);color:#34d399;}
+.econ-cat-growth,.econ-cat-consumer,.econ-cat-manufacturing,.econ-cat-housing{background:var(--border);color:var(--muted);}
+.econ-ticker-badge{font-size:.7rem;font-weight:800;color:var(--blue);font-family:var(--font-data);margin-left:auto;flex-shrink:0;}
+.econ-today{border-color:rgba(124,92,252,.35);background:rgba(124,92,252,.05)!important;}
+[data-theme="light"] .econ-event{border-color:#e4e2f8;}
+[data-theme="light"] .econ-event:hover{background:rgba(109,40,217,.03);}
+
+/* ════ DRIP Simulator ════ */
+.drip-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+.drip-controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:18px;}
+.drip-field{display:flex;flex-direction:column;gap:5px;}
+.drip-label{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.drip-input{padding:8px 12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);border-radius:8px;font-family:var(--font-data);font-size:.88rem;font-weight:700;outline:none;transition:border-color .15s;}
+.drip-input:focus{border-color:rgba(124,92,252,.5);}
+.drip-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:14px;}
+.drip-result-card{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:10px;padding:12px;text-align:center;}
+.drip-result-label{font-size:.6rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.drip-result-val{font-size:1.1rem;font-weight:900;font-family:var(--font-data);color:#34d399;}
+.drip-chart-wrap{position:relative;height:180px;margin-bottom:8px;}
+[data-theme="light"] .drip-card{background:#fff;border-color:#e4e2f8;}
+[data-theme="light"] .drip-input{background:#f8f7ff;}
+[data-theme="light"] .drip-result-card{background:rgba(16,185,129,.04);border-color:rgba(16,185,129,.12);}
+
+/* ════ Target Allocation Drift ════ */
+.drift-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px;}
+.drift-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:16px;}
+.drift-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.drift-label{font-size:.78rem;font-weight:700;width:64px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue);font-family:var(--font-data);}
+.drift-bar-wrap{flex:1;position:relative;height:16px;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden;}
+.drift-bar-actual{position:absolute;top:0;left:0;height:100%;border-radius:8px;transition:width .6s ease;}
+.drift-bar-target{position:absolute;top:0;height:100%;width:2px;background:#388bfd;opacity:.8;border-radius:1px;}
+.drift-pcts{display:flex;gap:4px;font-size:.66rem;font-family:var(--font-data);flex-shrink:0;align-items:center;}
+.drift-actual-pct{font-weight:800;}
+.drift-target-pct{color:var(--muted);}
+.drift-delta{font-size:.66rem;font-family:var(--font-data);font-weight:700;flex-shrink:0;width:38px;text-align:right;}
+.drift-legend{display:flex;gap:16px;font-size:.68rem;color:var(--muted);margin-bottom:12px;flex-wrap:wrap;}
+.drift-legend-item{display:flex;align-items:center;gap:5px;}
+.drift-legend-dot{width:8px;height:8px;border-radius:50%;}
+.drift-set-btn{font-size:.72rem;padding:4px 10px;border:1px solid rgba(56,139,253,.3);background:rgba(56,139,253,.08);color:#388bfd;border-radius:6px;cursor:pointer;font-family:var(--font-body);transition:all .15s;}
+.drift-set-btn:hover{background:rgba(56,139,253,.18);}
+.drift-target-input{width:52px;padding:3px 7px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);border-radius:6px;font-family:var(--font-data);font-size:.78rem;outline:none;}
+[data-theme="light"] .drift-card{background:#fff;border-color:#e4e2f8;}
+[data-theme="light"] .drift-bar-wrap{background:rgba(0,0,0,.05);}
+[data-theme="light"] .drift-target-input{background:#f8f7ff;}
+
+/* ════ Mobile Bottom Nav ════ */
+#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;
+  background:var(--surface);border-top:1px solid var(--border);
+  padding:4px 0 env(safe-area-inset-bottom,4px);
+  box-shadow:0 -4px 20px rgba(0,0,0,.4);}
+.mobile-nav-items{display:flex;justify-content:space-around;align-items:stretch;}
+.mobile-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:6px 4px;border:none;background:none;color:var(--muted);cursor:pointer;
+  font-size:.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  font-family:var(--font-body);transition:color .15s;gap:2px;min-height:48px;}
+.mobile-nav-btn.active{color:var(--blue);}
+.mobile-nav-btn:hover{color:var(--text);}
+.mobile-nav-icon{font-size:1.2rem;line-height:1;}
+@media(max-width:680px){
+  #mobile-nav{display:block;}
+  main{padding-bottom:68px!important;}
+  .tab-nav{display:none!important;}
+  #sp-header{padding:10px 12px!important;gap:8px!important;}
+  .sp-tab-nav{padding:0 8px!important;}
+  .sp-tab{padding:9px 10px!important;font-size:.78rem!important;}
+}
+[data-theme="light"] #mobile-nav{background:#fff;box-shadow:0 -4px 16px rgba(0,0,0,.08);}
+
+/* ════ Keyboard Shortcuts Modal ════ */
+#shortcuts-modal{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+#shortcuts-modal.open{display:flex;}
+.shortcuts-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 32px;width:min(520px,92vw);max-height:90vh;overflow-y:auto;}
+.shortcuts-title{font-size:1rem;font-weight:800;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.shortcuts-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:4px;}
+.shortcuts-section{margin-bottom:16px;}
+.shortcuts-section-title{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.shortcut-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.shortcut-row:last-child{border-bottom:none;}
+.shortcut-desc{font-size:.83rem;color:var(--text);}
+.shortcut-key{display:flex;gap:4px;}
+.kbd{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 6px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:5px;
+  font-size:.72rem;font-weight:700;font-family:var(--font-data);color:var(--text);
+  box-shadow:0 2px 0 rgba(0,0,0,.3);}
+[data-theme="light"] .shortcuts-box{background:#fff;border-color:#e4e2f8;}
+[data-theme="light"] .kbd{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.12);box-shadow:0 1px 0 rgba(0,0,0,.15);}
+[data-theme="light"] .shortcut-row{border-bottom-color:rgba(0,0,0,.05);}
+
 </style>
 </head>
 <body>
@@ -2085,7 +2207,8 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
     <span id="next-refresh"></span>
     <span id="last-updated" style="font-size:.76rem;color:var(--muted);">—</span>
     <span id="username-display" style="font-size:.76rem;color:var(--muted);padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-radius:20px;"></span>
-    <button class="theme-btn" id="theme-btn" title="Toggle dark/light theme" onclick="toggleTheme()">🌙</button>
+    <button class="theme-btn" id="theme-btn" title="Toggle dark/light theme (T)" onclick="toggleTheme()">🌙</button>
+    <button class="btn btn-outline btn-sm" onclick="openShortcutsModal()" title="Keyboard shortcuts (?)" style="font-size:.74rem;padding:4px 8px">⌨️</button>
     <!-- Export dropdown -->
     <div style="position:relative;" id="export-wrap">
       <button class="btn btn-outline btn-sm" onclick="toggleExportMenu()" id="export-btn">⬇ Export ▾</button>
@@ -2093,7 +2216,8 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
         <div onclick="doImportClick()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">⬆ Import JSON</div>
         <div onclick="doJsonExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">⬇ Export JSON</div>
         <div onclick="doCsvExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">📋 Export CSV</div>
-        <div onclick="doExcelExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">📊 Export Excel</div>
+        <div onclick="doExcelExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">📊 Export Excel</div>
+        <div onclick="doDbBackup()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">💾 Backup Database</div>
       </div>
     </div>
     <button class="btn btn-primary btn-sm" id="refresh-btn" onclick="refresh()">↻ Refresh</button>
@@ -2539,8 +2663,21 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       <div id="watchlist-body"><div class="watchlist-empty">Add a ticker above to start watching</div></div>
     </div>
 
+    <!-- ECONOMIC CALENDAR -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin:0;font-size:.72rem;">📅 ECONOMIC CALENDAR</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.66rem;color:var(--muted);">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>High Impact</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;display:inline-block"></span>Medium</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#6ee7b7;display:inline-block"></span>Low</span>
+      </div>
+    </div>
+    <div class="econ-cal-grid" id="econ-cal-grid">
+      <div style="color:var(--muted);font-size:.82rem;padding:20px;text-align:center"><span class="spinner"></span> Loading calendar…</div>
+    </div>
+
     <!-- MARKET NEWS -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">📰 MARKET NEWS</div>
+    <div class="section-title" style="margin-bottom:8px;margin-top:24px;font-size:.72rem;">📰 MARKET NEWS</div>
     <div class="market-news-grid" id="market-news-grid">
       <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading news… <span class="spinner"></span></div>
     </div>
@@ -2804,9 +2941,121 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       <div class="stress-results" id="stress-results"></div>
     </div>
 
+    <!-- ── 7. PORTFOLIO BACKTESTING ──────────────────────────── -->
+    <div class="analysis-section" id="backtest-section">
+      <div class="analysis-section-title">📈 Portfolio Backtesting <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">How current holdings would have performed · equal-weight normalised · not a prediction</span></div>
+      <div class="bt-controls">
+        <span style="font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Since:</span>
+        <button class="bt-year-btn active" data-year="2020" onclick="loadBacktest(2020,this)">2020</button>
+        <button class="bt-year-btn" data-year="2019" onclick="loadBacktest(2019,this)">2019</button>
+        <button class="bt-year-btn" data-year="2022" onclick="loadBacktest(2022,this)">2022</button>
+        <button class="bt-year-btn" data-year="2023" onclick="loadBacktest(2023,this)">2023</button>
+        <button class="bt-year-btn" data-year="2024" onclick="loadBacktest(2024,this)">2024</button>
+      </div>
+      <div id="bt-content">
+        <div style="color:var(--muted);font-size:.82rem;padding:8px 0">Switch to this tab to run backtest…</div>
+      </div>
+    </div>
+
+    <!-- ── 8. DRIP SIMULATOR ──────────────────────────────────── -->
+    <div class="analysis-section" id="drip-section">
+      <div class="analysis-section-title">💧 DRIP Simulator <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Dividend reinvestment compound calculator · hypothetical projection</span></div>
+      <div class="drip-card">
+        <div class="drip-controls">
+          <div class="drip-field">
+            <label class="drip-label">Initial Investment ($)</label>
+            <input class="drip-input" id="drip-principal" type="number" value="10000" min="100" step="100" oninput="calcDRIP()"/>
+          </div>
+          <div class="drip-field">
+            <label class="drip-label">Annual Dividend Yield (%)</label>
+            <input class="drip-input" id="drip-yield" type="number" value="3" min="0" max="30" step="0.1" oninput="calcDRIP()"/>
+          </div>
+          <div class="drip-field">
+            <label class="drip-label">Annual Price Growth (%)</label>
+            <input class="drip-input" id="drip-growth" type="number" value="8" min="-20" max="50" step="0.5" oninput="calcDRIP()"/>
+          </div>
+          <div class="drip-field">
+            <label class="drip-label">Monthly Contribution ($)</label>
+            <input class="drip-input" id="drip-monthly" type="number" value="500" min="0" step="50" oninput="calcDRIP()"/>
+          </div>
+          <div class="drip-field">
+            <label class="drip-label">Time Horizon (Years)</label>
+            <input class="drip-input" id="drip-years" type="number" value="20" min="1" max="50" step="1" oninput="calcDRIP()"/>
+          </div>
+        </div>
+        <div class="drip-results" id="drip-results"></div>
+        <div class="drip-chart-wrap"><canvas id="drip-chart"></canvas></div>
+        <div class="ea-disclaimer" style="margin-top:8px">Projection assumes constant yield and growth rate. Taxes, inflation, and changing yields are not modelled. Not financial advice.</div>
+      </div>
+    </div>
+
+    <!-- ── 9. TARGET ALLOCATION DRIFT ────────────────────────── -->
+    <div class="analysis-section" id="drift-section">
+      <div class="analysis-section-title">🎯 Target Allocation Drift <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Set target weights · see how far you've drifted</span></div>
+      <div class="drift-card">
+        <div class="drift-legend">
+          <div class="drift-legend-item"><div class="drift-legend-dot" style="background:var(--blue)"></div> Actual weight</div>
+          <div class="drift-legend-item"><div style="width:2px;height:8px;background:#388bfd;opacity:.8;border-radius:1px;display:inline-block"></div>&nbsp;Target</div>
+        </div>
+        <div id="drift-rows">
+          <div style="color:var(--muted);font-size:.82rem;padding:8px 0">Switch to this tab to load allocation data…</div>
+        </div>
+        <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+          <button class="drift-set-btn" onclick="saveDriftTargets()">💾 Save Targets</button>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /tab-analysis -->
 
 </main>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="mobile-nav-items">
+    <button class="mobile-nav-btn active" id="mob-portfolio" onclick="switchTab('portfolio');setMobileNav('portfolio')">
+      <span class="mobile-nav-icon">📋</span>Portfolio
+    </button>
+    <button class="mobile-nav-btn" id="mob-market" onclick="switchTab('market');setMobileNav('market')">
+      <span class="mobile-nav-icon">🌍</span>Market
+    </button>
+    <button class="mobile-nav-btn" id="mob-analysis" onclick="switchTab('analysis');setMobileNav('analysis')">
+      <span class="mobile-nav-icon">📊</span>Analysis
+    </button>
+    <button class="mobile-nav-btn" id="mob-journal" onclick="switchTab('journal');setMobileNav('journal')">
+      <span class="mobile-nav-icon">📓</span>Journal
+    </button>
+    <button class="mobile-nav-btn" id="mob-search" onclick="document.getElementById('header-search-input')?.focus()">
+      <span class="mobile-nav-icon">🔍</span>Search
+    </button>
+  </div>
+</nav>
+
+<!-- KEYBOARD SHORTCUTS MODAL -->
+<div id="shortcuts-modal" onclick="if(event.target===this)closeShortcutsModal()">
+  <div class="shortcuts-box">
+    <div class="shortcuts-title">
+      ⌨️ Keyboard Shortcuts
+      <button class="shortcuts-close" onclick="closeShortcutsModal()">✕</button>
+    </div>
+    <div class="shortcuts-section">
+      <div class="shortcuts-section-title">Navigation</div>
+      <div class="shortcut-row"><span class="shortcut-desc">Switch to Portfolio</span><span class="shortcut-key"><span class="kbd">G</span><span class="kbd">P</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Switch to Market</span><span class="shortcut-key"><span class="kbd">G</span><span class="kbd">M</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Switch to Analysis</span><span class="shortcut-key"><span class="kbd">G</span><span class="kbd">A</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Switch to Journal</span><span class="shortcut-key"><span class="kbd">G</span><span class="kbd">J</span></span></div>
+    </div>
+    <div class="shortcuts-section">
+      <div class="shortcuts-section-title">Actions</div>
+      <div class="shortcut-row"><span class="shortcut-desc">Refresh prices</span><span class="shortcut-key"><span class="kbd">R</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Focus search</span><span class="shortcut-key"><span class="kbd">/</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Focus table filter</span><span class="shortcut-key"><span class="kbd">F</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Toggle theme</span><span class="shortcut-key"><span class="kbd">T</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">Close panels / modals</span><span class="shortcut-key"><span class="kbd">Esc</span></span></div>
+      <div class="shortcut-row"><span class="shortcut-desc">This help screen</span><span class="shortcut-key"><span class="kbd">?</span></span></div>
+    </div>
+  </div>
+</div>
 
 <footer>maelkloud · Data via Yahoo Finance · Not financial advice · <a href="/logout" style="color:var(--muted);text-decoration:none;">Sign Out</a></footer>
 
@@ -8559,6 +8808,352 @@ function buildTaxLotTracker() {
   </table></div>
   <div class="ea-disclaimer" style="margin-top:12px">Long-term status requires ≥ 366 days held. Tax implications vary by jurisdiction. Consult a tax professional.</div>`;
 }
+
+/* ══════════════════════════════════════════════════════════════
+   ECONOMIC CALENDAR
+══════════════════════════════════════════════════════════════ */
+let _econLoaded = false;
+async function loadEconomicCalendar() {
+  if (_econLoaded) return;
+  const grid = g('econ-cal-grid');
+  if (!grid) return;
+  grid.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted);font-size:.82rem"><span class="spinner"></span> Loading calendar…</div>';
+  try {
+    const data = await apiFetch('/api/economic-calendar');
+    renderEconomicCalendar(data);
+    _econLoaded = true;
+  } catch(e) {
+    grid.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.82rem">⚠️ Could not load calendar</div>';
+  }
+}
+
+function renderEconomicCalendar(data) {
+  const grid = g('econ-cal-grid');
+  if (!grid) return;
+  const events = (data.events || []).sort((a,b) => new Date(a.date) - new Date(b.date));
+  if (!events.length) { grid.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.82rem">No upcoming events found.</div>'; return; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const importanceColor = { high:'var(--red)', medium:'#f59e0b', low:'var(--muted)' };
+  grid.innerHTML = events.map(ev => {
+    const evDate = new Date(ev.date + 'T00:00:00');
+    const daysAway = Math.round((evDate - today) / 86400000);
+    const dLabel = daysAway === 0 ? 'Today' : daysAway === 1 ? 'Tomorrow' : daysAway < 0 ? `${Math.abs(daysAway)}d ago` : `in ${daysAway}d`;
+    const isPast = daysAway < 0;
+    const isToday = daysAway === 0;
+    const imp = ev.importance || 'low';
+    const impCls = imp === 'high' ? 'high' : imp === 'medium' ? 'medium' : 'low';
+    const catCls = 'econ-cat econ-cat-' + (ev.category || 'other').toLowerCase().replace(/\s+/g,'-');
+    const dateStr = evDate.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const daysColor = isPast ? 'var(--muted)' : daysAway <= 3 ? 'var(--red)' : daysAway <= 7 ? '#f59e0b' : 'var(--muted)';
+    return `<div class="econ-event${isToday ? ' econ-today' : ''}" style="${isPast?'opacity:.5':''}">
+      <div class="econ-impact ${impCls}"></div>
+      <span class="econ-date">${dateStr}</span>
+      <span class="econ-name">${ev.event}</span>
+      ${ev.ticker ? `<span class="econ-ticker-badge">${ev.ticker}</span>` : `<span class="${catCls}">${ev.category||''}</span>`}
+      <span style="font-size:.66rem;font-family:var(--font-data);color:${daysColor};flex-shrink:0;width:60px;text-align:right">${dLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PORTFOLIO BACKTESTING
+══════════════════════════════════════════════════════════════ */
+let _btChart = null;
+async function loadBacktest(year, btnEl) {
+  document.querySelectorAll('.bt-year-btn').forEach(b => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  const box = g('bt-content');
+  if (!box) return;
+  box.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);font-size:.82rem"><span class="spinner"></span> Running backtest from ' + year + '…</div>';
+  try {
+    const data = await apiFetch('/api/backtest?start_year=' + year);
+    renderBacktest(data);
+  } catch(e) {
+    box.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:.82rem">⚠️ Backtest unavailable</div>';
+  }
+}
+
+function renderBacktest(d) {
+  const box = g('bt-content');
+  if (!box || !d) return;
+  const port = d.portfolio || {};
+  const spy = d.spy || {};
+  const tickers = d.tickers || {};
+  const portColor = '#3b82f6'; const spyColor = '#6b7280';
+  // Stats row
+  const statItem = (label, val, cls='') =>
+    `<div class="bt-stat"><div class="bt-stat-label">${label}</div><div class="bt-stat-val ${cls}">${val}</div></div>`;
+  const fmtPct = v => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  const statsHtml = `<div class="bt-stats-row">
+    ${statItem('Total Return', fmtPct(port.total_return), port.total_return >= 0 ? 'bt-pos' : 'bt-neg')}
+    ${statItem('CAGR', fmtPct(port.cagr), port.cagr >= 0 ? 'bt-pos' : 'bt-neg')}
+    ${statItem('Max Drawdown', port.max_drawdown != null ? port.max_drawdown.toFixed(1)+'%' : '—', 'bt-neg')}
+    ${statItem('vs S&P 500', fmtPct((port.total_return||0)-(spy.total_return||0)), (port.total_return||0)>=(spy.total_return||0)?'bt-pos':'bt-neg')}
+    ${statItem('SPY Return', fmtPct(spy.total_return), spy.total_return >= 0 ? 'bt-pos' : 'bt-neg')}
+    ${statItem('SPY CAGR', fmtPct(spy.cagr), spy.cagr >= 0 ? 'bt-pos' : 'bt-neg')}
+  </div>`;
+  // Per-ticker cards
+  const tickerCards = Object.entries(tickers).sort((a,b)=>(b[1].total_return||0)-(a[1].total_return||0))
+    .map(([sym,t]) => `<div class="bt-ticker-card">
+      <div class="bt-ticker-sym">${sym}</div>
+      <div class="bt-ticker-ret ${(t.total_return||0)>=0?'bt-pos':'bt-neg'}">${fmtPct(t.total_return)}</div>
+    </div>`).join('');
+  box.innerHTML = statsHtml +
+    '<div style="position:relative;height:200px;margin:12px 0 8px"><canvas id="bt-chart"></canvas></div>' +
+    `<div class="bt-ticker-grid">${tickerCards}</div>`;
+  // Chart
+  if (_btChart) { _btChart.destroy(); _btChart = null; }
+  const ctx = g('bt-chart');
+  if (!ctx || !d.chart_dates) return;
+  const labels = d.chart_dates;
+  const portPts = d.chart_portfolio || [];
+  const spyPts = d.chart_spy || [];
+  _btChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'My Portfolio', data: portPts, borderColor: portColor, backgroundColor: portColor+'22', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3 },
+        { label: 'SPY', data: spyPts, borderColor: spyColor, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.3, borderDash: [4,4] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: 'var(--text)', font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) } } },
+      scales: {
+        x: { ticks: { color: 'var(--muted)', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: 'var(--muted)', font: { size: 10 }, callback: v => v.toFixed(0) }, grid: { color: 'rgba(255,255,255,.04)' }, title: { display: true, text: 'Value (normalised to 100)', color: 'var(--muted)', font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DRIP SIMULATOR
+══════════════════════════════════════════════════════════════ */
+let _dripChart = null;
+function calcDRIP() {
+  const principal   = parseFloat(g('drip-principal')?.value  || 10000);
+  const annualYield = parseFloat(g('drip-yield')?.value      || 3) / 100;
+  const priceGrowth = parseFloat(g('drip-growth')?.value     || 8) / 100;
+  const monthly     = parseFloat(g('drip-monthly')?.value    || 500);
+  const years       = parseInt(g('drip-years')?.value        || 20);
+
+  let balance = principal;
+  let totalContrib = principal;
+  let totalDividends = 0;
+  const dataPoints = [{ year: 0, balance, totalContrib, dividends: 0 }];
+
+  for (let y = 1; y <= years; y++) {
+    for (let m = 0; m < 12; m++) {
+      const monthlyDiv = balance * (annualYield / 12);
+      balance += monthlyDiv;        // reinvest dividend
+      totalDividends += monthlyDiv;
+      balance += monthly;           // monthly contribution
+      totalContrib += monthly;
+      balance *= (1 + priceGrowth / 12); // price appreciation
+    }
+    dataPoints.push({ year: y, balance, totalContrib, dividends: totalDividends });
+  }
+
+  const finalBalance = balance;
+  const totalInvested = totalContrib;
+  const totalGain = finalBalance - totalInvested;
+
+  // Update result stats
+  const fmt = v => '$' + Math.round(v).toLocaleString('en-US');
+  const statsEl = g('drip-results');
+  if (statsEl) statsEl.innerHTML = `
+    <div class="drip-result-card"><div class="drip-result-label">Final Value</div><div class="drip-result-val" style="color:var(--blue)">${fmt(finalBalance)}</div></div>
+    <div class="drip-result-card"><div class="drip-result-label">Total Invested</div><div class="drip-result-val" style="color:var(--muted)">${fmt(totalInvested)}</div></div>
+    <div class="drip-result-card"><div class="drip-result-label">Total Dividends</div><div class="drip-result-val">${fmt(totalDividends)}</div></div>
+    <div class="drip-result-card"><div class="drip-result-label">Total Gain</div><div class="drip-result-val" style="color:${totalGain>=0?'#34d399':'var(--red)'}">${fmt(totalGain)}</div></div>
+  `;
+
+  // Chart
+  const ctx = g('drip-chart');
+  if (!ctx) return;
+  if (_dripChart) { _dripChart.destroy(); _dripChart = null; }
+  const labels = dataPoints.map(p => 'Y'+p.year);
+  const balances = dataPoints.map(p => p.balance);
+  const contribs = dataPoints.map(p => p.totalContrib);
+  _dripChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Portfolio Value', data: balances, borderColor: '#3b82f6', backgroundColor: '#3b82f633', borderWidth: 2, pointRadius: 0, fill: true, tension: 0.4 },
+        { label: 'Total Invested', data: contribs, borderColor: '#6b7280', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.4, borderDash: [4,3] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: 'var(--text)', font: { size: 10 } } }, tooltip: { callbacks: { label: ctx => ' ' + ctx.dataset.label + ': $' + Math.round(ctx.parsed.y).toLocaleString() } } },
+      scales: {
+        x: { ticks: { color: 'var(--muted)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
+        y: { ticks: { color: 'var(--muted)', font: { size: 10 }, callback: v => '$' + (v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K') }, grid: { color: 'rgba(255,255,255,.04)' } }
+      }
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TARGET ALLOCATION DRIFT TRACKER
+══════════════════════════════════════════════════════════════ */
+function buildDriftTracker() {
+  const box = g('drift-rows');
+  if (!box) return;
+  const rs = rows();
+  if (!rs.length) { box.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:8px 0">No holdings loaded yet.</div>'; return; }
+
+  const totalVal = rs.reduce((s, r) => s + (r.value || 0), 0);
+  if (!totalVal) { box.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:8px 0">No portfolio value available.</div>'; return; }
+
+  // Load saved targets from localStorage
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem('_driftTargets') || '{}'); } catch(e) {}
+
+  box.innerHTML = rs.map(r => {
+    const actual = totalVal > 0 ? ((r.value || 0) / totalVal * 100) : 0;
+    const target = saved[r.ticker] != null ? parseFloat(saved[r.ticker]) : actual;
+    const drift = actual - target;
+    const driftCls = Math.abs(drift) < 1 ? 'drift-ok' : Math.abs(drift) < 5 ? 'drift-warn' : 'drift-alert';
+    const barWidth = Math.min(actual, 100);
+    const targetPos = Math.min(target, 100);
+    const driftColor = driftCls === 'drift-ok' ? 'var(--green,#34d399)' : driftCls === 'drift-warn' ? '#f59e0b' : 'var(--red)';
+    return `<div class="drift-row">
+      <div class="drift-label">${r.ticker}</div>
+      <div class="drift-bar-wrap">
+        <div class="drift-bar-actual" style="width:${barWidth}%;background:rgba(124,92,252,.45)"></div>
+        <div class="drift-bar-target" style="left:${targetPos}%" title="Target: ${target.toFixed(1)}%"></div>
+      </div>
+      <div class="drift-pcts">
+        <span class="drift-actual-pct">${actual.toFixed(1)}%</span>
+      </div>
+      <input class="drift-target-input" id="drift-inp-${r.ticker}" type="number" value="${target.toFixed(1)}" min="0" max="100" step="0.5" title="Target %"/>
+      <div class="drift-delta" style="color:${driftColor}">${drift >= 0 ? '+' : ''}${drift.toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+}
+
+function saveDriftTargets() {
+  const rs = rows();
+  const targets = {};
+  rs.forEach(r => {
+    const inp = g('drift-inp-' + r.ticker);
+    if (inp) targets[r.ticker] = parseFloat(inp.value) || 0;
+  });
+  try { localStorage.setItem('_driftTargets', JSON.stringify(targets)); } catch(e) {}
+  buildDriftTracker();
+  // brief feedback
+  const btn = document.querySelector('.drift-set-btn');
+  if (btn) { const orig = btn.textContent; btn.textContent = '✅ Saved!'; setTimeout(() => btn.textContent = orig, 1500); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV
+══════════════════════════════════════════════════════════════ */
+function setMobileNav(tab) {
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  const btn = g('mob-' + tab);
+  if (btn) btn.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS MODAL
+══════════════════════════════════════════════════════════════ */
+function openShortcutsModal() {
+  const m = g('shortcuts-modal');
+  if (m) m.classList.add('open');
+}
+function closeShortcutsModal() {
+  const m = g('shortcuts-modal');
+  if (m) m.classList.remove('open');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   DATABASE BACKUP
+══════════════════════════════════════════════════════════════ */
+function doDbBackup() {
+  if (!IS_SERVER) return;
+  const a = document.createElement('a');
+  a.href = '/api/db-backup';
+  a.download = 'maelkloud_backup.db';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   KEYBOARD SHORTCUTS LISTENER
+══════════════════════════════════════════════════════════════ */
+(function() {
+  let _gPrefix = false;
+  document.addEventListener('keydown', function(e) {
+    // Ignore if typing in an input/textarea
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+
+    // Close modals with Escape
+    if (e.key === 'Escape') {
+      closeShortcutsModal();
+      const sp = g('stock-page');
+      if (sp && sp.style.display !== 'none') closeStockPage();
+      _gPrefix = false;
+      return;
+    }
+
+    // G+letter navigation
+    if (_gPrefix) {
+      _gPrefix = false;
+      if (e.key === 'p' || e.key === 'P') { switchTab('portfolio'); setMobileNav('portfolio'); return; }
+      if (e.key === 'm' || e.key === 'M') { switchTab('market');    setMobileNav('market');    return; }
+      if (e.key === 'a' || e.key === 'A') { switchTab('analysis');  setMobileNav('analysis');  return; }
+      if (e.key === 'j' || e.key === 'J') { switchTab('journal');   setMobileNav('journal');   return; }
+      return;
+    }
+
+    switch(e.key) {
+      case 'g': case 'G': _gPrefix = true; setTimeout(() => { _gPrefix = false; }, 1500); break;
+      case 'r': case 'R': if (IS_SERVER) refresh(); break;
+      case 't': case 'T': toggleTheme(); break;
+      case '/':
+        e.preventDefault();
+        const srch = g('search-input') || document.querySelector('input[placeholder*="Search"]');
+        if (srch) { srch.focus(); srch.select(); }
+        break;
+      case 'f': case 'F':
+        const filt = document.querySelector('.filter-btn') || document.querySelector('#filter-toggle');
+        if (filt) filt.click();
+        break;
+      case '?':
+        openShortcutsModal();
+        break;
+    }
+  });
+})();
+
+/* ══════════════════════════════════════════════════════════════
+   WIRE SECOND-BATCH FEATURES INTO EXISTING HOOKS
+══════════════════════════════════════════════════════════════ */
+// Patch switchTab to load economic calendar on market tab
+(function() {
+  const _origSwitchTab = switchTab;
+  window.switchTab = function(name) {
+    _origSwitchTab(name);
+    if (name === 'market' && IS_SERVER) loadEconomicCalendar();
+    if (name === 'analysis' && IS_SERVER) {
+      setTimeout(() => { buildDriftTracker(); }, 300);
+    }
+    setMobileNav(name);
+  };
+})();
+
+// Auto-load backtest when analysis tab first opens (deferred)
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize DRIP calculator on load
+  setTimeout(calcDRIP, 500);
+});
 
 </script>
 
