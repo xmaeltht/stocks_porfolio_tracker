@@ -1925,6 +1925,139 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
 [data-theme="light"] .corr-table td{border-color:rgba(0,0,0,.06);}
 [data-theme="light"] .whatif-summary{background:#fff;border-color:#e4e2f8;}
 
+/* ════ Morning Briefing ════ */
+.mb-card{background:linear-gradient(135deg,rgba(56,139,253,.1) 0%,rgba(34,211,238,.05) 60%,rgba(124,92,252,.08) 100%);border:1px solid rgba(56,139,253,.22);border-radius:16px;padding:20px 24px;margin-bottom:20px;display:none;}
+.mb-card.loaded{display:block;}
+.mb-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.mb-icon{font-size:2rem;flex-shrink:0;margin-top:2px;}
+.mb-text{flex:1;min-width:200px;}
+.mb-date{font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.mb-summary{font-size:.88rem;line-height:1.65;color:var(--text);}
+.mb-stats{display:flex;gap:0;border:1px solid rgba(56,139,253,.18);border-radius:12px;overflow:hidden;flex-wrap:wrap;}
+.mb-stat{flex:1;min-width:120px;padding:12px 16px;border-right:1px solid rgba(56,139,253,.12);text-align:center;}
+.mb-stat:last-child{border-right:none;}
+.mb-stat-label{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;}
+.mb-stat-val{font-size:1.1rem;font-weight:800;font-family:var(--font-data);}
+.mb-mood{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;}
+.mb-mood-on{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.25);}
+.mb-mood-off{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.25);}
+.mb-mood-mixed{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25);}
+[data-theme="light"] .mb-card{background:linear-gradient(135deg,rgba(37,99,235,.06),rgba(34,211,238,.02),rgba(109,40,217,.04));border-color:rgba(37,99,235,.18);}
+
+/* ════ Benchmark selector (chart) ════ */
+.bench-row{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center;}
+.bench-label{font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:2px;}
+.bmark-btn{padding:3px 10px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.72rem;font-weight:700;border-radius:6px;cursor:pointer;transition:all .15s;font-family:var(--font-data);}
+.bmark-btn.active{background:rgba(56,139,253,.15);color:#388bfd;border-color:rgba(56,139,253,.35);}
+.bmark-btn:hover:not(.active){color:var(--text);border-color:var(--blue);}
+.pct-mode-btn{padding:3px 10px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.72rem;font-weight:700;border-radius:6px;cursor:pointer;margin-left:8px;transition:all .15s;font-family:var(--font-body);}
+.pct-mode-btn.active{background:rgba(124,92,252,.15);color:var(--blue);border-color:rgba(124,92,252,.35);}
+
+/* ════ RS Rank badge ════ */
+.rs-badge{display:inline-block;padding:1px 6px;border-radius:6px;font-size:.68rem;font-weight:800;font-family:var(--font-data);}
+.rs-high{background:rgba(52,211,153,.15);color:#34d399;}
+.rs-mid{background:rgba(251,191,36,.1);color:#fbbf24;}
+.rs-low{background:rgba(248,113,113,.1);color:#f87171;}
+
+/* ════ Short Interest columns ════ */
+.si-pct{font-size:.76rem;font-family:var(--font-data);font-weight:700;}
+.si-high{color:#f87171;}
+.si-med{color:#fbbf24;}
+.si-low{color:var(--muted);}
+
+/* ════ Stress Test ════ */
+.stress-scen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:16px;}
+.stress-scen-btn{padding:10px 14px;border:1px solid rgba(248,113,113,.2);background:rgba(248,113,113,.06);border-radius:12px;cursor:pointer;text-align:left;font-family:var(--font-body);transition:all .15s;color:var(--text);}
+.stress-scen-btn:hover,.stress-scen-btn.active{border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.12);}
+.stress-scen-label{font-size:.84rem;font-weight:700;margin-bottom:3px;}
+.stress-scen-drop{font-size:1.8rem;font-weight:900;color:#f87171;font-family:var(--font-data);}
+.stress-scen-meta{font-size:.68rem;color:var(--muted);margin-top:2px;}
+.stress-results{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:6px;display:none;}
+.stress-results.open{display:block;}
+.stress-summary{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.stress-sum-item{flex:1;min-width:100px;text-align:center;}
+.stress-sum-label{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.stress-sum-val{font-size:1.3rem;font-weight:900;font-family:var(--font-data);}
+.stress-title{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+.stress-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.stress-bar-label{font-size:.76rem;font-weight:700;width:64px;flex-shrink:0;color:var(--blue);}
+.stress-bar-track{flex:1;height:8px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
+.stress-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#f87171,#ef4444);transition:width .8s ease;}
+.stress-bar-val{font-size:.76rem;font-family:var(--font-data);font-weight:700;color:#f87171;width:58px;text-align:right;flex-shrink:0;}
+[data-theme="light"] .stress-scen-btn{background:rgba(239,68,68,.04);border-color:rgba(239,68,68,.15);}
+[data-theme="light"] .stress-scen-btn.active,.stress-scen-btn:hover{background:rgba(239,68,68,.08)!important;}
+[data-theme="light"] .stress-results{background:#fff;border-color:#e4e2f8;}
+
+/* ════ Earnings Reaction History ════ */
+.eh-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.eh-table th{font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);}
+.eh-table th:first-child{text-align:left;}
+.eh-table td{font-size:.82rem;padding:9px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);}
+.eh-table td:first-child{text-align:left;font-family:var(--font-data);font-weight:700;}
+.eh-table tbody tr:hover{background:rgba(124,92,252,.05);}
+.eh-beat{color:#34d399;font-weight:700;}
+.eh-miss{color:#f87171;font-weight:700;}
+.eh-in-line{color:var(--muted);}
+.eh-next{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.22);border-radius:8px;font-size:.74rem;font-weight:700;color:#fbbf24;margin-bottom:14px;}
+[data-theme="light"] .eh-table td{border-bottom-color:rgba(0,0,0,.04);}
+[data-theme="light"] .eh-table tbody tr:hover{background:rgba(109,40,217,.04);}
+
+/* ════ Insider Trades ════ */
+.it-section{margin-bottom:20px;}
+.it-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.it-table th{font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);}
+.it-table th:first-child{text-align:left;}
+.it-table td{font-size:.8rem;padding:8px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);}
+.it-table td:first-child{text-align:left;}
+.it-table tbody tr:hover{background:rgba(124,92,252,.05);}
+.it-buy{display:inline-block;padding:2px 8px;background:rgba(52,211,153,.12);color:#34d399;border-radius:6px;font-size:.66rem;font-weight:700;}
+.it-sell{display:inline-block;padding:2px 8px;background:rgba(248,113,113,.12);color:#f87171;border-radius:6px;font-size:.66rem;font-weight:700;}
+.it-name{font-weight:600;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
+.it-empty{color:var(--muted);font-size:.82rem;padding:20px 0;text-align:center;}
+[data-theme="light"] .it-table td{border-bottom-color:rgba(0,0,0,.04);}
+[data-theme="light"] .it-table tbody tr:hover{background:rgba(109,40,217,.04);}
+
+/* ════ Tax Lot Tracker ════ */
+.tl-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;}
+.tl-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.tl-table th{font-size:.63rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);}
+.tl-table th:first-child{text-align:left;}
+.tl-table td{font-size:.8rem;padding:8px 10px;text-align:right;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text);}
+.tl-table td:first-child{text-align:left;font-weight:700;color:var(--blue);}
+.tl-table tbody tr:hover{background:rgba(124,92,252,.05);}
+.tl-lt{display:inline-block;padding:2px 8px;background:rgba(52,211,153,.12);color:#34d399;border-radius:6px;font-size:.66rem;font-weight:700;}
+.tl-st{display:inline-block;padding:2px 8px;background:rgba(251,191,36,.1);color:#fbbf24;border-radius:6px;font-size:.66rem;font-weight:700;}
+.tl-soon{display:inline-block;padding:2px 8px;background:rgba(56,139,253,.1);color:#388bfd;border-radius:6px;font-size:.66rem;font-weight:700;}
+.tl-na{color:var(--muted);font-size:.68rem;}
+[data-theme="light"] .tl-card{background:#fff;border-color:#e4e2f8;}
+[data-theme="light"] .tl-table td{border-bottom-color:rgba(0,0,0,.04);}
+[data-theme="light"] .tl-table tbody tr:hover{background:rgba(109,40,217,.04);}
+
+/* ════ Price Alerts Manager ════ */
+.alerts-mgr{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;}
+.alerts-mgr-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.alerts-mgr-title{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.alert-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;padding:12px;background:rgba(124,92,252,.04);border-radius:10px;border:1px solid rgba(124,92,252,.12);margin-bottom:14px;}
+.alert-form .field-wrap{display:flex;flex-direction:column;gap:4px;flex:1;min-width:90px;}
+.alert-form label{font-size:.62rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.alert-form input,.alert-form select{padding:7px 10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);border-radius:8px;font-family:var(--font-body);font-size:.82rem;outline:none;transition:border-color .15s;}
+.alert-form input:focus,.alert-form select:focus{border-color:rgba(124,92,252,.5);}
+.alert-list{display:flex;flex-direction:column;gap:6px;}
+.alert-row{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;flex-wrap:wrap;}
+.alert-row-ticker{font-weight:800;font-family:var(--font-data);color:var(--blue);font-size:.84rem;min-width:52px;}
+.alert-row-type{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:6px;}
+.alert-row-type.above{background:rgba(52,211,153,.1);color:#34d399;}
+.alert-row-type.below{background:rgba(248,113,113,.1);color:#f87171;}
+.alert-row-price{font-family:var(--font-data);font-weight:700;font-size:.84rem;}
+.alert-row-note{font-size:.74rem;color:var(--muted);flex:1;}
+.alert-row-del{background:none;border:1px solid rgba(248,113,113,.25);color:#f87171;border-radius:6px;padding:3px 9px;cursor:pointer;font-size:.72rem;transition:all .15s;flex-shrink:0;}
+.alert-row-del:hover{background:rgba(248,113,113,.1);}
+.alert-empty{color:var(--muted);font-size:.82rem;text-align:center;padding:16px 0;}
+[data-theme="light"] .alerts-mgr{background:#fff;border-color:#e4e2f8;}
+[data-theme="light"] .alert-form{background:rgba(109,40,217,.03);border-color:rgba(109,40,217,.1);}
+[data-theme="light"] .alert-row{background:rgba(0,0,0,.015);}
+[data-theme="light"] .alert-form input,[data-theme="light"] .alert-form select{background:#fff;}
+
 </style>
 </head>
 <body>
@@ -2036,6 +2169,35 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       <span class="sess-next" id="sess-next"></span>
     </div>
 
+    <!-- MORNING BRIEFING -->
+    <div class="mb-card" id="mb-card">
+      <div class="mb-top">
+        <div class="mb-icon">☀️</div>
+        <div class="mb-text">
+          <div class="mb-date" id="mb-date">Loading…</div>
+          <div class="mb-summary" id="mb-summary"></div>
+        </div>
+      </div>
+      <div class="mb-stats">
+        <div class="mb-stat">
+          <div class="mb-stat-label">Portfolio Value</div>
+          <div class="mb-stat-val blue" id="mb-val">—</div>
+        </div>
+        <div class="mb-stat">
+          <div class="mb-stat-label">Total Return</div>
+          <div class="mb-stat-val" id="mb-ret">—</div>
+        </div>
+        <div class="mb-stat">
+          <div class="mb-stat-label">Market Mood</div>
+          <div class="mb-stat-val" id="mb-mood">—</div>
+        </div>
+        <div class="mb-stat">
+          <div class="mb-stat-label">Up / Down</div>
+          <div class="mb-stat-val" id="mb-updn">—</div>
+        </div>
+      </div>
+    </div>
+
     <!-- PERFORMANCE CHART -->
     <div class="chart-card" id="chart-card">
       <div class="chart-header">
@@ -2046,6 +2208,14 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
           <button class="range-btn" data-days="180" onclick="setChartRange(180)">6M</button>
           <button class="range-btn" data-days="365" onclick="setChartRange(365)">1Y</button>
         </div>
+      </div>
+      <div class="bench-row">
+        <span class="bench-label">vs:</span>
+        <button class="bmark-btn active" id="bm-none" onclick="setBenchmark('none')">None</button>
+        <button class="bmark-btn" id="bm-spy" onclick="setBenchmark('SPY')">S&amp;P 500</button>
+        <button class="bmark-btn" id="bm-qqq" onclick="setBenchmark('QQQ')">NASDAQ</button>
+        <button class="bmark-btn" id="bm-dia" onclick="setBenchmark('DIA')">Dow Jones</button>
+        <button class="pct-mode-btn" id="pct-mode-btn" onclick="togglePctMode()" title="Toggle % return vs dollar value">% Return</button>
       </div>
       <div class="chart-wrap">
         <canvas id="perf-chart"></canvas>
@@ -2133,6 +2303,41 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
     <!-- ALERTS -->
     <div id="alerts-section"></div>
 
+    <!-- PRICE ALERTS MANAGER -->
+    <div class="alerts-mgr" id="price-alerts-mgr" style="display:none">
+      <div class="alerts-mgr-header">
+        <div class="alerts-mgr-title">🔔 Price Alerts</div>
+        <button class="btn btn-outline btn-sm" onclick="toggleAlertForm()" id="add-alert-btn" style="font-size:.72rem">+ Add Alert</button>
+      </div>
+      <div id="alert-form-wrap" style="display:none">
+        <div class="alert-form">
+          <div class="field-wrap">
+            <label>Ticker</label>
+            <input id="alert-ticker" type="text" placeholder="AAPL" style="width:80px;text-transform:uppercase"/>
+          </div>
+          <div class="field-wrap">
+            <label>Condition</label>
+            <select id="alert-cond">
+              <option value="above">Price Above</option>
+              <option value="below">Price Below</option>
+            </select>
+          </div>
+          <div class="field-wrap">
+            <label>Price ($)</label>
+            <input id="alert-price" type="number" placeholder="150.00" step="0.01" style="width:100px"/>
+          </div>
+          <div class="field-wrap" style="flex:2">
+            <label>Note (optional)</label>
+            <input id="alert-note" type="text" placeholder="e.g. Breakout level"/>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveAlert()" style="align-self:flex-end;padding:7px 16px">Save</button>
+        </div>
+      </div>
+      <div class="alert-list" id="alert-list">
+        <div class="alert-empty">No price alerts set. Click "+ Add Alert" to create one.</div>
+      </div>
+    </div>
+
     <!-- HOLDINGS TABLE -->
     <div class="section-bar">
       <div class="section-title">📋 Holdings <span id="hcount" style="font-weight:400;font-size:.76rem;"></span></div>
@@ -2159,6 +2364,8 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
           <th data-col="w52h">52W High ⇅</th>
           <th data-col="w52l">52W Low ⇅</th>
           <th data-col="pe">P/E ⇅</th>
+          <th data-col="short_pct" title="Short % of Float">Short % ⇅</th>
+          <th data-col="rs_rank" title="Relative Strength Rank (1-99)">RS ⇅</th>
           <th>Signal</th>
           <th></th>
         </tr></thead>
@@ -2172,6 +2379,19 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
         <div class="section-title">💵 Upcoming Dividends</div>
       </div>
       <div class="div-cal-grid" id="port-div-grid"></div>
+    </div>
+
+    <!-- TAX LOT TRACKER -->
+    <div id="tax-lot-section" style="display:none">
+      <div class="section-bar" style="margin-bottom:10px;">
+        <div class="section-title">🧾 Tax Lot Tracker</div>
+        <div style="font-size:.72rem;color:var(--muted)">Based on your journal entries · Shows short-term vs long-term status</div>
+      </div>
+      <div class="tl-card">
+        <div id="tax-lot-content">
+          <div style="color:var(--muted);font-size:.82rem;padding:8px 0;">Add BUY entries in the Journal tab to track tax lots.</div>
+        </div>
+      </div>
     </div>
 
     <!-- NEWS -->
@@ -2556,6 +2776,34 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       </div>
     </div>
 
+    <!-- ── 6. PORTFOLIO STRESS TEST ──────────────────────────── -->
+    <div class="analysis-section" id="stress-test-section">
+      <div class="analysis-section-title">⚠️ Portfolio Stress Test <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Historical scenario impact using per-stock beta · not a prediction</span></div>
+      <div class="stress-scen-grid" id="stress-scen-grid">
+        <button class="stress-scen-btn" data-scen="covid" onclick="runStressTest('covid',this)">
+          <div class="stress-scen-label">🦠 COVID Crash (2020)</div>
+          <div class="stress-scen-drop">−34%</div>
+          <div class="stress-scen-meta">33 trading days · recovery ~5 months</div>
+        </button>
+        <button class="stress-scen-btn" data-scen="rate2022" onclick="runStressTest('rate2022',this)">
+          <div class="stress-scen-label">📈 2022 Rate Hike Bear</div>
+          <div class="stress-scen-drop">−25%</div>
+          <div class="stress-scen-meta">12 months · recovery ~14 months</div>
+        </button>
+        <button class="stress-scen-btn" data-scen="gfc2008" onclick="runStressTest('gfc2008',this)">
+          <div class="stress-scen-label">🏦 GFC 2008–09</div>
+          <div class="stress-scen-drop">−57%</div>
+          <div class="stress-scen-meta">17 months · recovery ~4 years</div>
+        </button>
+        <button class="stress-scen-btn" data-scen="dot2000" onclick="runStressTest('dot2000',this)">
+          <div class="stress-scen-label">💻 Dot-com 2000–02</div>
+          <div class="stress-scen-drop">−49%</div>
+          <div class="stress-scen-meta">31 months · recovery ~7 years</div>
+        </button>
+      </div>
+      <div class="stress-results" id="stress-results"></div>
+    </div>
+
   </div><!-- /tab-analysis -->
 
 </main>
@@ -2933,6 +3181,9 @@ function rows() {
       beta: q.beta || 0, dividendRate: q.dividendRate || 0, dividendYield: q.dividendYield || 0,
       exDividendDate: q.exDividendDate || '',
       sector: q.sector || '', avgVol: q.averageVolume || 0,
+      w52ChangePct: q.w52ChangePct || 0,
+      shortPercentOfFloat: q.shortPercentOfFloat || 0,
+      shortRatio: q.shortRatio || 0,
       volSpike: q.averageVolume > 0 && q.regularMarketVolume > q.averageVolume * 2,
       alert: Math.abs(chgPct) >= THRESH,
     };
@@ -3636,6 +3887,8 @@ function renderTable(rs) {
       <td>${r.w52h ? f.usd(r.w52h) : '—'}</td>
       <td>${r.w52l ? f.usd(r.w52l) : '—'}</td>
       <td>${r.pe ? r.pe.toFixed(1) + 'x' : '—'}</td>
+      <td class="${r.shortPercentOfFloat > 20 ? 'si-high' : r.shortPercentOfFloat > 10 ? 'si-med' : 'si-low'} si-pct">${r.shortPercentOfFloat ? r.shortPercentOfFloat.toFixed(1)+'%' : '—'}</td>
+      <td>${rsRankBadge(r.ticker)}</td>
       <td id="sig-${r.ticker}" style="min-width:115px"><span class="spinner"></span></td>
       <td style="white-space:nowrap">
         <button class="edit-btn" onclick="event.stopPropagation();editStock('${r.ticker}')" title="Edit ${r.ticker}">✏</button>
@@ -3745,15 +3998,21 @@ async function refresh() {
 
   Object.assign(quotes, q);
   const rs = rows();
+  computeRSRanks(rs.filter(r => r.price > 0));
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart(); renderNews(n);
   loadPortDividendCalendar(rs);
   renderAnalytics(rs); renderHealthScore(rs);
+  checkPriceAlerts(quotes);
   updateTabBadge(rs.filter(r => r.alert).length);
   g('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   btn.innerHTML = '↻ Refresh';
   btn.disabled  = false;
   loading = false;
   topBarDone();
+
+  // Load supplementary features after main render
+  if (!_mbLoaded) loadMorningBriefing();
+  buildTaxLotTracker();
 
   if (IS_SERVER) startCountdown(getRefreshMs());
 }
@@ -4209,8 +4468,9 @@ function switchTab(name) {
   // Use data-tab attribute for reliable matching (not text content)
   const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
   if (btn) btn.classList.add('active');
-  if (name === 'market'   && IS_SERVER) loadMarket();
-  if (name === 'journal'  && IS_SERVER) loadJournal();
+  if (name === 'market'    && IS_SERVER) loadMarket();
+  if (name === 'journal'   && IS_SERVER) { loadJournal(); setTimeout(buildTaxLotTracker, 200); }
+  if (name === 'portfolio' && IS_SERVER) buildTaxLotTracker();
   if (name === 'analysis' && IS_SERVER) {
     loadAnalysisTab();
     // If quotes haven't been loaded yet, refresh first then build widgets
@@ -4757,26 +5017,10 @@ async function deleteJournalEntry(id) {
 })();
 
 // ═══════════════════════════════════════════════
-//  PERFORMANCE CHART
+//  PERFORMANCE CHART  (enhanced version defined later in the file)
 // ═══════════════════════════════════════════════
 let _perfChart = null;
 let _chartRange = 90;
-
-async function loadPerfChart(days) {
-  if (!IS_SERVER) return;
-  days = days || _chartRange;
-  try {
-    const periodMap = {30:'1mo', 90:'3mo', 180:'6mo', 365:'1y'};
-    const period = periodMap[days] || '3mo';
-    const [r, spyR] = await Promise.all([
-      fetch(`/api/portfolio/history?days=${days}`),
-      fetch(`/api/stock/history/SPY/${period}`),
-    ]);
-    const data    = r.ok    ? await r.json()    : [];
-    const spyPts  = spyR.ok ? await spyR.json() : [];
-    renderPerfChart(data, spyPts);
-  } catch(e) { /* chart load failed silently — non-critical */ }
-}
 
 function setChartRange(days) {
   _chartRange = days;
@@ -4784,116 +5028,6 @@ function setChartRange(days) {
     b.classList.toggle('active', parseInt(b.dataset.days) === days);
   });
   loadPerfChart(days);
-}
-
-function renderPerfChart(data, spyPts) {
-  const empty = g('chart-empty');
-  const canvas = g('perf-chart');
-  if (!data || data.length < 2) {
-    canvas.style.display = 'none';
-    empty.style.display = '';
-    return;
-  }
-  canvas.style.display = '';
-  empty.style.display = 'none';
-
-  const labels = data.map(d => d.date);
-  const values = data.map(d => d.value);
-  const costs  = data.map(d => d.cost);
-  const isUp   = values[values.length-1] >= values[0];
-  const lineColor = isUp ? '#26a641' : '#f85149';
-  const fillColor = isUp ? 'rgba(38,166,65,0.08)' : 'rgba(248,81,73,0.08)';
-
-  // Build SPY normalised overlay: scale so SPY[0] == portfolio[0]
-  const spyDataset = [];
-  if (spyPts && spyPts.length >= 2 && values[0] > 0) {
-    const spyFirst = spyPts[0].c;
-    // Map SPY dates to portfolio dates by aligning by index position
-    const step = Math.max(1, Math.floor(spyPts.length / data.length));
-    const sampled = data.map((_, i) => {
-      const si = Math.min(Math.round(i * spyPts.length / data.length), spyPts.length - 1);
-      return spyPts[si].c;
-    });
-    const scale = values[0] / sampled[0];
-    sampled.forEach(c => spyDataset.push(c * scale));
-  }
-
-  if (_perfChart) _perfChart.destroy();
-  const datasets = [
-    {
-      label: 'Portfolio Value',
-      data: values,
-      borderColor: lineColor,
-      backgroundColor: fillColor,
-      fill: true,
-      tension: 0.3,
-      pointRadius: data.length > 30 ? 0 : 3,
-      pointHoverRadius: 5,
-      borderWidth: 2,
-    },
-    {
-      label: 'Cost Basis',
-      data: costs,
-      borderColor: 'rgba(139,148,158,0.4)',
-      backgroundColor: 'transparent',
-      borderDash: [5,4],
-      tension: 0.3,
-      pointRadius: 0,
-      borderWidth: 1.5,
-    }
-  ];
-  if (spyDataset.length) {
-    datasets.push({
-      label: 'S&P 500 (scaled)',
-      data: spyDataset,
-      borderColor: 'rgba(56,139,253,0.7)',
-      backgroundColor: 'transparent',
-      borderDash: [3,3],
-      tension: 0.3,
-      pointRadius: 0,
-      borderWidth: 1.5,
-    });
-  }
-
-  _perfChart = new Chart(canvas, {
-    type: 'line',
-    data: { labels, datasets },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          display: spyDataset.length > 0,
-          position: 'top',
-          labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 20, padding: 12 }
-        },
-        tooltip: {
-          backgroundColor: '#161b22',
-          borderColor: '#21262d',
-          borderWidth: 1,
-          titleColor: '#8b949e',
-          bodyColor: '#e6edf3',
-          callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: $${Number(ctx.parsed.y).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(33,38,45,0.8)' },
-          ticks: { color: '#8b949e', font: { size: 10 }, maxTicksLimit: 8 }
-        },
-        y: {
-          grid: { color: 'rgba(33,38,45,0.8)' },
-          ticks: {
-            color: '#8b949e', font: { size: 10 },
-            callback: v => '$'+Number(v).toLocaleString('en-US',{maximumFractionDigits:0})
-          }
-        }
-      }
-    }
-  });
 }
 
 // ═══════════════════════════════════════════════
@@ -6459,6 +6593,9 @@ async function init() {
 
   // 8. Load price targets
   if (IS_SERVER) loadPriceTargets();
+
+  // 9. Init price alerts UI
+  initAlerts();
 }
 
 init();
@@ -6957,7 +7094,9 @@ function openStockPage(ticker) {
   _spTicker = ticker;
   _spActiveTab = 'overview';
   _spFinData = null;
-  _spEntryLoaded = null;  // reset so new ticker re-fetches entry analysis
+  _spEntryLoaded    = null;  // reset so new ticker re-fetches
+  _spEarningsLoaded = null;
+  _spInsiderLoaded  = null;
 
   // Add to recents
   _spRecentTickers = [ticker, ..._spRecentTickers.filter(t => t !== ticker)].slice(0,10);
@@ -7025,7 +7164,9 @@ function switchSPTab(name) {
   const panel = g('spp-' + name); if (panel) panel.classList.add('active');
   if (name === 'financials' && _spTicker) _spLoadFinancials(_spTicker);
   if (name === 'analyst' && _spData) _spRenderAnalyst(_spData);
-  if (name === 'entry' && _spTicker && IS_SERVER) loadSPEntryAnalysis(_spTicker);
+  if (name === 'entry'    && _spTicker && IS_SERVER) loadSPEntryAnalysis(_spTicker);
+  if (name === 'earnings' && _spTicker && IS_SERVER) loadSPEarningsHistory(_spTicker);
+  if (name === 'insider'  && _spTicker && IS_SERVER) loadSPInsiderTrades(_spTicker);
 }
 
 function _spRenderOverview(d) {
@@ -7855,6 +7996,570 @@ async function loadGrowthPicks(force=false) {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════════════
+//  MORNING BRIEFING
+// ═══════════════════════════════════════════════════════════════════════════
+let _mbLoaded = false;
+async function loadMorningBriefing() {
+  if (!IS_SERVER) return;
+  const card = g('mb-card');
+  if (!card) return;
+  try {
+    const r = await fetch('/api/morning-briefing');
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.error) return;
+    g('mb-date').textContent    = d.date || '';
+    g('mb-summary').textContent = d.summary || '';
+    g('mb-val').textContent     = d.total_value ? '$' + d.total_value.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) : '—';
+    const retEl = g('mb-ret');
+    if (retEl) {
+      const pct = d.total_pct || 0;
+      retEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+      retEl.style.color = pct >= 0 ? 'var(--green)' : 'var(--red)';
+    }
+    const moodEl = g('mb-mood');
+    if (moodEl) {
+      const mood = d.mkt_mood || 'Mixed';
+      const cls = mood === 'Risk-On' ? 'mb-mood-on' : mood === 'Risk-Off' ? 'mb-mood-off' : 'mb-mood-mixed';
+      moodEl.innerHTML = `<span class="mb-mood ${cls}">${mood}</span>`;
+    }
+    const updnEl = g('mb-updn');
+    if (updnEl) updnEl.textContent = `${d.mkt_up || 0} ↑ / ${d.mkt_dn || 0} ↓`;
+    card.classList.add('loaded');
+    _mbLoaded = true;
+  } catch(e) { /* silently fail */ }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  BENCHMARK SELECTOR + % RETURN MODE
+// ═══════════════════════════════════════════════════════════════════════════
+let _benchmarkSym = 'none';
+let _pctReturnMode = false;
+
+function setBenchmark(sym) {
+  _benchmarkSym = sym;
+  document.querySelectorAll('.bmark-btn').forEach(b => b.classList.remove('active'));
+  const activeId = sym === 'none' ? 'bm-none' : ('bm-' + sym.toLowerCase());
+  const ab = g(activeId); if (ab) ab.classList.add('active');
+  loadPerfChart(_chartRange);
+}
+
+function togglePctMode() {
+  _pctReturnMode = !_pctReturnMode;
+  const btn = g('pct-mode-btn');
+  if (btn) btn.classList.toggle('active', _pctReturnMode);
+  loadPerfChart(_chartRange);
+}
+
+// Enhanced loadPerfChart with benchmark + % return mode
+async function loadPerfChart(days) {
+  if (!IS_SERVER) return;
+  days = days || _chartRange;
+  try {
+    const periodMap = {30:'1mo', 90:'3mo', 180:'6mo', 365:'1y'};
+    const period = periodMap[days] || '3mo';
+    const fetches = [fetch(`/api/portfolio/history?days=${days}`)];
+    if (_benchmarkSym !== 'none') fetches.push(fetch(`/api/stock/history/${_benchmarkSym}/${period}`));
+    const results = await Promise.all(fetches);
+    const data    = results[0].ok ? await results[0].json() : [];
+    const bmPts   = (_benchmarkSym !== 'none' && results[1] && results[1].ok) ? await results[1].json() : [];
+    renderPerfChart(data, bmPts);
+  } catch(e) { /* non-critical */ }
+}
+
+function renderPerfChart(data, spyPts) {
+  const empty  = g('chart-empty');
+  const canvas = g('perf-chart');
+  if (!data || data.length < 2) {
+    canvas.style.display = 'none';
+    empty.style.display = '';
+    return;
+  }
+  canvas.style.display = '';
+  empty.style.display = 'none';
+
+  const labels = data.map(d => d.date);
+  let values   = data.map(d => d.value);
+  const costs  = data.map(d => d.cost);
+
+  // % return mode: convert to % gain from first point
+  let toDisplay = v => '$' + Number(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if (_pctReturnMode && values[0] > 0) {
+    const base = values[0];
+    values = values.map(v => +((v/base - 1)*100).toFixed(2));
+    toDisplay = v => v.toFixed(2) + '%';
+  }
+
+  const isUp = values[values.length-1] >= values[0];
+  const lineColor = isUp ? '#26a641' : '#f85149';
+  const fillColor = isUp ? 'rgba(38,166,65,0.08)' : 'rgba(248,81,73,0.08)';
+
+  const datasets = [
+    {
+      label: _pctReturnMode ? 'Portfolio Return' : 'Portfolio Value',
+      data: values,
+      borderColor: lineColor,
+      backgroundColor: fillColor,
+      fill: true,
+      tension: 0.3,
+      pointRadius: data.length > 30 ? 0 : 3,
+      pointHoverRadius: 5,
+      borderWidth: 2,
+    }
+  ];
+
+  if (!_pctReturnMode) {
+    datasets.push({
+      label: 'Cost Basis',
+      data: costs,
+      borderColor: 'rgba(139,148,158,0.4)',
+      backgroundColor: 'transparent',
+      borderDash: [5,4],
+      tension: 0.3,
+      pointRadius: 0,
+      borderWidth: 1.5,
+    });
+  }
+
+  // Benchmark overlay
+  if (spyPts && spyPts.length >= 2 && values[0] !== undefined) {
+    const sampled = data.map((_, i) => {
+      const si = Math.min(Math.round(i * spyPts.length / data.length), spyPts.length - 1);
+      return spyPts[si].c;
+    });
+    let bmData;
+    if (_pctReturnMode) {
+      const bmBase = sampled[0];
+      bmData = bmBase > 0 ? sampled.map(c => +((c/bmBase - 1)*100).toFixed(2)) : sampled;
+    } else {
+      const scale = values[0] / sampled[0];
+      bmData = sampled.map(c => c * scale);
+    }
+    const bmNames = {SPY:'S&P 500',QQQ:'NASDAQ 100',DIA:'Dow Jones'};
+    datasets.push({
+      label: bmNames[_benchmarkSym] || _benchmarkSym,
+      data: bmData,
+      borderColor: 'rgba(56,139,253,0.7)',
+      backgroundColor: 'transparent',
+      borderDash: [3,3],
+      tension: 0.3,
+      pointRadius: 0,
+      borderWidth: 1.5,
+    });
+  }
+
+  if (_perfChart) _perfChart.destroy();
+  _perfChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: datasets.length > 1,
+          position: 'top',
+          labels: { color: '#8b949e', font: { size: 10 }, boxWidth: 20, padding: 12 }
+        },
+        tooltip: {
+          backgroundColor: '#161b22',
+          borderColor: '#21262d',
+          borderWidth: 1,
+          titleColor: '#8b949e',
+          bodyColor: '#e6edf3',
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${toDisplay(ctx.parsed.y)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(33,38,45,0.8)' },
+          ticks: { color: '#8b949e', font: { size: 10 }, maxTicksLimit: 8 }
+        },
+        y: {
+          grid: { color: 'rgba(33,38,45,0.8)' },
+          ticks: {
+            color: '#8b949e', font: { size: 10 },
+            callback: v => toDisplay(v)
+          }
+        }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  SHORT INTEREST + RELATIVE STRENGTH RANK (added to holdings table)
+// ═══════════════════════════════════════════════════════════════════════════
+
+// RS Rank: compare 12-month return of each holding vs its peers, then rank 1–99
+let _rsRanks = {};
+
+function computeRSRanks(rs) {
+  if (!rs || rs.length === 0) return;
+  // rs = array of rows() with w52ChangePct
+  const tickers = rs.map(r => r.ticker);
+  const perfs   = rs.map(r => r.w52ChangePct || 0);
+  // Rank each ticker 1–99
+  const sorted = [...perfs].sort((a,b) => a-b);
+  tickers.forEach((t,i) => {
+    const pos = sorted.indexOf(perfs[i]);
+    _rsRanks[t] = Math.round((pos / (sorted.length - 1 || 1)) * 98) + 1;
+  });
+}
+
+function rsRankBadge(ticker) {
+  const rank = _rsRanks[ticker];
+  if (!rank) return '<span class="rs-badge rs-mid">—</span>';
+  const cls = rank >= 70 ? 'rs-high' : rank >= 40 ? 'rs-mid' : 'rs-low';
+  return `<span class="rs-badge ${cls}" title="RS Rank ${rank} — top ${100-rank}% of your holdings">${rank}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PRICE ALERTS MANAGER
+// ═══════════════════════════════════════════════════════════════════════════
+let _priceAlerts = [];
+
+function _loadAlerts() {
+  try { _priceAlerts = JSON.parse(localStorage.getItem('price_alerts') || '[]'); }
+  catch(e) { _priceAlerts = []; }
+}
+
+function _saveAlerts() {
+  try { localStorage.setItem('price_alerts', JSON.stringify(_priceAlerts)); }
+  catch(e) {}
+}
+
+function toggleAlertForm() {
+  const wrap = g('alert-form-wrap');
+  if (!wrap) return;
+  wrap.style.display = wrap.style.display === 'none' ? '' : 'none';
+}
+
+function saveAlert() {
+  const ticker = (g('alert-ticker')?.value || '').trim().toUpperCase();
+  const cond   = g('alert-cond')?.value || 'above';
+  const price  = parseFloat(g('alert-price')?.value || '0');
+  const note   = (g('alert-note')?.value || '').trim();
+  if (!ticker || !price || isNaN(price)) { showToast('Enter ticker and price', 'error'); return; }
+  _loadAlerts();
+  _priceAlerts.push({ id: Date.now(), ticker, cond, price, note, created: new Date().toISOString() });
+  _saveAlerts();
+  renderPriceAlerts();
+  // Clear form
+  if (g('alert-ticker')) g('alert-ticker').value = '';
+  if (g('alert-price'))  g('alert-price').value  = '';
+  if (g('alert-note'))   g('alert-note').value   = '';
+  toggleAlertForm();
+  showToast(`Alert set: ${ticker} ${cond} $${price}`, 'success');
+}
+
+function deleteAlert(id) {
+  _loadAlerts();
+  _priceAlerts = _priceAlerts.filter(a => a.id !== id);
+  _saveAlerts();
+  renderPriceAlerts();
+}
+
+function renderPriceAlerts() {
+  _loadAlerts();
+  const list = g('alert-list');
+  if (!list) return;
+  if (!_priceAlerts.length) {
+    list.innerHTML = '<div class="alert-empty">No price alerts set. Click "+ Add Alert" to create one.</div>';
+    return;
+  }
+  list.innerHTML = _priceAlerts.map(a => {
+    const price = _lastQuotes?.[a.ticker]?.regularMarketPrice;
+    const triggered = price && ((a.cond === 'above' && price >= a.price) || (a.cond === 'below' && price <= a.price));
+    const borderStyle = triggered ? 'border-color:rgba(251,191,36,.5);' : '';
+    const trigStr = triggered ? ' 🔔' : '';
+    return `<div class="alert-row" style="${borderStyle}">
+      <span class="alert-row-ticker">${a.ticker}</span>
+      <span class="alert-row-type ${a.cond}">${a.cond === 'above' ? '▲ Above' : '▼ Below'}</span>
+      <span class="alert-row-price">$${a.price.toFixed(2)}${trigStr}</span>
+      ${price ? `<span style="font-size:.72rem;color:var(--muted)">now: $${price.toFixed(2)}</span>` : ''}
+      <span class="alert-row-note">${a.note || ''}</span>
+      <button class="alert-row-del" onclick="deleteAlert(${a.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function initAlerts() {
+  const mgr = g('price-alerts-mgr');
+  if (mgr) mgr.style.display = '';
+  renderPriceAlerts();
+}
+
+// Check alerts against live prices and notify
+let _lastQuotes = {};
+function checkPriceAlerts(quotesObj) {
+  _lastQuotes = quotesObj;
+  _loadAlerts();
+  _priceAlerts.forEach(a => {
+    const price = quotesObj[a.ticker]?.regularMarketPrice;
+    if (!price) return;
+    const triggered = (a.cond === 'above' && price >= a.price) || (a.cond === 'below' && price <= a.price);
+    if (triggered && !a._notified) {
+      a._notified = true;
+      showToast(`🔔 ${a.ticker} ${a.cond} $${a.price.toFixed(2)} — now $${price.toFixed(2)}`, 'info', 6000);
+    }
+    if (!triggered) a._notified = false;
+  });
+  renderPriceAlerts();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  PORTFOLIO STRESS TEST
+// ═══════════════════════════════════════════════════════════════════════════
+let _stressLoaded = null;
+
+async function runStressTest(scenKey, btnEl) {
+  if (_stressLoaded === scenKey) {
+    // Toggle off
+    document.querySelectorAll('.stress-scen-btn').forEach(b => b.classList.remove('active'));
+    g('stress-results').classList.remove('open');
+    _stressLoaded = null;
+    return;
+  }
+  document.querySelectorAll('.stress-scen-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  const results = g('stress-results');
+  results.innerHTML = '<div style="padding:24px 0;text-align:center;color:var(--muted);"><span class="spinner"></span> Running stress test…</div>';
+  results.classList.add('open');
+  try {
+    const r = await fetch('/api/stress-test');
+    const d = await r.json();
+    if (d.error) { results.innerHTML = `<div style="color:var(--red);padding:16px">${d.error}</div>`; return; }
+    const scen = d.scenarios[scenKey];
+    if (!scen) { results.innerHTML = '<div style="color:var(--muted);padding:16px">Scenario not found</div>'; return; }
+    const dropCls = scen.portfolio_drop < -30 ? '#ef4444' : scen.portfolio_drop < -15 ? '#f87171' : '#fbbf24';
+    results.innerHTML = `
+      <div class="stress-summary">
+        <div class="stress-sum-item">
+          <div class="stress-sum-label">Scenario</div>
+          <div class="stress-sum-val" style="font-size:.9rem">${scen.label}</div>
+        </div>
+        <div class="stress-sum-item">
+          <div class="stress-sum-label">Est. Portfolio Drop</div>
+          <div class="stress-sum-val" style="color:${dropCls}">${scen.portfolio_drop}%</div>
+        </div>
+        <div class="stress-sum-item">
+          <div class="stress-sum-label">Estimated Loss</div>
+          <div class="stress-sum-val" style="color:#f87171">${scen.estimated_loss < 0 ? '-' : ''}$${Math.abs(scen.estimated_loss).toLocaleString('en-US',{maximumFractionDigits:0})}</div>
+        </div>
+        <div class="stress-sum-item">
+          <div class="stress-sum-label">Survivor Value</div>
+          <div class="stress-sum-val">$${scen.survivor_value.toLocaleString('en-US',{maximumFractionDigits:0})}</div>
+        </div>
+      </div>
+      <div class="stress-title">Worst-Hit Positions (by beta exposure)</div>
+      ${scen.worst_stocks.map(s => {
+        const barW = Math.min(100, Math.abs(s.drop_pct) * 1.2);
+        return `<div class="stress-bar-row">
+          <div class="stress-bar-label">${s.ticker}</div>
+          <div class="stress-bar-track"><div class="stress-bar-fill" style="width:${barW}%"></div></div>
+          <div class="stress-bar-val">${s.drop_pct}%</div>
+        </div>`;
+      }).join('')}
+      <div style="font-size:.68rem;color:var(--muted);margin-top:14px;padding:8px 12px;background:rgba(255,255,255,.02);border-radius:8px;border-left:2px solid rgba(248,113,113,.25)">
+        Estimates based on beta × market decline. Actual results vary significantly. Not financial advice.
+      </div>`;
+    _stressLoaded = scenKey;
+  } catch(e) {
+    results.innerHTML = `<div style="color:var(--red);padding:16px">Failed to run stress test: ${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  EARNINGS REACTION HISTORY (Stock Page)
+// ═══════════════════════════════════════════════════════════════════════════
+let _spEarningsLoaded = null;
+
+async function loadSPEarningsHistory(ticker) {
+  if (_spEarningsLoaded === ticker) return;
+  const el = g('sp-earnings-content');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:32px 0;text-align:center;color:var(--muted);"><span class="spinner"></span> Loading earnings history…</div>';
+  try {
+    const r = await fetch(`/api/earnings-history?ticker=${encodeURIComponent(ticker)}`);
+    const d = await r.json();
+    if (d.error) { el.innerHTML = `<div style="color:var(--red);padding:16px">${d.error}</div>`; return; }
+    let html = '';
+    if (d.next_earnings) {
+      html += `<div class="eh-next">📅 Next Earnings: <strong>${d.next_earnings}</strong></div>`;
+    }
+    if (!d.history || !d.history.length) {
+      html += '<div style="color:var(--muted);padding:20px 0;text-align:center">No earnings history available</div>';
+    } else {
+      html += `<div style="overflow-x:auto">
+        <table class="eh-table">
+          <thead><tr>
+            <th>Period</th>
+            <th>EPS Est.</th>
+            <th>EPS Actual</th>
+            <th>Surprise</th>
+            <th>Surprise %</th>
+            <th>Stock Reaction</th>
+          </tr></thead>
+          <tbody>
+            ${d.history.map(e => {
+              const beatMiss = e.eps_actual > e.eps_estimate ? 'eh-beat' : e.eps_actual < e.eps_estimate ? 'eh-miss' : 'eh-in-line';
+              const reactCls = e.reaction_pct > 0 ? 'var(--green)' : e.reaction_pct < 0 ? 'var(--red)' : 'var(--muted)';
+              const surpCls  = e.surprise_pct > 0 ? 'eh-beat' : e.surprise_pct < 0 ? 'eh-miss' : 'eh-in-line';
+              return `<tr>
+                <td>${e.period}</td>
+                <td>${e.eps_estimate !== 0 ? '$'+e.eps_estimate.toFixed(2) : '—'}</td>
+                <td class="${beatMiss}">${e.eps_actual !== 0 ? '$'+e.eps_actual.toFixed(2) : '—'}</td>
+                <td>${e.surprise !== 0 ? (e.surprise > 0 ? '+' : '')+'$'+e.surprise.toFixed(2) : '—'}</td>
+                <td class="${surpCls}">${e.surprise_pct !== 0 ? (e.surprise_pct > 0 ? '+' : '')+e.surprise_pct.toFixed(1)+'%' : '—'}</td>
+                <td style="color:${reactCls};font-weight:700">${e.reaction_pct !== 0 ? (e.reaction_pct > 0 ? '+' : '')+e.reaction_pct.toFixed(1)+'%' : '—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+      html += '<div class="ea-disclaimer" style="margin-top:12px">Earnings data from Yahoo Finance. Stock reaction = open-to-close % on earnings day. Past results do not predict future reactions.</div>';
+    }
+    el.innerHTML = html;
+    _spEarningsLoaded = ticker;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);padding:16px">Failed to load: ${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  INSIDER TRADES (Stock Page)
+// ═══════════════════════════════════════════════════════════════════════════
+let _spInsiderLoaded = null;
+
+async function loadSPInsiderTrades(ticker) {
+  if (_spInsiderLoaded === ticker) return;
+  const el = g('sp-insider-content');
+  if (!el) return;
+  el.innerHTML = '<div style="padding:32px 0;text-align:center;color:var(--muted);"><span class="spinner"></span> Loading insider trades…</div>';
+  try {
+    const r = await fetch(`/api/insider-trades?ticker=${encodeURIComponent(ticker)}`);
+    const d = await r.json();
+    if (d.error) { el.innerHTML = `<div style="color:var(--red);padding:16px">${d.error}</div>`; return; }
+    if (!d.trades || !d.trades.length) {
+      el.innerHTML = '<div class="it-empty">No recent insider transactions found for this ticker.</div>';
+      _spInsiderLoaded = ticker; return;
+    }
+    const buyCount  = d.trades.filter(t => t.type === 'BUY').length;
+    const sellCount = d.trades.filter(t => t.type === 'SELL').length;
+    let html = `
+      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        <div style="padding:8px 16px;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);border-radius:8px;text-align:center">
+          <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Buys</div>
+          <div style="font-size:1.4rem;font-weight:800;color:#34d399">${buyCount}</div>
+        </div>
+        <div style="padding:8px 16px;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);border-radius:8px;text-align:center">
+          <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Sells</div>
+          <div style="font-size:1.4rem;font-weight:800;color:#f87171">${sellCount}</div>
+        </div>
+        <div style="flex:1;min-width:140px;padding:10px 14px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;font-size:.76rem;color:var(--muted);display:flex;align-items:center">
+          ${buyCount > sellCount ? '🟢 Net buying — insiders are accumulating' : buyCount < sellCount ? '🔴 Net selling — watch for distribution' : '⚪ Balanced insider activity'}
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="it-table">
+          <thead><tr>
+            <th style="text-align:left">Date</th>
+            <th style="text-align:left">Insider</th>
+            <th style="text-align:left">Title</th>
+            <th>Type</th>
+            <th>Shares</th>
+            <th>Value</th>
+          </tr></thead>
+          <tbody>
+            ${d.trades.map(t => `<tr>
+              <td style="text-align:left;color:var(--muted);font-size:.76rem">${t.date}</td>
+              <td style="text-align:left"><span class="it-name" title="${t.insider}">${t.insider}</span></td>
+              <td style="text-align:left;color:var(--muted);font-size:.74rem">${t.title}</td>
+              <td><span class="${t.type === 'BUY' ? 'it-buy' : 'it-sell'}">${t.type}</span></td>
+              <td>${t.shares ? t.shares.toLocaleString('en-US') : '—'}</td>
+              <td>${t.value ? '$' + (t.value/1000).toFixed(0) + 'K' : '—'}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="ea-disclaimer" style="margin-top:12px">Insider transaction data from Yahoo Finance / SEC Form 4. Timing and classification may vary. Not financial advice.</div>`;
+    el.innerHTML = html;
+    _spInsiderLoaded = ticker;
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--red);padding:16px">Failed to load: ${e.message}</div>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  TAX LOT TRACKER
+// ═══════════════════════════════════════════════════════════════════════════
+function buildTaxLotTracker() {
+  const sec = g('tax-lot-section');
+  const content = g('tax-lot-content');
+  if (!sec || !content) return;
+  // Use journal entries — only BUY actions with dates
+  const buyEntries = (_journalEntries || []).filter(e => e.action === 'BUY' && e.date && e.ticker);
+  if (!buyEntries.length) {
+    sec.style.display = 'none';
+    return;
+  }
+  sec.style.display = '';
+  const now = new Date();
+  // Group by ticker and compute tax status
+  const rows = buyEntries.map(e => {
+    const buyDate  = new Date(e.date + 'T00:00:00');
+    const daysHeld = Math.floor((now - buyDate) / 86400000);
+    const daysToLT = Math.max(0, 366 - daysHeld);
+    const isLT     = daysHeld >= 366;
+    const isSoon   = !isLT && daysToLT <= 60;
+    const costBasis = (e.shares || 0) * (e.price || 0);
+    const currentQ  = quotes[e.ticker];
+    const currentVal = currentQ ? (e.shares || 0) * currentQ.regularMarketPrice : null;
+    const gainLoss  = currentVal !== null ? currentVal - costBasis : null;
+    let statusBadge;
+    if (isLT)        statusBadge = '<span class="tl-lt">Long-Term ✓</span>';
+    else if (isSoon) statusBadge = `<span class="tl-soon">LT in ${daysToLT}d ⚡</span>`;
+    else             statusBadge = `<span class="tl-st">Short-Term (${daysToLT}d to LT)</span>`;
+    return { e, daysHeld, daysToLT, isLT, isSoon, costBasis, currentVal, gainLoss, statusBadge };
+  }).sort((a,b) => a.daysToLT - b.daysToLT);
+
+  content.innerHTML = `<div style="overflow-x:auto"><table class="tl-table">
+    <thead><tr>
+      <th style="text-align:left">Ticker</th>
+      <th style="text-align:left">Buy Date</th>
+      <th>Shares</th>
+      <th>Cost/Share</th>
+      <th>Cost Basis</th>
+      <th>Current Val</th>
+      <th>Gain/Loss</th>
+      <th>Days Held</th>
+      <th>Tax Status</th>
+    </tr></thead>
+    <tbody>
+      ${rows.map(row => {
+        const gainCls = row.gainLoss !== null ? (row.gainLoss >= 0 ? 'color:var(--green)' : 'color:var(--red)') : 'color:var(--muted)';
+        return `<tr>
+          <td>${row.e.ticker}</td>
+          <td style="text-align:left;color:var(--muted);font-size:.76rem">${row.e.date}</td>
+          <td>${(row.e.shares||0).toLocaleString('en-US',{maximumFractionDigits:4})}</td>
+          <td>$${(row.e.price||0).toFixed(2)}</td>
+          <td>$${row.costBasis.toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+          <td>${row.currentVal !== null ? '$' + row.currentVal.toLocaleString('en-US',{maximumFractionDigits:0}) : '<span class="tl-na">—</span>'}</td>
+          <td style="${gainCls};font-weight:700">${row.gainLoss !== null ? (row.gainLoss >= 0 ? '+' : '') + '$' + Math.abs(row.gainLoss).toLocaleString('en-US',{maximumFractionDigits:0}) : '<span class="tl-na">—</span>'}</td>
+          <td>${row.daysHeld}d</td>
+          <td>${row.statusBadge}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table></div>
+  <div class="ea-disclaimer" style="margin-top:12px">Long-term status requires ≥ 366 days held. Tax implications vary by jurisdiction. Consult a tax professional.</div>`;
+}
+
 </script>
 
 <!-- Chart Fullscreen Modal -->
@@ -7921,6 +8626,8 @@ async function loadGrowthPicks(force=false) {
     <button class="sp-tab"        id="spt-financials" onclick="switchSPTab('financials')">Financials</button>
     <button class="sp-tab"        id="spt-analyst"    onclick="switchSPTab('analyst')">Analyst</button>
     <button class="sp-tab"        id="spt-entry"      onclick="switchSPTab('entry')">🎯 Entry</button>
+    <button class="sp-tab"        id="spt-earnings"   onclick="switchSPTab('earnings')">📊 Earnings</button>
+    <button class="sp-tab"        id="spt-insider"    onclick="switchSPTab('insider')">🕵️ Insider</button>
   </div>
   <!-- Body -->
   <div id="sp-body">
@@ -7984,6 +8691,20 @@ async function loadGrowthPicks(force=false) {
     <div class="sp-panel" id="spp-entry">
       <div id="sp-entry-content">
         <div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Loading entry analysis…</div>
+      </div>
+    </div>
+
+    <!-- EARNINGS HISTORY PANEL -->
+    <div class="sp-panel" id="spp-earnings">
+      <div id="sp-earnings-content">
+        <div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Loading earnings history…</div>
+      </div>
+    </div>
+
+    <!-- INSIDER TRADES PANEL -->
+    <div class="sp-panel" id="spp-insider">
+      <div id="sp-insider-content">
+        <div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Loading insider trades…</div>
       </div>
     </div>
 

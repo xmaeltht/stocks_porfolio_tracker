@@ -611,6 +611,246 @@ def _calc_fibonacci(closes, highs, lows, lookback=60):
         'swing_low':  round(swing_low, 2),
     }
 
+# ── Earnings Reaction History ─────────────────────────────────────────────────
+def get_earnings_history(ticker):
+    ticker = ticker.upper().strip()
+    cache_key = f'earnings_hist_{ticker}'
+    def fetch():
+        try:
+            t = yf.Ticker(ticker)
+            # Quarterly earnings
+            qe = t.quarterly_earnings
+            hist = t.history(period='2y', interval='1d', auto_adjust=True)
+            results = []
+            if qe is not None and not qe.empty:
+                idx = qe.index.tolist()
+                for i, period_label in enumerate(idx[:8]):
+                    row = qe.iloc[i]
+                    eps_est   = round(float(row.get('Estimate', 0) or 0), 4)
+                    eps_act   = round(float(row.get('Reported', 0) or 0), 4)
+                    surprise  = round(float(row.get('Surprise', 0) or 0), 4)
+                    surp_pct  = round(float(row.get('Surprise%', 0) or 0), 2)
+                    # Try to get stock reaction on earnings date
+                    reaction_pct = 0
+                    try:
+                        # period_label is e.g. '2024-09-30' or Quarter string
+                        date_str = str(period_label)
+                        if hasattr(period_label, 'strftime'):
+                            date_str = period_label.strftime('%Y-%m-%d')
+                        # Find closest trading day in history
+                        hist_dates = [str(d)[:10] for d in hist.index]
+                        if date_str in hist_dates:
+                            di = hist_dates.index(date_str)
+                        else:
+                            # Find nearest date
+                            from datetime import datetime as _dt
+                            target = _dt.strptime(date_str[:10], '%Y-%m-%d')
+                            nearest_i = min(range(len(hist_dates)),
+                                key=lambda i: abs((_dt.strptime(hist_dates[i][:10],'%Y-%m-%d')-target).days))
+                            di = nearest_i
+                        if di + 1 < len(hist):
+                            o = float(hist.iloc[di+1]['Open'])
+                            c = float(hist.iloc[di+1]['Close'])
+                            reaction_pct = round((c/o - 1)*100, 2) if o else 0
+                        elif di > 0:
+                            prev_c = float(hist.iloc[di-1]['Close'])
+                            c      = float(hist.iloc[di]['Close'])
+                            reaction_pct = round((c/prev_c - 1)*100, 2) if prev_c else 0
+                    except: pass
+                    results.append({
+                        'period':       str(period_label)[:10],
+                        'eps_estimate': eps_est,
+                        'eps_actual':   eps_act,
+                        'surprise':     surprise,
+                        'surprise_pct': surp_pct,
+                        'reaction_pct': reaction_pct,
+                    })
+            # Also get next earnings date from calendar
+            next_date = ''
+            try:
+                cal = t.calendar
+                if cal is not None and not cal.empty and 'Earnings Date' in cal.index:
+                    nd = cal.loc['Earnings Date']
+                    next_date = str(nd.iloc[0])[:10] if hasattr(nd,'iloc') else str(nd)[:10]
+            except: pass
+            name = ''
+            try: name = t.info.get('shortName', ticker)
+            except: pass
+            return {'ticker': ticker, 'name': name, 'history': results, 'next_earnings': next_date}
+        except Exception as e:
+            return {'error': str(e), 'ticker': ticker, 'history': [], 'next_earnings': ''}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+# ── Insider Trading Tracker ───────────────────────────────────────────────────
+def get_insider_trades(ticker):
+    ticker = ticker.upper().strip()
+    cache_key = f'insider_{ticker}'
+    def fetch():
+        try:
+            t = yf.Ticker(ticker)
+            trades = []
+            # Try insider_transactions (newer yfinance)
+            df = None
+            try:
+                df = t.insider_transactions
+            except: pass
+            if df is None or (hasattr(df,'empty') and df.empty):
+                try:
+                    df = t.get_insider_transactions()
+                except: pass
+            if df is not None and not (hasattr(df,'empty') and df.empty):
+                for _, row in df.iterrows():
+                    try:
+                        date_val = row.get('Start Date', row.get('Date', ''))
+                        if hasattr(date_val,'strftime'):
+                            date_val = date_val.strftime('%Y-%m-%d')
+                        else:
+                            date_val = str(date_val)[:10]
+                        shares_val = row.get('Shares', row.get('Value', 0))
+                        value_val  = row.get('Value',  0)
+                        txn_text   = str(row.get('Text', row.get('Transaction',''))).strip()
+                        insider    = str(row.get('Insider', row.get('Name','')))
+                        title      = str(row.get('Position', row.get('Title','')))
+                        is_buy = any(kw in txn_text.upper() for kw in ['BUY','PURCHASE','ACQUI'])
+                        trades.append({
+                            'date':    date_val,
+                            'insider': insider[:40],
+                            'title':   title[:40],
+                            'type':    'BUY' if is_buy else 'SELL',
+                            'shares':  int(float(shares_val or 0)),
+                            'value':   round(float(value_val or 0), 0),
+                            'text':    txn_text[:80],
+                        })
+                    except: continue
+            return {'ticker': ticker, 'trades': trades[:20]}
+        except Exception as e:
+            return {'error': str(e), 'ticker': ticker, 'trades': []}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+# ── Morning Briefing ──────────────────────────────────────────────────────────
+def get_morning_briefing(holdings, market_data):
+    cache_key = 'morning_brief_' + hashlib.md5(json.dumps(sorted([h['ticker'] for h in holdings])).encode()).hexdigest()
+    def fetch():
+        try:
+            total_value = 0; total_cost = 0; gainers = []; losers = []
+            movers_detail = []
+            syms = [h['ticker'] for h in holdings if h.get('ticker')]
+            if not syms:
+                return {'error': 'No holdings'}
+            q = get_quotes(syms)
+            for h in holdings:
+                sym   = h['ticker']
+                data  = q.get(sym, {})
+                price = data.get('regularMarketPrice', 0)
+                pct   = data.get('regularMarketChangePercent', 0)
+                shrs  = float(h.get('shares', 0))
+                cost  = float(h.get('avg_cost', 0))
+                val   = price * shrs
+                total_value += val
+                total_cost  += cost * shrs
+                movers_detail.append({'ticker': sym, 'pct': pct, 'value': val,
+                                       'name': data.get('shortName', sym)})
+            movers_detail.sort(key=lambda x: x['pct'], reverse=True)
+            gainers = [m for m in movers_detail if m['pct'] > 0][:3]
+            losers  = [m for m in movers_detail if m['pct'] < 0][-3:]
+            losers.reverse()
+            total_gain = total_value - total_cost
+            total_pct  = (total_gain / total_cost * 100) if total_cost else 0
+            # Market summary
+            mkt_up = 0; mkt_dn = 0
+            for idx in (market_data or {}).get('indices', []):
+                if idx.get('change', 0) > 0: mkt_up += 1
+                else: mkt_dn += 1
+            mkt_mood = 'Risk-On' if mkt_up >= 3 else ('Mixed' if mkt_up >= 2 else 'Risk-Off')
+            # Build summary sentences
+            today_str = datetime.now().strftime('%A, %B %d %Y')
+            lines = []
+            lines.append(f"Good morning! Today is {today_str}.")
+            if total_cost > 0:
+                sign = '+' if total_gain >= 0 else ''
+                lines.append(f"Your portfolio is worth ${total_value:,.0f}, {sign}{total_pct:.1f}% overall return.")
+            lines.append(f"Markets are showing a {mkt_mood} tone today ({mkt_up} indices up, {mkt_dn} down).")
+            if gainers:
+                g_str = ', '.join([f"{g['ticker']} (+{g['pct']:.1f}%)" for g in gainers])
+                lines.append(f"Today's top movers in your portfolio: {g_str}.")
+            if losers:
+                l_str = ', '.join([f"{l['ticker']} ({l['pct']:.1f}%)" for l in losers])
+                lines.append(f"Watching for weakness in: {l_str}.")
+            return {
+                'date':        today_str,
+                'summary':     ' '.join(lines),
+                'total_value': round(total_value, 2),
+                'total_pct':   round(total_pct, 2),
+                'gainers':     gainers,
+                'losers':      losers,
+                'mkt_mood':    mkt_mood,
+                'mkt_up':      mkt_up,
+                'mkt_dn':      mkt_dn,
+            }
+        except Exception as e:
+            return {'error': str(e)}
+    return _from_cache(cache_key, fetch, ttl=300)
+
+# ── Portfolio Stress Test ─────────────────────────────────────────────────────
+STRESS_SCENARIOS = {
+    'covid':    {'label': 'COVID Crash (2020)', 'mkt_drop': -34, 'duration': '33 days', 'recovery': '~5 months'},
+    'rate2022': {'label': '2022 Rate Hike Bear', 'mkt_drop': -25, 'duration': '12 months', 'recovery': '~14 months'},
+    'gfc2008':  {'label': 'GFC 2008–09',        'mkt_drop': -57, 'duration': '17 months', 'recovery': '~4 years'},
+    'dot2000':  {'label': 'Dot-com 2000–02',    'mkt_drop': -49, 'duration': '31 months', 'recovery': '~7 years'},
+}
+
+def get_stress_test(holdings):
+    try:
+        syms = [h['ticker'] for h in holdings if h.get('ticker')]
+        if not syms:
+            return {'error': 'No holdings'}
+        q = get_quotes(syms)
+        total_value = sum(
+            q.get(h['ticker'],{}).get('regularMarketPrice',0) * float(h.get('shares',0))
+            for h in holdings
+        )
+        if total_value <= 0:
+            return {'error': 'Portfolio value is zero'}
+        results = {}
+        for scen_key, scen in STRESS_SCENARIOS.items():
+            mkt_pct = scen['mkt_drop'] / 100
+            impact_by_stock = []
+            total_impact = 0
+            for h in holdings:
+                sym   = h['ticker']
+                data  = q.get(sym, {})
+                price = data.get('regularMarketPrice', 0)
+                beta  = data.get('beta', 1.0) or 1.0
+                shrs  = float(h.get('shares', 0))
+                val   = price * shrs
+                # Each stock drops by beta * market_drop (clipped at -80%)
+                stock_drop_pct = max(beta * mkt_pct, -0.80)
+                impact = val * stock_drop_pct
+                impact_by_stock.append({
+                    'ticker':     sym,
+                    'name':       data.get('shortName', sym),
+                    'beta':       round(beta, 2),
+                    'value':      round(val, 2),
+                    'drop_pct':   round(stock_drop_pct * 100, 1),
+                    'impact':     round(impact, 2),
+                })
+                total_impact += impact
+            impact_by_stock.sort(key=lambda x: x['impact'])
+            survivor_value = total_value + total_impact
+            results[scen_key] = {
+                'label':          scen['label'],
+                'mkt_drop':       scen['mkt_drop'],
+                'duration':       scen['duration'],
+                'recovery':       scen['recovery'],
+                'portfolio_drop': round(total_impact / total_value * 100, 1),
+                'estimated_loss': round(total_impact, 2),
+                'survivor_value': round(survivor_value, 2),
+                'worst_stocks':   impact_by_stock[:5],
+            }
+        return {'total_value': round(total_value, 2), 'scenarios': results}
+    except Exception as e:
+        return {'error': str(e)}
+
 def get_entry_analysis(ticker):
     ticker = ticker.upper().strip()
     cache_key = f'entry_{ticker}'
@@ -1139,20 +1379,23 @@ def _fetch_one_quote(sym):
                         ex_div_str = datetime.datetime.utcfromtimestamp(int(ex_div)).strftime("%Y-%m-%d")
                     except: pass
                 meta = {
-                    "shortName":       info.get("shortName", sym),
-                    "sector":          info.get("sector", ""),
-                    "trailingPE":      float(info.get("trailingPE")    or 0),
-                    "beta":            float(info.get("beta")           or 0),
-                    "dividendRate":    float(info.get("dividendRate")   or 0),
-                    "dividendYield":   float(info.get("dividendYield")  or 0),
-                    "exDividendDate":  ex_div_str,
-                    "w52ChangePct":    float(info.get("52WeekChange")   or 0) * 100,
+                    "shortName":            info.get("shortName", sym),
+                    "sector":               info.get("sector", ""),
+                    "trailingPE":           float(info.get("trailingPE")          or 0),
+                    "beta":                 float(info.get("beta")                or 0),
+                    "dividendRate":         float(info.get("dividendRate")        or 0),
+                    "dividendYield":        float(info.get("dividendYield")       or 0),
+                    "exDividendDate":       ex_div_str,
+                    "w52ChangePct":         float(info.get("52WeekChange")        or 0) * 100,
+                    "shortPercentOfFloat":  float(info.get("shortPercentOfFloat") or 0) * 100,
+                    "shortRatio":           float(info.get("shortRatio")          or 0),
                 }
                 _cache[meta_key] = {"ts": time.time(), "data": meta}
             except:
                 meta = {"shortName": sym, "sector": "", "trailingPE": 0,
                         "beta": 0, "dividendRate": 0, "dividendYield": 0,
-                        "exDividendDate": "", "w52ChangePct": 0}
+                        "exDividendDate": "", "w52ChangePct": 0,
+                        "shortPercentOfFloat": 0, "shortRatio": 0}
 
         return sym, {
             "symbol":                     sym,
@@ -1173,6 +1416,8 @@ def _fetch_one_quote(sym):
             "exDividendDate":             meta.get("exDividendDate", ""),
             "w52ChangePct":               meta.get("w52ChangePct", 0),
             "sector":                     meta["sector"],
+            "shortPercentOfFloat":         meta.get("shortPercentOfFloat", 0),
+            "shortRatio":                  meta.get("shortRatio", 0),
         }
     except Exception as e:
         print(f"  ⚠️  {sym}: {e}")
@@ -2022,6 +2267,25 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                     self.send_error(400)
                 else:
                     self.send_json(get_entry_analysis(sym))
+
+            elif path == "/api/earnings-history":
+                sym = qs.get("ticker", [""])[0].strip().upper()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_earnings_history(sym))
+
+            elif path == "/api/insider-trades":
+                sym = qs.get("ticker", [""])[0].strip().upper()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_insider_trades(sym))
+
+            elif path == "/api/morning-briefing":
+                holdings = db_get_portfolio(user["user_id"])
+                mkt      = get_market_data()
+                self.send_json(get_morning_briefing(holdings, mkt))
+
+            elif path == "/api/stress-test":
+                holdings = db_get_portfolio(user["user_id"])
+                self.send_json(get_stress_test(holdings))
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
