@@ -10251,28 +10251,50 @@ function switchPmTab(tab) {
 function renderPmMovers() {
   const wrap = g('pm-table-wrap');
   if (!wrap || !_pmData) return;
+  const isMarketOpen = _pmData.marketOpen === true;
   const stocks = _pmTab === 'pre' ? (_pmData.premarket || []) : (_pmData.afterhours || []);
-  const priceKey  = _pmTab === 'pre' ? 'preMarketPrice'  : 'postMarketPrice';
-  const changeKey = _pmTab === 'pre' ? 'preMarketChange' : 'postMarketChange';
-  const label     = _pmTab === 'pre' ? 'Pre-Market Price' : 'After-Hours Price';
-  const chgLabel  = _pmTab === 'pre' ? 'Pre-Market Chg%'  : 'After-Hours Chg%';
-  if (!stocks.length) {
-    wrap.innerHTML = '<div style="color:var(--muted);padding:14px;text-align:center">No extended-hours data available right now</div>';
+
+  // During regular market hours, show a notice + regular movers table
+  if (isMarketOpen) {
+    const cc = v => v > 0 ? 'style="color:var(--green)"' : v < 0 ? 'style="color:var(--red)"' : '';
+    let h = `<div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:.78rem;color:#fbbf24;">
+      ⏰ Market is currently open — extended-hours prices aren't active. Showing today's regular session movers instead.
+    </div>`;
+    h += `<table class="pm-tbl"><thead><tr><th>Ticker</th><th>Price</th><th>Change %</th><th>Market Cap</th></tr></thead><tbody>`;
+    for (const s of stocks) {
+      h += `<tr>
+        <td style="cursor:pointer;color:var(--blue);font-weight:700" onclick="openStockPage('${s.ticker}')">${s.ticker}</td>
+        <td>$${(s.price||0).toFixed(2)}</td>
+        <td ${cc(s.change)}>${s.change != null ? (s.change > 0 ? '+' : '') + s.change.toFixed(2) + '%' : '—'}</td>
+        <td>${s.marketCap ? '$' + (s.marketCap/1e9).toFixed(1) + 'B' : '—'}</td>
+      </tr>`;
+    }
+    h += '</tbody></table>';
+    wrap.innerHTML = h;
     return;
   }
-  let h = `<table class="pm-tbl"><thead><tr><th>Ticker</th><th>Name</th><th>Regular</th><th>Reg Chg%</th><th>${label}</th><th>${chgLabel}</th><th>Vol</th></tr></thead><tbody>`;
-  for (const s of stocks) {
+
+  const priceKey  = _pmTab === 'pre' ? 'preMarketPrice'  : 'postMarketPrice';
+  const changeKey = _pmTab === 'pre' ? 'preMarketChange' : 'postMarketChange';
+  const label     = _pmTab === 'pre' ? 'Pre-Mkt Price' : 'Post-Mkt Price';
+  const chgLabel  = _pmTab === 'pre' ? 'Pre-Mkt Chg%'  : 'Post-Mkt Chg%';
+
+  const visible = stocks.filter(s => s[priceKey] != null);
+  if (!visible.length) {
+    wrap.innerHTML = '<div style="color:var(--muted);padding:14px;text-align:center">No extended-hours data found — try during pre-market (4–9:30am ET) or after-hours (4–8pm ET)</div>';
+    return;
+  }
+  const cc = v => v > 0 ? 'style="color:var(--green)"' : v < 0 ? 'style="color:var(--red)"' : '';
+  let h = `<table class="pm-tbl"><thead><tr><th>Ticker</th><th>Regular</th><th>Reg Chg%</th><th>${label}</th><th>${chgLabel}</th><th>Market Cap</th></tr></thead><tbody>`;
+  for (const s of visible) {
     const ext = s[priceKey], extChg = s[changeKey];
-    if (ext == null) continue;
-    const cc = v => v > 0 ? 'style="color:var(--green)"' : v < 0 ? 'style="color:var(--red)"' : '';
     h += `<tr>
       <td style="cursor:pointer;color:var(--blue);font-weight:700" onclick="openStockPage('${s.ticker}')">${s.ticker}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</td>
       <td>$${(s.price||0).toFixed(2)}</td>
       <td ${cc(s.change)}>${s.change != null ? (s.change > 0 ? '+' : '') + s.change.toFixed(2) + '%' : '—'}</td>
       <td>$${ext.toFixed(2)}</td>
       <td ${cc(extChg)}>${extChg != null ? (extChg > 0 ? '+' : '') + extChg.toFixed(2) + '%' : '—'}</td>
-      <td>${s.volume ? (s.volume/1e6).toFixed(1)+'M' : '—'}</td>
+      <td>${s.marketCap ? '$' + (s.marketCap/1e9).toFixed(1) + 'B' : '—'}</td>
     </tr>`;
   }
   h += '</tbody></table>';
