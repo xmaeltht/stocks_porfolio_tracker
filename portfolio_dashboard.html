@@ -2273,6 +2273,122 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
 .overlay-btn{padding:3px 9px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.68rem;font-weight:700;border-radius:6px;cursor:pointer;font-family:var(--font-data);transition:all .15s;}
 .overlay-btn.active{border-color:rgba(124,92,252,.4);color:var(--blue);background:rgba(124,92,252,.1);}
 .sp-rsi-wrap{position:relative;height:80px;margin-top:4px;opacity:.85;}
+
+/* ════ Financials Extended (period toggle + ratios) ════ */
+.fin-period-bar{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.fin-period-btn{padding:4px 12px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.72rem;font-weight:700;border-radius:20px;cursor:pointer;transition:all .15s;}
+.fin-period-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.fin-sub-tabs{display:flex;gap:4px;margin-bottom:12px;}
+.fin-sub-tab{padding:4px 12px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.72rem;border-radius:6px;cursor:pointer;transition:all .15s;}
+.fin-sub-tab.active{background:rgba(124,92,252,.15);color:var(--blue);border-color:rgba(124,92,252,.4);}
+.fin-table-wrap{overflow-x:auto;}
+.fin-tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.fin-tbl th{background:var(--card2);color:var(--muted);padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;white-space:nowrap;}
+.fin-tbl th:first-child{text-align:left;}
+.fin-tbl td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-family:var(--font-data);white-space:nowrap;}
+.fin-tbl td:first-child{text-align:left;color:var(--fg);font-weight:500;}
+.fin-tbl tr:hover td{background:rgba(255,255,255,.03);}
+.fin-yoy-pos{color:#34d399;font-size:.68rem;}
+.fin-yoy-neg{color:#f87171;font-size:.68rem;}
+
+/* ════ Screener ════ */
+.screener-wrap{display:flex;flex-direction:column;gap:10px;}
+.screener-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.screener-filter-group{display:flex;flex-direction:column;gap:3px;}
+.screener-filter-label{font-size:.65rem;color:var(--muted);font-weight:600;text-transform:uppercase;}
+.screener-select,.screener-input{background:var(--card2);border:1px solid var(--border);color:var(--fg);padding:5px 8px;border-radius:6px;font-size:.75rem;min-width:90px;}
+.screener-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;}
+.screener-tbl{width:100%;border-collapse:collapse;font-size:.78rem;min-width:900px;}
+.screener-tbl th{background:var(--card2);color:var(--muted);padding:8px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;white-space:nowrap;cursor:pointer;user-select:none;}
+.screener-tbl th:first-child,.screener-tbl th:nth-child(2){text-align:left;}
+.screener-tbl th:hover{color:var(--fg);}
+.screener-tbl td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-family:var(--font-data);white-space:nowrap;}
+.screener-tbl td:first-child,.screener-tbl td:nth-child(2){text-align:left;}
+.screener-tbl tr:hover td{background:rgba(255,255,255,.03);}
+.screener-ticker-link{color:var(--blue);cursor:pointer;font-weight:700;}
+.screener-count{font-size:.72rem;color:var(--muted);}
+.screener-run-btn{padding:6px 16px;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;}
+.screener-view-btns{display:flex;gap:4px;}
+.screener-view-btn{padding:3px 10px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.7rem;border-radius:4px;cursor:pointer;}
+.screener-view-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* ════ Market Heatmap (full S&P 500) ════ */
+.heatmap-sp{display:flex;flex-direction:column;gap:8px;}
+.heatmap-sector-row{display:flex;flex-direction:column;gap:4px;}
+.heatmap-sector-label{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.heatmap-sector-tiles{display:flex;flex-wrap:wrap;gap:3px;}
+.heatmap-sp-tile{border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:filter .15s;position:relative;}
+.heatmap-sp-tile:hover{filter:brightness(1.15);}
+.heatmap-sp-tile .htile-sym{font-size:.65rem;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.7);}
+.heatmap-sp-tile .htile-chg{font-size:.6rem;color:rgba(255,255,255,.85);}
+.hm-load-btn{padding:7px 18px;background:var(--blue);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.82rem;font-weight:600;}
+
+/* ════ IPO List ════ */
+.ipo-tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.ipo-tbl th{background:var(--card2);color:var(--muted);padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;}
+.ipo-tbl th:first-child,.ipo-tbl th:nth-child(2){text-align:left;}
+.ipo-tbl td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-family:var(--font-data);}
+.ipo-tbl td:first-child,.ipo-tbl td:nth-child(2){text-align:left;}
+.ipo-tbl tr:hover td{background:rgba(255,255,255,.03);}
+
+/* ════ Trending Stocks ════ */
+.trending-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;}
+.trending-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;}
+.trending-card:hover{border-color:rgba(124,92,252,.4);transform:translateY(-1px);}
+.trending-rank{font-size:.65rem;color:var(--muted);margin-bottom:2px;}
+.trending-sym{font-size:1rem;font-weight:700;color:var(--fg);}
+.trending-name{font-size:.68rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.trending-price{font-size:.85rem;font-weight:600;margin-top:6px;font-family:var(--font-data);}
+
+/* ════ ETF Detail Page ════ */
+.etf-page{display:flex;flex-direction:column;gap:14px;}
+.etf-header{display:flex;gap:16px;align-items:flex-start;}
+.etf-title-block{}
+.etf-name{font-size:1.05rem;font-weight:700;}
+.etf-ticker-badge{background:rgba(124,92,252,.15);color:var(--blue);border-radius:4px;padding:2px 8px;font-size:.75rem;font-weight:700;display:inline-block;margin-bottom:4px;}
+.etf-stats-row{display:flex;flex-wrap:wrap;gap:10px;}
+.etf-stat{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;min-width:110px;}
+.etf-stat-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;margin-bottom:2px;}
+.etf-stat-val{font-size:.95rem;font-weight:700;font-family:var(--font-data);}
+.etf-holdings-tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.etf-holdings-tbl th{background:var(--card2);color:var(--muted);padding:6px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;}
+.etf-holdings-tbl th:first-child,.etf-holdings-tbl th:nth-child(2){text-align:left;}
+.etf-holdings-tbl td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-family:var(--font-data);}
+.etf-holdings-tbl td:first-child,.etf-holdings-tbl td:nth-child(2){text-align:left;}
+.etf-sectors-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.etf-sector-pill{background:var(--card2);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:.7rem;}
+.etf-sector-name{color:var(--muted);}
+.etf-sector-pct{font-weight:700;color:var(--fg);}
+.etf-page-back{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;margin-bottom:8px;}
+
+/* ════ Premarket Movers ════ */
+.premarket-tabs{display:flex;gap:6px;margin-bottom:10px;}
+.pm-tab{padding:5px 14px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.75rem;border-radius:20px;cursor:pointer;transition:all .15s;}
+.pm-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.pm-tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
+.pm-tbl th{background:var(--card2);color:var(--muted);padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;white-space:nowrap;}
+.pm-tbl th:first-child,.pm-tbl th:nth-child(2){text-align:left;}
+.pm-tbl td{padding:7px 10px;border-bottom:1px solid rgba(255,255,255,.04);text-align:right;font-family:var(--font-data);white-space:nowrap;}
+.pm-tbl td:first-child,.pm-tbl td:nth-child(2){text-align:left;}
+.pm-tbl tr:hover td{background:rgba(255,255,255,.03);}
+
+/* ════ Market Earnings Calendar (full) ════ */
+.earn-cal-wrap{display:flex;flex-direction:column;gap:10px;}
+.earn-cal-date-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.earn-cal-date-btn{padding:4px 12px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.72rem;border-radius:20px;cursor:pointer;transition:all .15s;}
+.earn-cal-date-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.earn-cal-date-input{background:var(--card2);border:1px solid var(--border);color:var(--fg);padding:4px 8px;border-radius:6px;font-size:.75rem;}
+.earn-cal-event{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.earn-cal-event:hover{border-color:rgba(124,92,252,.4);}
+.earn-cal-left{display:flex;flex-direction:column;gap:1px;}
+.earn-cal-sym{font-weight:700;font-size:.88rem;color:var(--blue);cursor:pointer;}
+.earn-cal-name{font-size:.7rem;color:var(--muted);}
+.earn-cal-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.earn-cal-time{font-size:.68rem;background:rgba(124,92,252,.15);color:var(--blue);border-radius:4px;padding:2px 7px;}
+.earn-cal-eps{font-size:.72rem;color:var(--muted);}
+.earn-cal-day-header{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);padding-bottom:4px;margin-top:8px;}
+.earn-cal-empty{color:var(--muted);font-size:.82rem;text-align:center;padding:20px;}
+
 </style>
 </head>
 <body>
@@ -2769,6 +2885,46 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       <div style="color:var(--muted);font-size:.82rem;padding:20px;text-align:center"><span class="spinner"></span> Loading calendar…</div>
     </div>
 
+    <!-- PREMARKET / AFTER-HOURS MOVERS -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin:0;font-size:.72rem;">⚡ PREMARKET &amp; AFTER-HOURS MOVERS</div>
+      <button class="btn btn-sm" style="font-size:.68rem;padding:3px 10px" onclick="loadPremarketMovers()">Refresh</button>
+    </div>
+    <div class="premarket-tabs">
+      <button class="pm-tab active" id="pm-tab-pre"  onclick="switchPmTab('pre')">Pre-Market</button>
+      <button class="pm-tab"        id="pm-tab-post" onclick="switchPmTab('post')">After-Hours</button>
+    </div>
+    <div id="pm-table-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+
+    <!-- TRENDING STOCKS -->
+    <div class="section-title" style="margin-bottom:8px;margin-top:18px;font-size:.72rem;">🔥 TRENDING STOCKS</div>
+    <div id="trending-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+
+    <!-- S&P 500 MARKET HEATMAP -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:18px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin:0;font-size:.72rem;">🟩 S&amp;P 500 MARKET HEATMAP <span style="font-weight:400;font-size:.65rem;color:var(--muted);">Sized by market cap · colored by % change</span></div>
+      <button class="hm-load-btn" onclick="loadSP500Heatmap()" style="font-size:.7rem;padding:5px 12px">Load Heatmap</button>
+    </div>
+    <div id="sp-heatmap-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center">Click "Load Heatmap" to fetch S&amp;P 500 data (may take ~30s)</div></div>
+
+    <!-- IPO CALENDAR -->
+    <div class="section-title" style="margin-bottom:8px;margin-top:18px;font-size:.72rem;">🚀 RECENT IPOs</div>
+    <div id="ipo-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+
+    <!-- MARKET EARNINGS CALENDAR (full) -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:18px;flex-wrap:wrap;gap:8px;">
+      <div class="section-title" style="margin:0;font-size:.72rem;">📅 EARNINGS CALENDAR</div>
+    </div>
+    <div class="earn-cal-wrap">
+      <div class="earn-cal-date-bar">
+        <button class="earn-cal-date-btn active" id="ecd-today" onclick="loadMarketEarnings(null, this)">Today</button>
+        <button class="earn-cal-date-btn" id="ecd-tomorrow" onclick="loadMarketEarnings(dateOffset(1), this)">Tomorrow</button>
+        <button class="earn-cal-date-btn" id="ecd-next7" onclick="loadMarketEarnings(dateOffset(7), this)">Next 7d</button>
+        <input type="date" class="earn-cal-date-input" id="ecd-custom" onchange="loadMarketEarnings(this.value, null)" title="Pick a date"/>
+      </div>
+      <div id="earn-cal-events-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+    </div>
+
     <!-- MARKET NEWS -->
     <div class="section-title" style="margin-bottom:8px;margin-top:24px;font-size:.72rem;">📰 MARKET NEWS</div>
     <div class="market-news-grid" id="market-news-grid">
@@ -3115,6 +3271,67 @@ tbody tr:nth-child(even){background:rgba(124,92,252,.018)!important;}
       </div>
       <div class="cmp-chart-wrap"><canvas id="cmp-chart"></canvas></div>
       <div id="cmp-stats-wrap"></div>
+    </div>
+
+    <!-- STOCK SCREENER -->
+    <div class="analysis-section" id="screener-section">
+      <div class="analysis-section-title">🔍 Stock Screener <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">S&amp;P 500 universe · filter by fundamentals</span></div>
+      <div class="screener-filters">
+        <div class="screener-filter-group">
+          <div class="screener-filter-label">Sector</div>
+          <select class="screener-select" id="scr-sector">
+            <option value="">All</option>
+            <option>Technology</option><option>Healthcare</option><option>Financials</option>
+            <option>Consumer Cyclical</option><option>Consumer Defensive</option>
+            <option>Communication Services</option><option>Industrials</option>
+            <option>Energy</option><option>Utilities</option><option>Real Estate</option>
+            <option>Basic Materials</option>
+          </select>
+        </div>
+        <div class="screener-filter-group">
+          <div class="screener-filter-label">Market Cap Min ($B)</div>
+          <input class="screener-input" id="scr-mc-min" type="number" placeholder="e.g. 10" min="0" style="width:90px"/>
+        </div>
+        <div class="screener-filter-group">
+          <div class="screener-filter-label">P/E Max</div>
+          <input class="screener-input" id="scr-pe-max" type="number" placeholder="e.g. 30" min="0" style="width:80px"/>
+        </div>
+        <div class="screener-filter-group">
+          <div class="screener-filter-label">Div Yield Min (%)</div>
+          <input class="screener-input" id="scr-div-min" type="number" placeholder="e.g. 2" min="0" step=".1" style="width:80px"/>
+        </div>
+        <div class="screener-filter-group">
+          <div class="screener-filter-label">Rev Growth Min (%)</div>
+          <input class="screener-input" id="scr-rev-min" type="number" placeholder="e.g. 5" step=".1" style="width:80px"/>
+        </div>
+        <div class="screener-filter-group">
+          <div class="screener-filter-label">Sort By</div>
+          <select class="screener-select" id="scr-sort">
+            <option value="marketCap">Market Cap</option>
+            <option value="change">% Change</option>
+            <option value="pe">P/E</option>
+            <option value="divYield">Div Yield</option>
+            <option value="revGrowth">Rev Growth</option>
+            <option value="volume">Volume</option>
+          </select>
+        </div>
+        <button class="screener-run-btn" onclick="runScreener()">Screen →</button>
+      </div>
+      <div style="margin-top:6px;margin-bottom:6px;font-size:.72rem;color:var(--muted);">
+        <span id="scr-count" class="screener-count"></span>
+        <span style="margin-left:10px">
+          <button class="screener-view-btn active" id="scr-view-general" onclick="setScreenerView('general',this)">General</button>
+          <button class="screener-view-btn" id="scr-view-performance" onclick="setScreenerView('performance',this)">Performance</button>
+          <button class="screener-view-btn" id="scr-view-valuation" onclick="setScreenerView('valuation',this)">Valuation</button>
+          <button class="screener-view-btn" id="scr-view-dividends" onclick="setScreenerView('dividends',this)">Dividends</button>
+        </span>
+      </div>
+      <div class="screener-table-wrap">
+        <table class="screener-tbl" id="screener-tbl">
+          <thead id="screener-thead"></thead>
+          <tbody id="screener-tbody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;">Click "Screen →" to load data</td></tr></tbody>
+        </table>
+      </div>
     </div>
 
   </div><!-- /tab-analysis -->
@@ -7463,6 +7680,8 @@ function openStockPage(ticker) {
   _spProfileLoaded    = null;
   _spForecastLoaded   = null;
   _spHistoryData      = null;
+  _spFinExtLoaded     = null;
+  _spFinPeriod        = 'annual';
 
   // Add to recents
   _spRecentTickers = [ticker, ..._spRecentTickers.filter(t => t !== ticker)].slice(0,10);
@@ -7508,11 +7727,35 @@ function openStockPage(ticker) {
   // Fetch stock detail
   fetch(`/api/stock/${ticker}`)
     .then(r => r.json())
-    .then(d => { _spData = d; _spRenderOverview(d); loadSPChart(ticker, '1mo', null); })
+    .then(d => {
+      _spData = d;
+      _spRenderOverview(d);
+      loadSPChart(ticker, '1mo', null);
+      // If this is an ETF, inject an ETF-details button into the overview
+      if (d.quote_type && (d.quote_type.toUpperCase() === 'ETF' || d.quote_type.toUpperCase() === 'MUTUALFUND')) {
+        _injectEtfBadge(ticker);
+      }
+    })
     .catch(() => { g('sp-stats-col').innerHTML = '<div style="color:var(--red);padding:20px">⚠️ Failed to load — is the server running?</div>'; });
 
   // Preload financials in background
   setTimeout(() => _spLoadFinancials(ticker), 800);
+}
+
+function _injectEtfBadge(ticker) {
+  // Inject an "ETF Details" banner into the stock overview panel
+  const statsCol = g('sp-stats-col');
+  if (!statsCol) return;
+  const existingBanner = statsCol.querySelector('.etf-detect-banner');
+  if (existingBanner) return; // already injected
+  const banner = document.createElement('div');
+  banner.className = 'etf-detect-banner';
+  banner.style.cssText = 'background:rgba(124,92,252,.12);border:1px solid rgba(124,92,252,.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;';
+  banner.innerHTML = `
+    <div style="font-size:.8rem;color:var(--blue);font-weight:600">📊 This is an ETF — view fund details, expense ratio, AUM & holdings</div>
+    <button onclick="openEtfPage('${ticker}')" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap">ETF Details →</button>
+  `;
+  statsCol.insertBefore(banner, statsCol.firstChild);
 }
 
 function closeStockPage() {
@@ -7528,7 +7771,7 @@ function switchSPTab(name) {
   document.querySelectorAll('.sp-panel').forEach(p => p.classList.remove('active'));
   const btn = g('spt-' + name); if (btn) btn.classList.add('active');
   const panel = g('spp-' + name); if (panel) panel.classList.add('active');
-  if (name === 'financials'  && _spTicker) _spLoadFinancials(_spTicker);
+  if (name === 'financials'  && _spTicker) { _spLoadFinancials(_spTicker); if (IS_SERVER) loadSPFinancialsExt(_spTicker); }
   if (name === 'analyst'     && _spData)   _spRenderAnalyst(_spData);
   if (name === 'entry'       && _spTicker && IS_SERVER) loadSPEntryAnalysis(_spTicker);
   if (name === 'earnings'    && _spTicker && IS_SERVER) loadSPEarningsHistory(_spTicker);
@@ -7654,7 +7897,10 @@ async function loadSPChart(symbol, period, btn) {
 
     const labels = pts.map(p => {
       const d = new Date(p.t);
-      if (period==='1d') return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+      if (period === '1d' || period === '5d')
+        return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+      if (period === '2y' || period === '5y' || period === 'max')
+        return d.toLocaleDateString('en-US',{month:'short',year:'2-digit'});
       return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
     });
     const prices = pts.map(p => p.c);
@@ -7727,15 +7973,6 @@ async function _spLoadFinancials(ticker) {
   } catch(e) {
     g('sp-fin-income').innerHTML = '<div style="color:var(--red);padding:20px">⚠️ Failed to load financials</div>';
   }
-}
-
-function switchSPFinTab(name) {
-  document.querySelectorAll('.sp-fst').forEach(b => b.classList.remove('active'));
-  const btn = g('sp-fst-' + name); if (btn) btn.classList.add('active');
-  ['income','balance','cashflow'].forEach(t => {
-    const w = g('sp-fin-' + t);
-    if (w) w.style.display = t === name ? '' : 'none';
-  });
 }
 
 function _spFmtFin(v) {
@@ -9842,7 +10079,13 @@ function doDbBackup() {
   const _origSwitchTab = switchTab;
   window.switchTab = function(name) {
     _origSwitchTab(name);
-    if (name === 'market' && IS_SERVER) loadEconomicCalendar();
+    if (name === 'market' && IS_SERVER) {
+      loadEconomicCalendar();
+      loadPremarketMovers();
+      loadTrendingStocks();
+      loadIPOList();
+      loadMarketEarnings(null, g('ecd-today'));
+    }
     if (name === 'analysis' && IS_SERVER) {
       setTimeout(() => { buildDriftTracker(); }, 300);
     }
@@ -9855,6 +10098,588 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize DRIP calculator on load
   setTimeout(calcDRIP, 500);
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// NEW FEATURE JS FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════
+
+// ─────────────── Financials Extended (period toggle + ratios) ─────────
+let _spFinPeriod = 'annual';
+let _spFinExtLoaded = null;
+
+function switchSPFinPeriod(period, btn) {
+  _spFinPeriod = period;
+  document.querySelectorAll('.fin-period-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  _spFinExtLoaded = null; // force reload
+  loadSPFinancialsExt(_spTicker);
+}
+
+function switchSPFinTab(name) {
+  document.querySelectorAll('.fin-sub-tab, .sp-fst').forEach(b => b.classList.remove('active'));
+  const btn = g('sp-fst-' + name); if (btn) btn.classList.add('active');
+  ['income','balance','cashflow','ratios'].forEach(t => {
+    const w = g('sp-fin-' + t);
+    if (w) w.style.display = t === name ? '' : 'none';
+  });
+  if (name === 'ratios' && _spTicker) loadSPFinancialsExt(_spTicker);
+}
+
+function loadSPFinancialsExt(ticker) {
+  if (!ticker || !IS_SERVER) return;
+  const cacheKey = ticker + '_' + _spFinPeriod;
+  if (_spFinExtLoaded === cacheKey) return;
+  const wrap = g('sp-fin-ratios');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted)"><span class="spinner"></span> Loading…</div>';
+  fetch(`/api/financials-extended?ticker=${encodeURIComponent(ticker)}&period=${_spFinPeriod}`)
+    .then(r => r.json())
+    .then(d => {
+      _spFinExtLoaded = cacheKey;
+      renderSPFinancialsExt(d);
+      // Also refresh the standard income/balance/cashflow panels with period data
+      if (d.income && d.income.length) _renderExtTable('sp-fin-income',  d.income,  [
+        ['revenue','Revenue'],['gross_profit','Gross Profit'],['operating_income','Operating Income'],
+        ['net_income','Net Income'],['ebitda','EBITDA'],['eps','EPS']
+      ], true);
+      if (d.balance && d.balance.length) _renderExtTable('sp-fin-balance', d.balance, [
+        ['total_assets','Total Assets'],['total_liabilities','Total Liabilities'],
+        ['stockholders_equity','Stockholders Equity'],['cash','Cash & Equivalents'],
+        ['total_debt','Total Debt'],['current_assets','Current Assets'],
+        ['current_liabilities','Current Liabilities']
+      ], true);
+      if (d.cashflow && d.cashflow.length) _renderExtTable('sp-fin-cashflow', d.cashflow, [
+        ['operating','Operating Cash Flow'],['investing','Investing Cash Flow'],
+        ['financing','Financing Cash Flow'],['free_cf','Free Cash Flow'],
+        ['capex','Capital Expenditure'],['dividends_paid','Dividends Paid']
+      ], true);
+    })
+    .catch(() => { if (wrap) wrap.innerHTML = '<div style="color:var(--red);padding:20px">⚠️ Failed to load ratios</div>'; });
+}
+
+function _fmtFinVal(v) {
+  if (v == null) return '<span style="color:var(--muted)">—</span>';
+  const abs = Math.abs(v);
+  const cls = v < 0 ? 'sp-fin-neg' : 'sp-fin-pos';
+  let s;
+  if (abs >= 1e9)      s = '$' + (v/1e9).toFixed(2) + 'B';
+  else if (abs >= 1e6) s = '$' + (v/1e6).toFixed(1) + 'M';
+  else                 s = '$' + v.toLocaleString(undefined, {maximumFractionDigits: 0});
+  return `<span class="${cls}">${s}</span>`;
+}
+
+function _renderExtTable(containerId, rows, metrics, showYoY) {
+  const wrap = g(containerId);
+  if (!wrap) return;
+  const labels = rows.map(r => r.label);
+  let h = '<div class="fin-table-wrap"><table class="fin-tbl"><thead><tr><th>Metric</th>';
+  h += labels.map(l => `<th>${l}</th>`).join('');
+  h += '</tr></thead><tbody>';
+  for (const [key, label] of metrics) {
+    const hasVals = rows.some(r => r[key] != null);
+    if (!hasVals) continue;
+    h += `<tr><td>${label}</td>`;
+    rows.forEach((r, i) => {
+      const val = _fmtFinVal(r[key]);
+      let yoy = '';
+      if (showYoY && i < rows.length - 1) {
+        // Compare this period vs the next (older) period
+        const curr = r[key], prev = rows[i + 1][key];
+        if (curr != null && prev != null && prev !== 0) {
+          const pct = ((curr / prev) - 1) * 100;
+          const cls = pct >= 0 ? 'fin-yoy-pos' : 'fin-yoy-neg';
+          yoy = ` <span class="${cls}">${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</span>`;
+        }
+      }
+      h += `<td>${val}${yoy}</td>`;
+    });
+    h += '</tr>';
+  }
+  h += '</tbody></table></div>';
+  wrap.innerHTML = h;
+}
+
+function renderSPFinancialsExt(d) {
+  const wrap = g('sp-fin-ratios');
+  if (!wrap) return;
+  if (!d.ratios || !d.ratios.length) {
+    wrap.innerHTML = '<div style="padding:20px;color:var(--muted)">No ratio history available</div>';
+    return;
+  }
+  const rows = d.ratios;
+  const labels = rows.map(r => r.label);
+  const metrics = [['pe','P/E Ratio'],['ps','P/S Ratio'],['pb','P/B Ratio'],['ev_ebitda','EV/EBITDA']];
+  let h = '<div class="fin-table-wrap"><table class="fin-tbl"><thead><tr><th>Ratio</th>';
+  h += labels.map(l => `<th>${l}</th>`).join('');
+  h += '</tr></thead><tbody>';
+  for (const [key, label] of metrics) {
+    const hasVals = rows.some(r => r[key] != null);
+    if (!hasVals) continue;
+    h += `<tr><td>${label}</td>`;
+    rows.forEach(r => {
+      const v = r[key];
+      h += `<td>${v != null ? v.toFixed(2) + 'x' : '<span style="color:var(--muted)">—</span>'}</td>`;
+    });
+    h += '</tr>';
+  }
+  h += '</tbody></table></div>';
+  wrap.innerHTML = h;
+}
+
+// ─────────────── Premarket & After-Hours Movers ───────────────────
+let _pmData = null;
+let _pmTab  = 'pre';
+
+function loadPremarketMovers() {
+  const wrap = g('pm-table-wrap');
+  if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div>';
+  if (!IS_SERVER) return;
+  fetch('/api/premarket-movers')
+    .then(r => r.json())
+    .then(d => { _pmData = d; renderPmMovers(); })
+    .catch(() => { if (wrap) wrap.innerHTML = '<div style="color:var(--red);padding:14px">⚠️ Failed to load</div>'; });
+}
+
+function switchPmTab(tab) {
+  _pmTab = tab;
+  document.querySelectorAll('.pm-tab').forEach(b => b.classList.remove('active'));
+  const btn = g('pm-tab-' + tab); if (btn) btn.classList.add('active');
+  if (_pmData) renderPmMovers();
+  else loadPremarketMovers();
+}
+
+function renderPmMovers() {
+  const wrap = g('pm-table-wrap');
+  if (!wrap || !_pmData) return;
+  const stocks = _pmTab === 'pre' ? (_pmData.premarket || []) : (_pmData.afterhours || []);
+  const priceKey  = _pmTab === 'pre' ? 'preMarketPrice'  : 'postMarketPrice';
+  const changeKey = _pmTab === 'pre' ? 'preMarketChange' : 'postMarketChange';
+  const label     = _pmTab === 'pre' ? 'Pre-Market Price' : 'After-Hours Price';
+  const chgLabel  = _pmTab === 'pre' ? 'Pre-Market Chg%'  : 'After-Hours Chg%';
+  if (!stocks.length) {
+    wrap.innerHTML = '<div style="color:var(--muted);padding:14px;text-align:center">No extended-hours data available right now</div>';
+    return;
+  }
+  let h = `<table class="pm-tbl"><thead><tr><th>Ticker</th><th>Name</th><th>Regular</th><th>Reg Chg%</th><th>${label}</th><th>${chgLabel}</th><th>Vol</th></tr></thead><tbody>`;
+  for (const s of stocks) {
+    const ext = s[priceKey], extChg = s[changeKey];
+    if (ext == null) continue;
+    const cc = v => v > 0 ? 'style="color:var(--green)"' : v < 0 ? 'style="color:var(--red)"' : '';
+    h += `<tr>
+      <td style="cursor:pointer;color:var(--blue);font-weight:700" onclick="openStockPage('${s.ticker}')">${s.ticker}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name}</td>
+      <td>$${(s.price||0).toFixed(2)}</td>
+      <td ${cc(s.change)}>${s.change != null ? (s.change > 0 ? '+' : '') + s.change.toFixed(2) + '%' : '—'}</td>
+      <td>$${ext.toFixed(2)}</td>
+      <td ${cc(extChg)}>${extChg != null ? (extChg > 0 ? '+' : '') + extChg.toFixed(2) + '%' : '—'}</td>
+      <td>${s.volume ? (s.volume/1e6).toFixed(1)+'M' : '—'}</td>
+    </tr>`;
+  }
+  h += '</tbody></table>';
+  wrap.innerHTML = h;
+}
+
+// ─────────────── Trending Stocks ──────────────────────────────────
+let _trendingData = null;
+
+function loadTrendingStocks() {
+  const wrap = g('trending-wrap');
+  if (!IS_SERVER) { if (wrap) wrap.innerHTML = '<div style="color:var(--muted);padding:10px">Server mode required</div>'; return; }
+  fetch('/api/trending')
+    .then(r => r.json())
+    .then(d => { _trendingData = d; renderTrendingStocks(); })
+    .catch(() => { if (wrap) wrap.innerHTML = '<div style="color:var(--red);padding:14px">⚠️ Failed to load</div>'; });
+}
+
+function renderTrendingStocks() {
+  const wrap = g('trending-wrap');
+  if (!wrap || !_trendingData) return;
+  const stocks = _trendingData.stocks || [];
+  if (!stocks.length) { wrap.innerHTML = '<div style="color:var(--muted)">No trending data</div>'; return; }
+  let h = '<div class="trending-grid">';
+  stocks.forEach((s, i) => {
+    const chg = s.change || 0;
+    const cls = chg >= 0 ? 'sp-pos' : 'sp-neg';
+    h += `<div class="trending-card" onclick="openStockPage('${s.ticker}')">
+      <div class="trending-rank">#${i+1}</div>
+      <div class="trending-sym">${s.ticker}</div>
+      <div class="trending-name">${s.name}</div>
+      <div class="trending-price">
+        <span>$${(s.price||0).toFixed(2)}</span>
+        <span class="${cls}" style="font-size:.78rem;margin-left:6px">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:2px">${s.sector || ''} · Vol ${s.volume ? (s.volume/1e6).toFixed(1)+'M' : '—'}</div>
+    </div>`;
+  });
+  h += '</div>';
+  wrap.innerHTML = h;
+}
+
+// ─────────────── S&P 500 Market Heatmap ───────────────────────────
+let _sp500HeatmapData = null;
+
+function loadSP500Heatmap() {
+  const wrap = g('sp-heatmap-wrap');
+  if (!IS_SERVER) { if (wrap) wrap.innerHTML = '<div style="color:var(--muted);padding:10px">Server mode required</div>'; return; }
+  if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:20px;text-align:center"><span class="spinner"></span> Fetching S&P 500 data… (this may take up to 60 seconds)</div>';
+  fetch('/api/market-heatmap')
+    .then(r => r.json())
+    .then(d => { _sp500HeatmapData = d; renderSP500Heatmap(); })
+    .catch(() => { if (wrap) wrap.innerHTML = '<div style="color:var(--red);padding:14px">⚠️ Failed to load heatmap</div>'; });
+}
+
+function renderSP500Heatmap() {
+  const wrap = g('sp-heatmap-wrap');
+  if (!wrap || !_sp500HeatmapData) return;
+  const sectors = _sp500HeatmapData.sectors || {};
+  if (!Object.keys(sectors).length) { wrap.innerHTML = '<div style="color:var(--muted);padding:14px">No data</div>'; return; }
+
+  // Collect all market caps to scale tile sizes
+  const allStocks = Object.values(sectors).flat();
+  const maxMC = Math.max(...allStocks.map(s => s.marketCap || 0));
+  // Use log scale for more visible size variation
+  const logMax = Math.log10(maxMC + 1);
+
+  function heatColor(chg) {
+    // Smooth gradient from deep red → neutral gray → deep green
+    if (chg >=  5)   return '#14532d';
+    if (chg >=  3)   return '#166534';
+    if (chg >=  1.5) return '#15803d';
+    if (chg >=  0.5) return '#16a34a';
+    if (chg >  -0.5) return '#2d3748';
+    if (chg >= -1.5) return '#991b1b';
+    if (chg >= -3)   return '#7f1d1d';
+    return '#450a0a';
+  }
+
+  // Legend row
+  const legendItems = [
+    ['#14532d','>+5%'],['#166534','+3%'],['#15803d','+1.5%'],['#16a34a','+0.5%'],
+    ['#2d3748','Flat'],['#991b1b','−1.5%'],['#7f1d1d','−3%'],['#450a0a','<−5%']
+  ];
+  let h = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;">
+    <span style="font-size:.68rem;color:var(--muted);font-weight:600;text-transform:uppercase">Color legend:</span>
+    ${legendItems.map(([bg,lbl]) =>
+      `<span style="display:flex;align-items:center;gap:3px;font-size:.68rem">
+        <span style="width:12px;height:12px;border-radius:2px;background:${bg};display:inline-block"></span>
+        <span style="color:var(--muted)">${lbl}</span>
+      </span>`
+    ).join('')}
+  </div>`;
+  h += '<div class="heatmap-sp">';
+  const sectorOrder = ['Technology','Communication Services','Consumer Cyclical','Consumer Defensive',
+    'Healthcare','Financials','Industrials','Energy','Utilities','Real Estate','Basic Materials','Other'];
+  const sortedSectors = sectorOrder.filter(s => sectors[s]).concat(Object.keys(sectors).filter(s => !sectorOrder.includes(s)));
+
+  for (const sec of sortedSectors) {
+    const stocks = sectors[sec];
+    if (!stocks || !stocks.length) continue;
+    h += `<div class="heatmap-sector-row">
+      <div class="heatmap-sector-label">${sec} <span style="font-weight:400;font-size:.62rem">(${stocks.length})</span></div>
+      <div class="heatmap-sector-tiles">`;
+    for (const s of stocks) {
+      const mc = s.marketCap || 1e9;
+      // Log scale sizing: small caps ~40px, mega caps ~130px
+      const logMC = Math.log10(mc + 1);
+      const sz = Math.max(42, Math.min(130, Math.round(42 + 88 * (logMC / logMax))));
+      const bg = heatColor(s.change || 0);
+      const chgVal = s.change || 0;
+      const chgStr = (chgVal >= 0 ? '+' : '') + chgVal.toFixed(1) + '%';
+      // Only show name text if tile is large enough
+      const showName = sz >= 70;
+      h += `<div class="heatmap-sp-tile" onclick="openStockPage('${s.ticker}')"
+              style="width:${sz}px;height:${sz}px;background:${bg};"
+              title="${s.name} (${s.ticker}) — ${chgStr} · MC: $${(mc/1e9).toFixed(1)}B">
+        <span class="htile-sym" style="font-size:${sz >= 80 ? '.75rem' : '.6rem'}">${s.ticker}</span>
+        <span class="htile-chg" style="font-size:${sz >= 80 ? '.65rem' : '.55rem'}">${chgStr}</span>
+        ${showName ? `<span style="font-size:.52rem;color:rgba(255,255,255,.6);max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name.split(' ')[0]}</span>` : ''}
+      </div>`;
+    }
+    h += '</div></div>';
+  }
+  h += '</div>';
+  wrap.innerHTML = h;
+}
+
+// ─────────────── IPO List ─────────────────────────────────────────
+function loadIPOList() {
+  const wrap = g('ipo-wrap');
+  if (!IS_SERVER) { if (wrap) wrap.innerHTML = '<div style="color:var(--muted);padding:10px">Server mode required</div>'; return; }
+  fetch('/api/ipo-list')
+    .then(r => r.json())
+    .then(d => renderIPOList(d))
+    .catch(() => { if (wrap) wrap.innerHTML = '<div style="color:var(--red);padding:14px">⚠️ Failed to load IPOs</div>'; });
+}
+
+function renderIPOList(d) {
+  const wrap = g('ipo-wrap');
+  if (!wrap) return;
+  const ipos = d.ipos || [];
+  if (!ipos.length) { wrap.innerHTML = '<div style="color:var(--muted);padding:14px">No IPO data available</div>'; return; }
+  let h = '<div style="overflow-x:auto"><table class="ipo-tbl"><thead><tr>';
+  h += '<th>Ticker</th><th>Name</th><th>Date</th><th>IPO Price</th><th>Current Price</th><th>Return</th><th>Market Cap</th><th>Sector</th>';
+  h += '</tr></thead><tbody>';
+  for (const ipo of ipos) {
+    const ret = ipo.return;
+    const cls = ret != null ? (ret >= 0 ? 'style="color:var(--green)"' : 'style="color:var(--red)"') : '';
+    h += `<tr>
+      <td style="cursor:pointer;color:var(--blue);font-weight:700" onclick="openStockPage('${ipo.ticker}')">${ipo.ticker}</td>
+      <td>${ipo.name}</td>
+      <td>${ipo.date || '—'}</td>
+      <td>${ipo.ipoPrice ? '$' + ipo.ipoPrice.toFixed(2) : '—'}</td>
+      <td>${ipo.currentPrice ? '$' + ipo.currentPrice.toFixed(2) : '—'}</td>
+      <td ${cls}>${ret != null ? (ret >= 0 ? '+' : '') + ret.toFixed(1) + '%' : '—'}</td>
+      <td>${ipo.marketCap ? '$' + (ipo.marketCap/1e9).toFixed(1) + 'B' : '—'}</td>
+      <td>${ipo.sector || '—'}</td>
+    </tr>`;
+  }
+  h += '</tbody></table></div>';
+  wrap.innerHTML = h;
+}
+
+// ─────────────── Market Earnings Calendar (full) ──────────────────
+let _earnCalDate = null;
+
+function dateOffset(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function loadMarketEarnings(dateStr, btn) {
+  _earnCalDate = dateStr || new Date().toISOString().slice(0, 10);
+  if (btn) {
+    document.querySelectorAll('.earn-cal-date-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  const wrap = g('earn-cal-events-wrap');
+  if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div>';
+  if (!IS_SERVER) { if (wrap) wrap.innerHTML = '<div style="color:var(--muted);padding:10px">Server mode required</div>'; return; }
+  fetch(`/api/market-earnings-calendar?date=${encodeURIComponent(_earnCalDate)}`)
+    .then(r => r.json())
+    .then(d => renderMarketEarnings(d))
+    .catch(() => { if (wrap) wrap.innerHTML = '<div style="color:var(--red);padding:14px">⚠️ Failed to load earnings calendar</div>'; });
+}
+
+function renderMarketEarnings(d) {
+  const wrap = g('earn-cal-events-wrap');
+  if (!wrap) return;
+  const byDate = d.byDate || {};
+  const dates  = Object.keys(byDate).sort();
+  if (!dates.length) {
+    wrap.innerHTML = '<div class="earn-cal-empty">No upcoming earnings found for this date range</div>';
+    return;
+  }
+  let h = '';
+  for (const dt of dates) {
+    const events = byDate[dt];
+    const dateObj = new Date(dt + 'T12:00:00');
+    const label = dateObj.toLocaleDateString('en-US', {weekday:'long', month:'short', day:'numeric'});
+    h += `<div class="earn-cal-day-header">${label} — ${events.length} report${events.length !== 1 ? 's' : ''}</div>`;
+    for (const e of events) {
+      const mcStr = e.marketCap ? '$' + (e.marketCap/1e9).toFixed(1) + 'B' : '';
+      const epsStr = e.epsEstimate ? 'EPS est. $' + e.epsEstimate.toFixed(2) : '';
+      h += `<div class="earn-cal-event">
+        <div class="earn-cal-left">
+          <span class="earn-cal-sym" onclick="openStockPage('${e.ticker}')">${e.ticker}</span>
+          <span class="earn-cal-name">${e.name}${mcStr ? ' · ' + mcStr : ''}</span>
+        </div>
+        <div class="earn-cal-right">
+          <span class="earn-cal-time">${e.time}</span>
+          ${epsStr ? `<span class="earn-cal-eps">${epsStr}</span>` : ''}
+          <span class="earn-cal-eps">${e.sector || ''}</span>
+        </div>
+      </div>`;
+    }
+  }
+  wrap.innerHTML = h;
+}
+
+// ─────────────── Stock Screener ───────────────────────────────────
+let _screenerData = null;
+let _screenerView = 'general';
+let _screenerSort = {col: 'marketCap', dir: -1};
+
+function runScreener() {
+  const wrap = g('screener-tbody');
+  if (wrap) wrap.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px"><span class="spinner"></span> Fetching S&P 500 data… (may take ~60 seconds)</td></tr>';
+  if (!IS_SERVER) return;
+  fetch('/api/screener')
+    .then(r => r.json())
+    .then(d => { _screenerData = d; applyScreenerFilters(); })
+    .catch(() => { if (wrap) wrap.innerHTML = '<tr><td colspan="10" style="color:var(--red);padding:20px">⚠️ Failed to load screener data</td></tr>'; });
+}
+
+function applyScreenerFilters() {
+  if (!_screenerData) return;
+  let stocks = [...(_screenerData.stocks || [])];
+  const sector = (g('scr-sector') || {}).value || '';
+  const mcMin  = parseFloat((g('scr-mc-min') || {}).value) || 0;
+  const peMax  = parseFloat((g('scr-pe-max') || {}).value) || Infinity;
+  const divMin = parseFloat((g('scr-div-min') || {}).value) || 0;
+  const revMin = parseFloat((g('scr-rev-min') || {}).value) || -Infinity;
+  if (sector) stocks = stocks.filter(s => s.sector === sector);
+  if (mcMin > 0) stocks = stocks.filter(s => s.marketCap && s.marketCap >= mcMin * 1e9);
+  if (peMax < Infinity) stocks = stocks.filter(s => s.pe != null && s.pe > 0 && s.pe <= peMax);
+  if (divMin > 0) stocks = stocks.filter(s => (s.divYield || 0) >= divMin);
+  if (revMin > -Infinity) stocks = stocks.filter(s => s.revGrowth != null && s.revGrowth >= revMin);
+  // Sort — use _screenerSort state (set by column-header click or dropdown)
+  const dropdownSort = (g('scr-sort') || {}).value;
+  if (dropdownSort && dropdownSort !== _screenerSort.col) {
+    _screenerSort.col = dropdownSort;
+    _screenerSort.dir = -1;
+  }
+  const col = _screenerSort.col;
+  const dir = _screenerSort.dir;
+  stocks.sort((a, b) => {
+    const av = a[col] != null ? a[col] : (dir > 0 ? -Infinity : Infinity);
+    const bv = b[col] != null ? b[col] : (dir > 0 ? -Infinity : Infinity);
+    if (typeof av === 'string') return dir * av.localeCompare(bv);
+    return dir > 0 ? av - bv : bv - av;
+  });
+  const cntEl = g('scr-count');
+  if (cntEl) cntEl.textContent = stocks.length + ' stocks';
+  renderScreener(stocks);
+}
+
+function setScreenerView(view, btn) {
+  _screenerView = view;
+  document.querySelectorAll('.screener-view-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (_screenerData) applyScreenerFilters();
+}
+
+function renderScreener(stocks) {
+  const thead = g('screener-thead');
+  const tbody = g('screener-tbody');
+  if (!thead || !tbody) return;
+
+  const views = {
+    general:     [['ticker','Ticker'],['name','Name'],['sector','Sector'],['price','Price'],['change','Chg%'],['marketCap','Mkt Cap'],['pe','P/E'],['divYield','Div%'],['volume','Volume']],
+    performance: [['ticker','Ticker'],['name','Name'],['price','Price'],['change','Chg%'],['w52High','52W High'],['w52Low','52W Low'],['beta','Beta'],['volume','Volume'],['avgVol','Avg Vol']],
+    valuation:   [['ticker','Ticker'],['name','Name'],['price','Price'],['pe','P/E'],['forwardPe','Fwd P/E'],['pb','P/B'],['ps','P/S'],['marketCap','Mkt Cap'],['employees','Employees']],
+    dividends:   [['ticker','Ticker'],['name','Name'],['price','Price'],['divYield','Div Yield'],['pe','P/E'],['marketCap','Mkt Cap'],['sector','Sector'],['industry','Industry'],['revGrowth','Rev Grw%']],
+  };
+  const cols = views[_screenerView] || views.general;
+
+  thead.innerHTML = '<tr>' + cols.map(([k, lbl]) =>
+    `<th onclick="screenerSortBy('${k}')" title="Sort by ${lbl}">${lbl} ${_screenerSort.col === k ? (_screenerSort.dir > 0 ? '↑' : '↓') : ''}</th>`
+  ).join('') + '</tr>';
+
+  if (!stocks.length) {
+    tbody.innerHTML = '<tr><td colspan="' + cols.length + '" style="text-align:center;color:var(--muted);padding:20px">No stocks match the filters</td></tr>';
+    return;
+  }
+
+  const rows = stocks.slice(0, 200); // cap at 200 rows for performance
+  const fmtV = (k, v) => {
+    if (v == null) return '<span style="color:var(--muted)">—</span>';
+    if (k === 'marketCap') return '$' + (v/1e9).toFixed(1) + 'B';
+    if (k === 'volume' || k === 'avgVol') return (v/1e6).toFixed(1) + 'M';
+    if (k === 'price' || k === 'w52High' || k === 'w52Low') return '$' + v.toFixed(2);
+    if (k === 'change' || k === 'divYield' || k === 'revGrowth' || k === 'epsGrowth') {
+      const cls = v > 0 ? 'style="color:var(--green)"' : v < 0 ? 'style="color:var(--red)"' : '';
+      return `<span ${cls}>${v > 0 ? '+' : ''}${v.toFixed(2)}%</span>`;
+    }
+    if (k === 'pe' || k === 'forwardPe' || k === 'pb' || k === 'ps') return v > 0 ? v.toFixed(1) + 'x' : '<span style="color:var(--muted)">—</span>';
+    if (k === 'beta') return v.toFixed(2);
+    if (k === 'employees') return v ? Number(v).toLocaleString() : '—';
+    if (k === 'ticker') return `<span class="screener-ticker-link" onclick="openStockPage('${v}')">${v}</span>`;
+    return String(v);
+  };
+
+  tbody.innerHTML = rows.map(s =>
+    '<tr>' + cols.map(([k]) => `<td>${fmtV(k, s[k])}</td>`).join('') + '</tr>'
+  ).join('');
+}
+
+function screenerSortBy(col) {
+  if (_screenerSort.col === col) _screenerSort.dir *= -1;
+  else { _screenerSort.col = col; _screenerSort.dir = -1; }
+  if (!_screenerData) return;
+  applyScreenerFilters();
+}
+
+// ─────────────── ETF Detail Page ─────────────────────────────────
+let _etfPieChart = null;
+
+function openEtfPage(ticker) {
+  const page = g('etf-page');
+  const wrap = g('etf-page-content');
+  if (!page || !wrap) return;
+  page.style.display = 'block';
+  wrap.innerHTML = '<div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Loading ETF data…</div>';
+  if (!IS_SERVER) { wrap.innerHTML = '<div style="color:var(--muted);padding:20px">Server mode required</div>'; return; }
+  fetch(`/api/etf/${encodeURIComponent(ticker)}`)
+    .then(r => r.json())
+    .then(d => renderEtfPage(d))
+    .catch(() => { wrap.innerHTML = '<div style="color:var(--red);padding:20px">⚠️ Failed to load ETF data</div>'; });
+}
+
+function closeEtfPage() {
+  const page = g('etf-page');
+  if (page) page.style.display = 'none';
+}
+
+function renderEtfPage(d) {
+  const wrap = g('etf-page-content');
+  if (!wrap) return;
+  const fmtB = v => v ? '$' + (v >= 1e9 ? (v/1e9).toFixed(2)+'B' : v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v.toLocaleString()) : '—';
+  const chgCls = d.change >= 0 ? 'style="color:var(--green)"' : 'style="color:var(--red)"';
+  const chgStr = d.change != null ? (d.change >= 0 ? '+' : '') + d.change.toFixed(2) + '%' : '—';
+
+  let h = `<div class="etf-page">
+    <div class="etf-header">
+      <div class="etf-title-block">
+        <div class="etf-ticker-badge">${d.ticker}</div>
+        <div class="etf-name">${d.name}</div>
+        <div style="font-size:1.3rem;font-weight:700;font-family:var(--font-data);margin-top:4px">
+          ${d.price ? '$' + d.price.toFixed(2) : '—'}
+          <span class="sp-price-chg" ${chgCls} style="font-size:.85rem;margin-left:8px">${chgStr}</span>
+        </div>
+      </div>
+    </div>
+    <div class="etf-stats-row">
+      <div class="etf-stat"><div class="etf-stat-label">AUM</div><div class="etf-stat-val">${fmtB(d.aum)}</div></div>
+      <div class="etf-stat"><div class="etf-stat-label">Expense Ratio</div><div class="etf-stat-val">${d.expenseRatio != null ? d.expenseRatio.toFixed(3) + '%' : '—'}</div></div>
+      <div class="etf-stat"><div class="etf-stat-label">YTD Return</div><div class="etf-stat-val" ${d.ytdReturn >= 0 ? 'style="color:var(--green)"' : 'style="color:var(--red)"}'}>${d.ytdReturn != null ? (d.ytdReturn >= 0 ? '+' : '') + d.ytdReturn.toFixed(2) + '%' : '—'}</div></div>
+      <div class="etf-stat"><div class="etf-stat-label">Holdings</div><div class="etf-stat-val">${d.numHoldings || '—'}</div></div>
+      <div class="etf-stat"><div class="etf-stat-label">NAV</div><div class="etf-stat-val">${d.nav ? '$' + d.nav.toFixed(2) : '—'}</div></div>
+      <div class="etf-stat"><div class="etf-stat-label">Category</div><div class="etf-stat-val" style="font-size:.78rem">${d.category || '—'}</div></div>
+    </div>`;
+
+  if (d.sectors && d.sectors.length) {
+    h += `<div><div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:6px">SECTOR BREAKDOWN</div>
+      <div class="etf-sectors-grid">`;
+    d.sectors.sort((a,b) => b.weight - a.weight).forEach(s => {
+      h += `<div class="etf-sector-pill"><span class="etf-sector-name">${s.sector}: </span><span class="etf-sector-pct">${s.weight.toFixed(1)}%</span></div>`;
+    });
+    h += '</div></div>';
+  }
+
+  if (d.holdings && d.holdings.length) {
+    h += `<div><div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:6px">TOP HOLDINGS</div>
+      <div style="overflow-x:auto"><table class="etf-holdings-tbl"><thead><tr>
+        <th>#</th><th>Ticker</th><th>Name</th><th>Weight</th>
+      </tr></thead><tbody>`;
+    d.holdings.forEach((h2, i) => {
+      h += `<tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td style="cursor:pointer;color:var(--blue);font-weight:700" onclick="closeEtfPage();openStockPage('${h2.ticker}')">${h2.ticker || '—'}</td>
+        <td>${h2.name || '—'}</td>
+        <td>${h2.weight != null ? h2.weight.toFixed(2)+'%' : '—'}</td>
+      </tr>`;
+    });
+    h += '</tbody></table></div></div>';
+  }
+
+  if (d.description) {
+    h += `<div style="font-size:.78rem;color:var(--muted);line-height:1.5;border-top:1px solid var(--border);padding-top:10px">${d.description.slice(0, 600)}${d.description.length > 600 ? '…' : ''}</div>`;
+  }
+
+  h += '</div>';
+  wrap.innerHTML = h;
+}
 
 </script>
 
@@ -9939,10 +10764,14 @@ document.addEventListener('DOMContentLoaded', function() {
         <div id="sp-chart-col">
           <div class="sp-chart-periods" id="sp-periods">
             <button class="sp-cp" onclick="loadSPChart(_spTicker,'1d',this)">1D</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'5d',this)">5D</button>
             <button class="sp-cp active" onclick="loadSPChart(_spTicker,'1mo',this)">1M</button>
             <button class="sp-cp" onclick="loadSPChart(_spTicker,'3mo',this)">3M</button>
             <button class="sp-cp" onclick="loadSPChart(_spTicker,'6mo',this)">6M</button>
             <button class="sp-cp" onclick="loadSPChart(_spTicker,'1y',this)">1Y</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'2y',this)">2Y</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'5y',this)">5Y</button>
+            <button class="sp-cp" onclick="loadSPChart(_spTicker,'max',this)">Max</button>
           </div>
           <div class="sp-chart-wrap">
             <canvas id="sp-chart"></canvas>
@@ -9982,14 +10811,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- FINANCIALS PANEL -->
     <div class="sp-panel" id="spp-financials">
-      <div class="sp-fin-subtabs">
-        <button class="sp-fst active" id="sp-fst-income"   onclick="switchSPFinTab('income')">Income Statement</button>
-        <button class="sp-fst"        id="sp-fst-balance"  onclick="switchSPFinTab('balance')">Balance Sheet</button>
-        <button class="sp-fst"        id="sp-fst-cashflow" onclick="switchSPFinTab('cashflow')">Cash Flow</button>
+      <!-- Period toggle + sub-tabs in one row -->
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="fin-period-bar" style="margin:0">
+          <button class="fin-period-btn active" id="sp-fin-per-annual"    onclick="switchSPFinPeriod('annual',this)">Annual</button>
+          <button class="fin-period-btn"        id="sp-fin-per-quarterly" onclick="switchSPFinPeriod('quarterly',this)">Quarterly</button>
+        </div>
+        <div class="fin-sub-tabs">
+          <button class="fin-sub-tab active" id="sp-fst-income"   onclick="switchSPFinTab('income')">Income</button>
+          <button class="fin-sub-tab"        id="sp-fst-balance"  onclick="switchSPFinTab('balance')">Balance Sheet</button>
+          <button class="fin-sub-tab"        id="sp-fst-cashflow" onclick="switchSPFinTab('cashflow')">Cash Flow</button>
+          <button class="fin-sub-tab"        id="sp-fst-ratios"   onclick="switchSPFinTab('ratios')">Ratios</button>
+        </div>
       </div>
       <div id="sp-fin-income"   class="sp-fin-wrap"></div>
       <div id="sp-fin-balance"  class="sp-fin-wrap" style="display:none"></div>
       <div id="sp-fin-cashflow" class="sp-fin-wrap" style="display:none"></div>
+      <div id="sp-fin-ratios"   class="sp-fin-wrap" style="display:none"></div>
     </div>
 
     <!-- ANALYST PANEL -->
@@ -10068,6 +10906,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <!-- STOCK COMPARISON MODAL / SECTION (in Analysis tab) -->
+<!-- ETF DETAIL OVERLAY -->
+<div id="etf-page" style="display:none;position:fixed;inset:0;z-index:500;background:var(--bg);overflow-y:auto;padding:16px 20px;">
+  <button class="etf-page-back" onclick="closeEtfPage()">← Back</button>
+  <div id="etf-page-content">
+    <div style="padding:32px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Loading ETF data…</div>
+  </div>
+</div>
+
 <template id="cmp-section-tpl">
   <div class="cmp-card" id="cmp-card">
     <div class="analysis-section-title">📊 Stock Comparison Tool</div>

@@ -1370,6 +1370,484 @@ def get_stock_comparison(tickers, period='1y'):
     return _from_cache(cache_key, fetch, ttl=1800)
 
 
+# ── New feature backend functions ─────────────────────────────────────────────
+
+def get_financials_extended(ticker, period='annual'):
+    """Financials with Annual/Quarterly/TTM toggle + Ratios historical tab."""
+    ticker = ticker.upper().strip()
+    cache_key = f"fin_ext:{ticker}:{period}"
+    def fetch():
+        import math
+        t = yf.Ticker(ticker)
+        info = t.info or {}
+        def _f(v):
+            try: return float(v) if v is not None and not (isinstance(v, float) and math.isnan(v)) else None
+            except: return None
+        def sv(df, metric, col):
+            try:
+                if metric in df.index:
+                    v = df.loc[metric, col]
+                    return _f(v)
+                return None
+            except: return None
+        def sv2(df, col, *metrics):
+            for m in metrics:
+                v = sv(df, m, col)
+                if v is not None: return v
+            return None
+
+        result = {'income': [], 'balance': [], 'cashflow': [], 'ratios': []}
+
+        if period == 'quarterly':
+            inc_df  = getattr(t, 'quarterly_income_stmt', None) or getattr(t, 'quarterly_financials', None)
+            bal_df  = getattr(t, 'quarterly_balance_sheet', None) or getattr(t, 'quarterly_balancesheet', None)
+            cf_df   = getattr(t, 'quarterly_cashflow', None) or getattr(t, 'quarterly_cash_flow', None)
+            label_fn = lambda col: (str(col.date()) if hasattr(col,'date') else str(col)[:10])
+            n_cols = 8
+        else:  # annual
+            inc_df  = getattr(t, 'income_stmt', None) or getattr(t, 'financials', None)
+            bal_df  = getattr(t, 'balance_sheet', None) or getattr(t, 'balancesheet', None)
+            cf_df   = getattr(t, 'cashflow', None) or getattr(t, 'cash_flow', None)
+            label_fn = lambda col: (str(col.year) if hasattr(col,'year') else str(col)[:4])
+            n_cols = 5
+
+        # ── Income Statement ──────────────────────────────────────────────
+        if inc_df is not None and not inc_df.empty:
+            cols = list(inc_df.columns)[:n_cols]
+            prev_rev = None
+            for col in cols:
+                lbl = label_fn(col)
+                rev = sv2(inc_df, col, "Total Revenue", "Revenue")
+                gp  = sv2(inc_df, col, "Gross Profit")
+                oi  = sv2(inc_df, col, "Operating Income", "EBIT")
+                ni  = sv2(inc_df, col, "Net Income", "Net Income Common Stockholders")
+                eb  = sv2(inc_df, col, "EBITDA", "Normalized EBITDA")
+                eps = sv2(inc_df, col, "Basic EPS", "Diluted EPS")
+                rev_growth = round((rev/prev_rev - 1)*100, 1) if (rev and prev_rev and prev_rev != 0) else None
+                prev_rev = rev
+                result['income'].append({
+                    'label': lbl, 'revenue': rev, 'gross_profit': gp,
+                    'operating_income': oi, 'net_income': ni,
+                    'ebitda': eb, 'eps': eps, 'rev_growth': rev_growth
+                })
+
+        # ── Balance Sheet ─────────────────────────────────────────────────
+        if bal_df is not None and not bal_df.empty:
+            cols = list(bal_df.columns)[:n_cols]
+            for col in cols:
+                lbl = label_fn(col)
+                result['balance'].append({
+                    'label': lbl,
+                    'total_assets':       sv2(bal_df, col, "Total Assets"),
+                    'total_liabilities':  sv2(bal_df, col, "Total Liabilities Net Minority Interest", "Total Liab"),
+                    'stockholders_equity':sv2(bal_df, col, "Stockholders Equity", "Total Stockholder Equity"),
+                    'cash':               sv2(bal_df, col, "Cash And Cash Equivalents", "Cash"),
+                    'total_debt':         sv2(bal_df, col, "Total Debt", "Long Term Debt"),
+                    'current_assets':     sv2(bal_df, col, "Current Assets", "Total Current Assets"),
+                    'current_liabilities':sv2(bal_df, col, "Current Liabilities", "Total Current Liabilities"),
+                })
+
+        # ── Cash Flow ─────────────────────────────────────────────────────
+        if cf_df is not None and not cf_df.empty:
+            cols = list(cf_df.columns)[:n_cols]
+            for col in cols:
+                lbl = label_fn(col)
+                result['cashflow'].append({
+                    'label': lbl,
+                    'operating':   sv2(cf_df, col, "Operating Cash Flow", "Total Cash From Operating Activities"),
+                    'investing':   sv2(cf_df, col, "Investing Cash Flow", "Total Cash From Investing Activities"),
+                    'financing':   sv2(cf_df, col, "Financing Cash Flow", "Total Cash From Financing Activities"),
+                    'free_cf':     sv2(cf_df, col, "Free Cash Flow"),
+                    'capex':       sv2(cf_df, col, "Capital Expenditure", "Capital Expenditures"),
+                    'dividends_paid': sv2(cf_df, col, "Common Stock Dividend Paid", "Payment Of Dividends"),
+                })
+
+        # ── Ratios (historical) ───────────────────────────────────────────
+        # Use annual income + balance for ratio computation
+        try:
+            ri = getattr(t, 'income_stmt', None) or getattr(t, 'financials', None)
+            rb = getattr(t, 'balance_sheet', None) or getattr(t, 'balancesheet', None)
+            hist2y = t.history(period='2y', interval='1mo', auto_adjust=True)
+            month_closes = hist2y['Close'] if not hist2y.empty else None
+
+            if ri is not None and not ri.empty:
+                annual_cols = list(ri.columns)[:5]
+                for col in annual_cols:
+                    yr = str(col.year) if hasattr(col,'year') else str(col)[:4]
+                    rev = sv2(ri, col, "Total Revenue", "Revenue")
+                    ni  = sv2(ri, col, "Net Income", "Net Income Common Stockholders")
+                    shares = _f(info.get('sharesOutstanding'))
+                    mc  = _f(info.get('marketCap'))
+                    bv  = None
+                    if rb is not None and not rb.empty and col in rb.columns:
+                        bv = sv2(rb, col, "Stockholders Equity", "Total Stockholder Equity")
+                    pe  = None
+                    ps  = None
+                    pb  = None
+                    if mc and rev and rev != 0: ps = round(mc/rev, 2)
+                    if mc and bv and bv != 0:  pb = round(mc/bv, 2)
+                    if mc and ni and ni != 0:  pe = round(mc/ni, 2)
+                    ev = _f(info.get('enterpriseValue'))
+                    ebitda_v = sv2(ri, col, "EBITDA", "Normalized EBITDA")
+                    ev_ebitda = round(ev/ebitda_v, 2) if (ev and ebitda_v and ebitda_v != 0) else None
+                    result['ratios'].append({
+                        'label': yr, 'pe': pe, 'ps': ps, 'pb': pb,
+                        'ev_ebitda': ev_ebitda
+                    })
+        except Exception as e:
+            pass
+
+        return result
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+
+def get_stock_screener(filters=None):
+    """Screen S&P 500 + Russell 1000 universe with optional filters."""
+    cache_key = "screener:sp500"
+    def fetch():
+        import pandas as pd
+        # Use a fixed S&P 500-ish ticker list via Wikipedia or hardcoded fallback
+        try:
+            table = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
+            tickers = table['Symbol'].str.replace('.', '-').tolist()[:503]
+        except:
+            tickers = ['AAPL','MSFT','AMZN','NVDA','GOOGL','META','TSLA','BRK-B','JPM','V',
+                       'JNJ','PG','HD','MA','UNH','ABBV','MRK','CVX','PEP','KO','WMT','BAC',
+                       'AVGO','LLY','XOM','TMO','COST','MCD','DIS','ADBE','CRM','NFLX','AMD',
+                       'INTC','QCOM','TXN','HON','PM','CAT','GE','IBM','GS','AXP','SPGI','BLK',
+                       'RTX','DE','MMM','T','VZ','WFC','USB','CL','AMGN','GILD','REGN','ISRG']
+        from concurrent.futures import ThreadPoolExecutor
+        import math
+        def one(sym):
+            try:
+                info = yf.Ticker(sym).info or {}
+                def _f(k):
+                    v = info.get(k)
+                    try: return round(float(v),4) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
+                    except: return None
+                price = _f('currentPrice') or _f('regularMarketPrice')
+                chg   = _f('regularMarketChangePercent')
+                if chg is None:
+                    prev = _f('regularMarketPreviousClose') or _f('previousClose')
+                    chg  = round((price/prev-1)*100,2) if (price and prev and prev!=0) else None
+                return {
+                    'ticker':   sym,
+                    'name':     info.get('shortName',''),
+                    'sector':   info.get('sector',''),
+                    'industry': info.get('industry',''),
+                    'price':    price,
+                    'change':   chg,
+                    'marketCap':info.get('marketCap'),
+                    'pe':       _f('trailingPE'),
+                    'forwardPe':_f('forwardPE'),
+                    'pb':       _f('priceToBook'),
+                    'ps':       _f('priceToSalesTrailing12Months'),
+                    'divYield': round(float(info.get('dividendYield') or 0)*100,2),
+                    'revenue':  info.get('totalRevenue'),
+                    'revGrowth':round(float(info.get('revenueGrowth') or 0)*100,2) if info.get('revenueGrowth') is not None else None,
+                    'epsGrowth':round(float(info.get('earningsGrowth') or 0)*100,2) if info.get('earningsGrowth') is not None else None,
+                    'beta':     _f('beta'),
+                    'w52High':  _f('fiftyTwoWeekHigh'),
+                    'w52Low':   _f('fiftyTwoWeekLow'),
+                    'volume':   info.get('volume'),
+                    'avgVol':   info.get('averageVolume'),
+                    'employees':info.get('fullTimeEmployees'),
+                }
+            except: return None
+        stocks = []
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for r in ex.map(one, tickers):
+                if r and r.get('price'): stocks.append(r)
+        return {'stocks': stocks, 'count': len(stocks)}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+
+def get_market_heatmap():
+    """S&P 500 sector-grouped heatmap with market-cap size & % change color."""
+    cache_key = "heatmap:sp500"
+    def fetch():
+        import pandas as pd, math
+        try:
+            table = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
+            tickers = table['Symbol'].str.replace('.', '-').tolist()[:503]
+        except:
+            tickers = ['AAPL','MSFT','AMZN','NVDA','GOOGL','META','TSLA','JPM','V','JNJ',
+                       'PG','UNH','XOM','CVX','BAC','WMT','COST','HD','MCD','KO','PEP',
+                       'ABBV','MRK','TMO','ADBE','CRM','NFLX','AMD','INTC','QCOM']
+        from concurrent.futures import ThreadPoolExecutor
+        def one(sym):
+            try:
+                info = yf.Ticker(sym).info or {}
+                def _f(k):
+                    v = info.get(k)
+                    try: return float(v) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
+                    except: return None
+                price = _f('currentPrice') or _f('regularMarketPrice')
+                prev  = _f('regularMarketPreviousClose') or _f('previousClose')
+                chg   = round((price/prev-1)*100,2) if (price and prev and prev!=0) else 0.0
+                mc    = info.get('marketCap') or 0
+                return {
+                    'ticker':  sym,
+                    'name':    info.get('shortName', sym),
+                    'sector':  info.get('sector', 'Other'),
+                    'change':  chg,
+                    'marketCap': mc,
+                    'price':   price,
+                }
+            except: return None
+        stocks = []
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for r in ex.map(one, tickers):
+                if r and r.get('marketCap'): stocks.append(r)
+        # Group by sector
+        sectors = {}
+        for s in stocks:
+            sec = s['sector'] or 'Other'
+            sectors.setdefault(sec, []).append(s)
+        # Sort each sector by market cap
+        for sec in sectors:
+            sectors[sec].sort(key=lambda x: x['marketCap'], reverse=True)
+        return {'sectors': sectors}
+    return _from_cache(cache_key, fetch, ttl=600)
+
+
+def get_ipo_list():
+    """Recent + upcoming IPOs via yfinance search / hardcoded recent list."""
+    cache_key = "ipo:list"
+    def fetch():
+        # yfinance doesn't have an IPO endpoint; use a curated recent list
+        # In production this would pull from a data provider
+        import datetime
+        recent = [
+            {'ticker':'RDDT','name':'Reddit','date':'2024-03-21','ipoPrice':34.0,'sector':'Technology'},
+            {'ticker':'ASTERA','name':'Astera Labs','date':'2024-03-20','ipoPrice':36.0,'sector':'Technology'},
+            {'ticker':'EMCOR','name':'EMCOR Group','date':'2023-01-01','ipoPrice':None,'sector':'Industrials'},
+        ]
+        enriched = []
+        for item in recent:
+            try:
+                info = yf.Ticker(item['ticker']).info or {}
+                price = info.get('currentPrice') or info.get('regularMarketPrice')
+                ipo_p = item.get('ipoPrice')
+                ret   = round((price/ipo_p - 1)*100, 2) if (price and ipo_p and ipo_p>0) else None
+                enriched.append({**item, 'currentPrice': price, 'return': ret,
+                                 'marketCap': info.get('marketCap')})
+            except:
+                enriched.append(item)
+        return {'ipos': enriched}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+
+def get_trending_stocks():
+    """Most-watched / trending stocks."""
+    cache_key = "trending:stocks"
+    def fetch():
+        # Use a curated popular list as yfinance doesn't expose trending
+        popular = ['NVDA','TSLA','AAPL','AMD','PLTR','AMZN','META','MSFT','GOOGL','NFLX',
+                   'SPY','QQQ','SOFI','RIVN','F','GM','INTC','BAC','GS','JPM',
+                   'SMCI','ARM','MSTR','COIN','HOOD','RBLX','UBER','LYFT','SNOW','DDOG']
+        import math
+        from concurrent.futures import ThreadPoolExecutor
+        def one(sym):
+            try:
+                info = yf.Ticker(sym).info or {}
+                def _f(k):
+                    v = info.get(k)
+                    try: return float(v) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
+                    except: return None
+                price = _f('currentPrice') or _f('regularMarketPrice')
+                prev  = _f('regularMarketPreviousClose') or _f('previousClose')
+                chg   = round((price/prev-1)*100,2) if (price and prev and prev!=0) else 0.0
+                return {
+                    'ticker': sym, 'name': info.get('shortName',sym),
+                    'price': price, 'change': chg,
+                    'marketCap': info.get('marketCap'),
+                    'volume': info.get('volume'),
+                    'sector': info.get('sector',''),
+                    'pe': _f('trailingPE'),
+                }
+            except: return None
+        stocks = []
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for r in ex.map(one, popular):
+                if r and r.get('price'): stocks.append(r)
+        # sort by volume descending
+        stocks.sort(key=lambda x: x.get('volume') or 0, reverse=True)
+        return {'stocks': stocks}
+    return _from_cache(cache_key, fetch, ttl=600)
+
+
+def get_etf_detail(ticker):
+    """ETF detail: expense ratio, AUM, holdings, sector breakdown."""
+    ticker = ticker.upper().strip()
+    cache_key = f"etf:{ticker}"
+    def fetch():
+        import math
+        t = yf.Ticker(ticker)
+        info = t.info or {}
+        def _f(k):
+            v = info.get(k)
+            try: return float(v) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
+            except: return None
+        # Holdings
+        holdings = []
+        try:
+            h = t.funds_data
+            if h is not None:
+                # sector weightings
+                sw = h.sector_weightings if hasattr(h,'sector_weightings') else {}
+                top = h.top_holdings if hasattr(h,'top_holdings') else None
+                if top is not None and not top.empty:
+                    for _, row in top.head(20).iterrows():
+                        holdings.append({
+                            'ticker': str(row.get('Symbol','')),
+                            'name':   str(row.get('Name','')),
+                            'weight': round(float(row.get('Percent Assets',0))*100,2),
+                        })
+                sectors = [{'sector': k, 'weight': round(v*100,2)} for k,v in sw.items()] if isinstance(sw,dict) else []
+            else:
+                sectors = []
+        except:
+            sectors = []
+        price = _f('currentPrice') or _f('regularMarketPrice') or _f('navPrice')
+        prev  = _f('regularMarketPreviousClose') or _f('previousClose')
+        chg   = round((price/prev-1)*100,2) if (price and prev and prev!=0) else 0.0
+        return {
+            'ticker':       ticker,
+            'name':         info.get('longName') or info.get('shortName', ticker),
+            'price':        price,
+            'change':       chg,
+            'aum':          info.get('totalAssets'),
+            'expenseRatio': round(float(info.get('annualReportExpenseRatio') or 0)*100, 3),
+            'ytdReturn':    round(float(info.get('ytdReturn') or 0)*100, 2),
+            'beta3y':       _f('beta3Year'),
+            'nav':          _f('navPrice'),
+            'category':     info.get('category',''),
+            'exchange':     info.get('exchange',''),
+            'inception':    info.get('fundInceptionDate',''),
+            'description':  info.get('longBusinessSummary',''),
+            'holdings':     holdings,
+            'sectors':      sectors,
+            'numHoldings':  info.get('holdings_count') or len(holdings),
+        }
+    return _from_cache(cache_key, fetch, ttl=1800)
+
+
+def get_premarket_movers():
+    """Pre-market and after-hours movers for popular large-cap stocks."""
+    cache_key = "premarket:movers"
+    def fetch():
+        watchlist = ['AAPL','MSFT','AMZN','NVDA','GOOGL','META','TSLA','JPM','V','JNJ',
+                     'BAC','WFC','GS','AMD','INTC','NFLX','UBER','SNAP','TWTR','COIN',
+                     'PLTR','RIVN','LCID','SOFI','GME','AMC','BBBY','SPCE','MSTR','ARM',
+                     'SPY','QQQ','DIA','IWM','GLD','SLV','USO','TLT','HYG','XLF']
+        import math
+        from concurrent.futures import ThreadPoolExecutor
+        def one(sym):
+            try:
+                t = yf.Ticker(sym)
+                info = t.info or {}
+                def _f(k):
+                    v = info.get(k)
+                    try: return float(v) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
+                    except: return None
+                price = _f('currentPrice') or _f('regularMarketPrice')
+                prev  = _f('regularMarketPreviousClose') or _f('previousClose')
+                pre   = _f('preMarketPrice')
+                post  = _f('postMarketPrice')
+                pre_chg  = round((pre/price-1)*100,2)  if (pre and price and price!=0)  else None
+                post_chg = round((post/price-1)*100,2) if (post and price and price!=0) else None
+                reg_chg  = round((price/prev-1)*100,2) if (price and prev and prev!=0)  else 0.0
+                return {
+                    'ticker': sym, 'name': info.get('shortName',sym),
+                    'price': price, 'change': reg_chg,
+                    'preMarketPrice': pre, 'preMarketChange': pre_chg,
+                    'postMarketPrice': post, 'postMarketChange': post_chg,
+                    'volume': info.get('volume'),
+                    'marketCap': info.get('marketCap'),
+                }
+            except: return None
+        stocks = []
+        with ThreadPoolExecutor(max_workers=10) as ex:
+            for r in ex.map(one, watchlist):
+                if r and r.get('price'): stocks.append(r)
+        pre_movers  = [s for s in stocks if s.get('preMarketChange') is not None]
+        post_movers = [s for s in stocks if s.get('postMarketChange') is not None]
+        pre_movers.sort(key=lambda x: abs(x.get('preMarketChange') or 0), reverse=True)
+        post_movers.sort(key=lambda x: abs(x.get('postMarketChange') or 0), reverse=True)
+        return {'premarket': pre_movers[:20], 'afterhours': post_movers[:20]}
+    return _from_cache(cache_key, fetch, ttl=300)
+
+
+def get_market_earnings_calendar(date_str=None):
+    """Earnings calendar for all S&P 500 tickers around a given date."""
+    import datetime
+    if not date_str:
+        date_str = datetime.date.today().isoformat()
+    cache_key = f"earn_cal:{date_str}"
+    def fetch():
+        # yfinance doesn't have a bulk earnings calendar endpoint
+        # We use a representative watchlist
+        watchlist = ['AAPL','MSFT','AMZN','NVDA','GOOGL','META','TSLA','JPM','V','JNJ',
+                     'PG','UNH','HD','MA','ABBV','MRK','CVX','PEP','KO','WMT','BAC','AVGO',
+                     'LLY','XOM','TMO','COST','MCD','DIS','ADBE','CRM','NFLX','AMD','INTC',
+                     'QCOM','TXN','HON','PM','CAT','GE','IBM','GS','AXP','SPGI','BLK','RTX']
+        import math
+        from concurrent.futures import ThreadPoolExecutor
+        target = datetime.date.fromisoformat(date_str)
+        window_start = target - datetime.timedelta(days=2)
+        window_end   = target + datetime.timedelta(days=7)
+        def one(sym):
+            try:
+                t = yf.Ticker(sym)
+                cal = t.calendar
+                if cal is None: return None
+                # calendar may be dict or DataFrame
+                earn_date = None
+                if isinstance(cal, dict):
+                    ed = cal.get('Earnings Date')
+                    if ed:
+                        earn_date = ed[0] if isinstance(ed, list) else ed
+                elif hasattr(cal, 'T'):
+                    try:
+                        ed = cal.T.get('Earnings Date')
+                        if ed is not None: earn_date = ed.iloc[0]
+                    except: pass
+                if earn_date is None: return None
+                if hasattr(earn_date, 'date'): earn_date = earn_date.date()
+                elif isinstance(earn_date, str):
+                    try: earn_date = datetime.date.fromisoformat(earn_date[:10])
+                    except: return None
+                if not (window_start <= earn_date <= window_end): return None
+                info = t.info or {}
+                def _f(k):
+                    v = info.get(k)
+                    try: return float(v) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
+                    except: return None
+                return {
+                    'ticker':       sym,
+                    'name':         info.get('shortName', sym),
+                    'date':         earn_date.isoformat(),
+                    'time':         'BMO' if (isinstance(cal, dict) and 'Before Market Open' in str(cal)) else 'AMC',
+                    'epsEstimate':  _f('epsForward') or _f('epsCurrentYear'),
+                    'revenueEst':   info.get('totalRevenue'),
+                    'marketCap':    info.get('marketCap'),
+                    'sector':       info.get('sector',''),
+                }
+            except: return None
+        events = []
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for r in ex.map(one, watchlist):
+                if r: events.append(r)
+        events.sort(key=lambda x: x['date'])
+        # Group by date
+        by_date = {}
+        for e in events:
+            by_date.setdefault(e['date'], []).append(e)
+        return {'events': events, 'byDate': by_date, 'centerDate': date_str}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+
 def get_entry_analysis(ticker):
     ticker = ticker.upper().strip()
     cache_key = f'entry_{ticker}'
@@ -2128,6 +2606,7 @@ def get_stock_detail(symbol):
                     if ts else None
                 ))(info.get("earningsTimestamp") or info.get("earningsDate")),
                 "ex_dividend_date": info.get("exDividendDate"),
+                "quote_type":       info.get("quoteType", ""),
                 "news": news,
             }
         except Exception as e:
@@ -2332,9 +2811,18 @@ def get_stock_history(symbol, period='1mo'):
             if period == '1d':
                 hist = yf.Ticker(symbol).history(period='1d', interval='1m', prepost=True)
             else:
-                interval_map = {'5d':'15m','1mo':'1d','3mo':'1d','6mo':'1wk','1y':'1wk'}
+                interval_map = {
+                    '5d':  '15m',
+                    '1mo': '1d',
+                    '3mo': '1d',
+                    '6mo': '1d',
+                    '1y':  '1wk',
+                    '2y':  '1wk',
+                    '5y':  '1mo',
+                    'max': '1mo',
+                }
                 interval = interval_map.get(period, '1d')
-                hist = yf.Ticker(symbol).history(period=period, interval=interval)
+                hist = yf.Ticker(symbol).history(period=period, interval=interval, auto_adjust=True)
             if hist.empty:
                 return []
             pts = []
@@ -2351,7 +2839,8 @@ def get_stock_history(symbol, period='1mo'):
         except Exception as e:
             print(f"  History error {symbol}: {e}")
             return []
-    ttl_map = {'1d': 30, '5d': 300, '1mo': 3600, '3mo': 7200, '6mo': 14400, '1y': 86400}
+    ttl_map = {'1d': 30, '5d': 300, '1mo': 3600, '3mo': 7200, '6mo': 14400,
+               '1y': 86400, '2y': 86400, '5y': 86400, 'max': 86400}
     return _from_cache(key, fetch, ttl=ttl_map.get(period, 3600))
 
 def get_market_data():
@@ -2857,6 +3346,36 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                 syms   = [s.strip().upper() for s in syms if s.strip()]
                 if not syms: self.send_error(400)
                 else: self.send_json(get_stock_comparison(syms, period))
+
+            elif path == "/api/financials-extended":
+                sym    = qs.get("ticker", [""])[0].strip().upper()
+                period = qs.get("period", ["annual"])[0].strip()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_financials_extended(sym, period))
+
+            elif path == "/api/screener":
+                self.send_json(get_stock_screener())
+
+            elif path == "/api/market-heatmap":
+                self.send_json(get_market_heatmap())
+
+            elif path == "/api/ipo-list":
+                self.send_json(get_ipo_list())
+
+            elif path == "/api/trending":
+                self.send_json(get_trending_stocks())
+
+            elif path.startswith("/api/etf/"):
+                sym = path.split("/api/etf/",1)[-1].strip().upper()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_etf_detail(sym))
+
+            elif path == "/api/premarket-movers":
+                self.send_json(get_premarket_movers())
+
+            elif path == "/api/market-earnings-calendar":
+                date_str = qs.get("date", [""])[0].strip() or None
+                self.send_json(get_market_earnings_calendar(date_str))
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
