@@ -1112,6 +1112,264 @@ def get_economic_calendar(user_tickers=None):
         return {'events': unique[:40]}
     return _from_cache(cache_key, fetch, ttl=3600)
 
+# ═══════════════════════════════════════════════════════════════
+#  STOCK STATISTICS  (RSI, MA50/200, valuation, float, margins)
+# ═══════════════════════════════════════════════════════════════
+def get_stock_statistics(ticker):
+    ticker = ticker.upper().strip()
+    cache_key = f'stats_{ticker}'
+    def fetch():
+        try:
+            t = yf.Ticker(ticker)
+            info = t.info or {}
+            hist2y = t.history(period='2y', interval='1d', auto_adjust=True)
+            closes = hist2y['Close'].dropna() if not hist2y.empty else pd.Series([], dtype=float)
+
+            rsi14 = None
+            ma50 = ma200 = None
+            if len(closes) >= 15:
+                delta = closes.diff()
+                gain  = delta.clip(lower=0).rolling(14).mean()
+                loss  = (-delta.clip(upper=0)).rolling(14).mean()
+                rs    = gain / loss.replace(0, float('nan'))
+                rsi_s = 100 - (100 / (1 + rs))
+                rsi14 = round(float(rsi_s.iloc[-1]), 2) if not pd.isna(rsi_s.iloc[-1]) else None
+            if len(closes) >= 50:
+                ma50 = round(float(closes.rolling(50).mean().iloc[-1]), 2)
+            if len(closes) >= 200:
+                ma200 = round(float(closes.rolling(200).mean().iloc[-1]), 2)
+
+            def _f(v):
+                try: return float(v) if v is not None else None
+                except: return None
+            def _pct(v):
+                try: return round(float(v) * 100, 2) if v is not None else None
+                except: return None
+
+            return {
+                'valuation': {
+                    'marketCap':         info.get('marketCap'),
+                    'enterpriseValue':   info.get('enterpriseValue'),
+                    'peRatio':           _f(info.get('trailingPE')),
+                    'forwardPE':         _f(info.get('forwardPE')),
+                    'pbRatio':           _f(info.get('priceToBook')),
+                    'psRatio':           _f(info.get('priceToSalesTrailing12Months')),
+                    'evEbitda':          _f(info.get('enterpriseToEbitda')),
+                    'evRevenue':         _f(info.get('enterpriseToRevenue')),
+                    'pegRatio':          _f(info.get('pegRatio')),
+                },
+                'shares': {
+                    'sharesOutstanding': info.get('sharesOutstanding'),
+                    'floatShares':       info.get('floatShares'),
+                    'sharesShort':       info.get('sharesShort'),
+                    'shortRatio':        _f(info.get('shortRatio')),
+                    'shortPctFloat':     _pct(info.get('shortPercentOfFloat')),
+                    'heldByInsiders':    _pct(info.get('heldPercentInsiders')),
+                    'heldByInstitutions':_pct(info.get('heldPercentInstitutions')),
+                    'sharesChangeYoY':   _pct(info.get('sharesPercentSharesOut')),
+                },
+                'price': {
+                    'rsi14':   rsi14,
+                    'ma50':    ma50,
+                    'ma200':   ma200,
+                    'beta':    _f(info.get('beta')),
+                    'w52High': _f(info.get('fiftyTwoWeekHigh')),
+                    'w52Low':  _f(info.get('fiftyTwoWeekLow')),
+                    'avgVolume20d': info.get('averageVolume'),
+                    'avgVolume10d': info.get('averageVolume10days'),
+                    'w52Change':    _pct(info.get('52WeekChange')),
+                },
+                'dividends': {
+                    'dividendRate':        _f(info.get('dividendRate')),
+                    'dividendYield':       _pct(info.get('dividendYield')),
+                    'exDividendDate':      str(pd.Timestamp(info['exDividendDate'], unit='s').date()) if info.get('exDividendDate') else None,
+                    'payoutRatio':         _pct(info.get('payoutRatio')),
+                    'fiveYearAvgYield':    _f(info.get('fiveYearAvgDividendYield')),
+                    'trailingAnnualYield': _pct(info.get('trailingAnnualDividendYield')),
+                },
+                'income': {
+                    'revenue':          info.get('totalRevenue'),
+                    'netIncome':        info.get('netIncomeToCommon'),
+                    'eps':              _f(info.get('trailingEps')),
+                    'forwardEps':       _f(info.get('forwardEps')),
+                    'ebitda':           info.get('ebitda'),
+                    'grossMargin':      _pct(info.get('grossMargins')),
+                    'operatingMargin':  _pct(info.get('operatingMargins')),
+                    'profitMargin':     _pct(info.get('profitMargins')),
+                    'revenueGrowth':    _pct(info.get('revenueGrowth')),
+                    'earningsGrowth':   _pct(info.get('earningsGrowth')),
+                    'freeCashflow':     info.get('freeCashflow'),
+                    'operatingCashflow':info.get('operatingCashflow'),
+                    'returnOnEquity':   _pct(info.get('returnOnEquity')),
+                    'returnOnAssets':   _pct(info.get('returnOnAssets')),
+                    'debtToEquity':     _f(info.get('debtToEquity')),
+                    'currentRatio':     _f(info.get('currentRatio')),
+                    'quickRatio':       _f(info.get('quickRatio')),
+                },
+            }
+        except Exception as e:
+            return {'error': str(e)}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  DIVIDEND HISTORY
+# ═══════════════════════════════════════════════════════════════
+def get_dividend_history(ticker):
+    ticker = ticker.upper().strip()
+    cache_key = f'divhist_{ticker}'
+    def fetch():
+        try:
+            t = yf.Ticker(ticker)
+            divs = t.dividends
+            if divs is None or divs.empty:
+                return {'dividends': []}
+            result = []
+            for date, amount in divs.items():
+                result.append({'date': str(date.date()), 'amount': round(float(amount), 4)})
+            result.reverse()  # most recent first
+            return {'dividends': result}
+        except Exception as e:
+            return {'dividends': [], 'error': str(e)}
+    return _from_cache(cache_key, fetch, ttl=3600)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  PRICE HISTORY  (OHLCV table)
+# ═══════════════════════════════════════════════════════════════
+def get_price_history(ticker, period='6m'):
+    ticker = ticker.upper().strip()
+    cache_key = f'pricehist_{ticker}_{period}'
+    period_map = {'1m':'1mo','3m':'3mo','ytd':'ytd','6m':'6mo','1y':'1y','5y':'5y','max':'max'}
+    yf_period = period_map.get(period, '6mo')
+    def fetch():
+        try:
+            t = yf.Ticker(ticker)
+            hist = t.history(period=yf_period, interval='1d', auto_adjust=True)
+            if hist.empty:
+                return {'history': []}
+            rows = []
+            prev_close = None
+            for date, row in hist.iterrows():
+                close = round(float(row['Close']), 2)
+                chg_pct = round((close / prev_close - 1) * 100, 2) if prev_close else 0
+                rows.append({
+                    'date':    str(date.date()),
+                    'open':    round(float(row['Open']),   2),
+                    'high':    round(float(row['High']),   2),
+                    'low':     round(float(row['Low']),    2),
+                    'close':   close,
+                    'volume':  int(row['Volume']),
+                    'change':  chg_pct,
+                })
+                prev_close = close
+            rows.reverse()
+            return {'history': rows}
+        except Exception as e:
+            return {'history': [], 'error': str(e)}
+    return _from_cache(cache_key, fetch, ttl=300)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  COMPANY PROFILE  (officers, address, employees)
+# ═══════════════════════════════════════════════════════════════
+def get_stock_profile(ticker):
+    ticker = ticker.upper().strip()
+    cache_key = f'profile_{ticker}'
+    def fetch():
+        try:
+            t = yf.Ticker(ticker)
+            info = t.info or {}
+            officers = []
+            for o in info.get('companyOfficers', [])[:10]:
+                pay = o.get('totalPay') or o.get('exercisedValue')
+                officers.append({
+                    'name':  o.get('name', ''),
+                    'title': o.get('title', ''),
+                    'age':   o.get('age'),
+                    'pay':   int(pay) if pay else None,
+                })
+            addr_parts = [info.get('address1',''), info.get('address2',''),
+                          info.get('city',''), info.get('state',''), info.get('country','')]
+            address = ', '.join(p for p in addr_parts if p)
+            return {
+                'name':        info.get('longName', ticker),
+                'website':     info.get('website', ''),
+                'phone':       info.get('phone', ''),
+                'address':     address,
+                'employees':   info.get('fullTimeEmployees'),
+                'exchange':    info.get('exchange', ''),
+                'currency':    info.get('currency', 'USD'),
+                'sector':      info.get('sector', ''),
+                'industry':    info.get('industry', ''),
+                'description': info.get('longBusinessSummary', ''),
+                'officers':    officers,
+            }
+        except Exception as e:
+            return {'error': str(e)}
+    return _from_cache(cache_key, fetch, ttl=86400)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  STOCK COMPARISON
+# ═══════════════════════════════════════════════════════════════
+def get_stock_comparison(tickers, period='1y'):
+    tickers = [t.upper().strip() for t in tickers if t.strip()][:5]
+    period_map = {'1m':'1mo','3m':'3mo','ytd':'ytd','6m':'6mo','1y':'1y','5y':'5y','max':'max'}
+    yf_period = period_map.get(period, '1y')
+    cache_key = f"compare_{'_'.join(sorted(tickers))}_{period}"
+    def fetch():
+        from concurrent.futures import ThreadPoolExecutor
+        def one(sym):
+            try:
+                t = yf.Ticker(sym)
+                info = t.info or {}
+                hist = t.history(period=yf_period, interval='1d', auto_adjust=True)
+                if hist.empty:
+                    return sym, None
+                closes = hist['Close'].dropna()
+                first = float(closes.iloc[0])
+                chart_pts   = [round(float(v)/first*100, 2) for v in closes]
+                chart_dates = [str(d.date()) for d in closes.index]
+                def _f(v):
+                    try: return float(v) if v is not None else None
+                    except: return None
+                return sym, {
+                    'name':          info.get('shortName', sym),
+                    'price':         round(float(closes.iloc[-1]), 2),
+                    'totalReturn':   round((float(closes.iloc[-1])/first - 1)*100, 2),
+                    'marketCap':     info.get('marketCap'),
+                    'peRatio':       _f(info.get('trailingPE')),
+                    'forwardPE':     _f(info.get('forwardPE')),
+                    'dividendYield': round(float(info.get('dividendYield') or 0)*100, 2),
+                    'revenue':       info.get('totalRevenue'),
+                    'netMargin':     round(float(info.get('profitMargins') or 0)*100, 2),
+                    'revenueGrowth': round(float(info.get('revenueGrowth') or 0)*100, 2),
+                    'beta':          _f(info.get('beta')),
+                    'sector':        info.get('sector', ''),
+                    'chartPts':      chart_pts,
+                    'chartDates':    chart_dates,
+                }
+            except:
+                return sym, None
+        results = {}
+        with ThreadPoolExecutor(max_workers=5) as ex:
+            for sym, data in ex.map(one, tickers):
+                if data:
+                    results[sym] = data
+        # Align to shortest date series
+        min_len = min((len(d['chartDates']) for d in results.values()), default=0)
+        dates = []
+        for sym in results:
+            d = results[sym]
+            d['chartPts']   = d['chartPts'][-min_len:]   if min_len else []
+            d['chartDates'] = d['chartDates'][-min_len:] if min_len else []
+            if not dates and d['chartDates']:
+                dates = d['chartDates']
+        return {'stocks': results, 'dates': dates}
+    return _from_cache(cache_key, fetch, ttl=1800)
+
+
 def get_entry_analysis(ticker):
     ticker = ticker.upper().strip()
     cache_key = f'entry_{ticker}'
@@ -2571,6 +2829,34 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
                 self.end_headers()
                 self.wfile.write(data)
                 return
+
+            elif path == "/api/stock-statistics":
+                sym = qs.get("ticker", [""])[0].strip().upper()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_stock_statistics(sym))
+
+            elif path == "/api/dividend-history":
+                sym = qs.get("ticker", [""])[0].strip().upper()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_dividend_history(sym))
+
+            elif path == "/api/price-history":
+                sym    = qs.get("ticker", [""])[0].strip().upper()
+                period = qs.get("period", ["6m"])[0].strip()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_price_history(sym, period))
+
+            elif path == "/api/stock-profile":
+                sym = qs.get("ticker", [""])[0].strip().upper()
+                if not sym: self.send_error(400)
+                else: self.send_json(get_stock_profile(sym))
+
+            elif path == "/api/stock-comparison":
+                syms   = qs.get("tickers", [""])[0].split(",")
+                period = qs.get("period", ["1y"])[0].strip()
+                syms   = [s.strip().upper() for s in syms if s.strip()]
+                if not syms: self.send_error(400)
+                else: self.send_json(get_stock_comparison(syms, period))
 
             elif path.startswith("/api/price-targets/delete/"):
                 try:
