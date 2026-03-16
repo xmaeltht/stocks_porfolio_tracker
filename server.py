@@ -1505,17 +1505,26 @@ def get_stock_screener(filters=None):
     """Screen S&P 500 + Russell 1000 universe with optional filters."""
     cache_key = "screener:sp500"
     def fetch():
-        import pandas as pd
-        # Use a fixed S&P 500-ish ticker list via Wikipedia or hardcoded fallback
-        try:
-            table = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]
-            tickers = table['Symbol'].str.replace('.', '-').tolist()[:503]
-        except:
-            tickers = ['AAPL','MSFT','AMZN','NVDA','GOOGL','META','TSLA','BRK-B','JPM','V',
-                       'JNJ','PG','HD','MA','UNH','ABBV','MRK','CVX','PEP','KO','WMT','BAC',
-                       'AVGO','LLY','XOM','TMO','COST','MCD','DIS','ADBE','CRM','NFLX','AMD',
-                       'INTC','QCOM','TXN','HON','PM','CAT','GE','IBM','GS','AXP','SPGI','BLK',
-                       'RTX','DE','MMM','T','VZ','WFC','USB','CL','AMGN','GILD','REGN','ISRG']
+        import math
+        # Hardcoded S&P 500 representative list — no external scraping
+        tickers = [
+            'AAPL','MSFT','NVDA','AMZN','GOOGL','META','TSLA','BRK-B','JPM','V',
+            'JNJ','PG','HD','MA','UNH','ABBV','MRK','CVX','PEP','KO','WMT','BAC',
+            'AVGO','LLY','XOM','TMO','COST','MCD','DIS','ADBE','CRM','NFLX','AMD',
+            'INTC','QCOM','TXN','HON','PM','CAT','GE','IBM','GS','AXP','SPGI','BLK',
+            'RTX','DE','MMM','T','VZ','WFC','CL','AMGN','GILD','REGN','ISRG',
+            'BKNG','CHTR','CMCSA','TMUS','EA','TTWO','VZ','NWSA','WBD',
+            'F','GM','NKE','SBUX','LOW','TJX','MAR','HLT','ORLY','AZO','ROST',
+            'KMB','SYY','ADM','MO','MDLZ','GIS','K','MKC',
+            'DHR','BMY','SYK','BDX','MDT','EW','HCA','CI','CVS','HUM',
+            'CB','MMC','PGR','TRV','AON','MET','PRU','AIG','ALL','USB','TFC','PNC','SCHW',
+            'UNP','BA','RTX','LMT','FDX','UPS','ETN','EMR','ITW','PH','GD','NOC','CARR',
+            'SLB','EOG','MPC','PSX','VLO','OXY','DVN','HES','HAL','KMI','WMB',
+            'NEE','DUK','SO','AEP','EXC','SRE','XEL','WEC','AWK',
+            'PLD','AMT','EQIX','CCI','PSA','SPG','WELL','DLR','O',
+            'LIN','APD','ECL','SHW','FCX','NEM','NUE','VMC','ALB','PPG',
+            'PLTR','COIN','UBER','SNAP','RBLX','HOOD','DKNG','ROKU','SOFI','ARM',
+        ]
         from concurrent.futures import ThreadPoolExecutor
         import math
         def one(sym):
@@ -1563,99 +1572,142 @@ def get_stock_screener(filters=None):
 
 
 def get_market_heatmap():
-    """S&P 500 sector-grouped heatmap — uses hardcoded sector map + fast_info for speed."""
+    """S&P 500 sector heatmap — one batch yf.download() call, hardcoded approx market caps."""
     cache_key = "heatmap:sp500"
 
-    # Hardcoded S&P 500 sector map (no Wikipedia scraping needed)
+    # Hardcoded sector map with approximate market-cap tiers (B = billions)
+    # Tiers: 3=mega(>500B), 2=large(100-500B), 1=mid(10-100B), 0=small(<10B)
     SP500_SECTORS = {
         'Technology': [
-            'AAPL','MSFT','NVDA','AVGO','AMD','QCOM','TXN','INTC','MU','AMAT',
-            'LRCX','KLAC','ADI','MCHP','CDNS','SNPS','FTNT','PANW','CRWD','ANSS',
-            'KEYS','TERADYNE','ONTO','IPGP','ENPH','SEDG','MPWR','SWKS','QRVO','TER',
+            ('AAPL',3),('MSFT',3),('NVDA',3),('AVGO',3),('AMD',2),('QCOM',2),('TXN',2),
+            ('INTC',2),('MU',2),('AMAT',2),('LRCX',2),('KLAC',2),('ADI',2),('MCHP',1),
+            ('CDNS',2),('SNPS',2),('FTNT',2),('PANW',2),('CRWD',2),('MPWR',1),
+            ('SWKS',1),('QRVO',1),('TER',1),('ENPH',1),('KEYS',1),
         ],
         'Communication Services': [
-            'GOOGL','META','NFLX','DIS','CMCSA','VZ','T','TMUS','CHTR','PARA',
-            'WBD','FOXA','FOX','OMC','IPG','MTCH','LYV','EA','TTWO','NWSA',
+            ('GOOGL',3),('META',3),('NFLX',2),('DIS',2),('CMCSA',2),('VZ',2),
+            ('T',2),('TMUS',2),('CHTR',2),('EA',1),('TTWO',1),('OMC',1),
+            ('IPG',1),('MTCH',1),('LYV',1),('WBD',1),
         ],
         'Consumer Cyclical': [
-            'AMZN','TSLA','HD','MCD','NKE','SBUX','LOW','TJX','BKNG','MAR',
-            'F','GM','ORLY','AZO','APTV','LEN','PHM','DHI','NVR','TOL',
-            'ROST','ULTA','POOL','EBAY','ETSY','DKNG','MGM','WYNN','LVS','HLT',
+            ('AMZN',3),('TSLA',3),('HD',2),('MCD',2),('NKE',2),('SBUX',2),('LOW',2),
+            ('TJX',2),('BKNG',2),('MAR',2),('F',1),('GM',1),('ORLY',2),('AZO',2),
+            ('LEN',1),('PHM',1),('DHI',1),('ROST',2),('ULTA',1),('HLT',2),
+            ('WYNN',1),('MGM',1),('LVS',1),('EBAY',1),('DKNG',1),
         ],
         'Consumer Defensive': [
-            'WMT','PG','KO','PEP','COST','PM','MO','MDLZ','CL','GIS',
-            'KMB','SYY','ADM','K','CPB','CAG','HRL','MKC','CHD','CLX',
+            ('WMT',3),('PG',3),('KO',3),('PEP',3),('COST',3),('PM',2),('MO',2),
+            ('MDLZ',2),('CL',2),('GIS',1),('KMB',1),('SYY',1),('ADM',1),
+            ('K',1),('MKC',1),('CHD',1),('CLX',1),
         ],
         'Healthcare': [
-            'UNH','JNJ','LLY','ABBV','MRK','TMO','ABT','DHR','BMY','AMGN',
-            'GILD','ISRG','VRTX','REGN','SYK','BDX','MDT','ZBH','EW','HCA',
-            'CI','CVS','HUM','MCK','ABC','CAH','IDXX','IQV','MTD','WAT',
+            ('UNH',3),('JNJ',3),('LLY',3),('ABBV',3),('MRK',3),('TMO',2),('ABT',2),
+            ('DHR',2),('BMY',2),('AMGN',2),('GILD',2),('ISRG',2),('VRTX',2),
+            ('REGN',2),('SYK',2),('BDX',2),('MDT',2),('EW',2),('HCA',2),
+            ('CI',2),('CVS',2),('HUM',2),('IDXX',2),('IQV',2),
         ],
         'Financials': [
-            'JPM','BAC','WFC','GS','MS','AXP','SPGI','BLK','CB','MMC',
-            'PGR','TRV','AON','MET','PRU','AIG','ALL','USB','TFC','PNC',
-            'SCHW','BX','KKR','CMA','FITB','HBAN','KEY','RF','WRB','L',
+            ('JPM',3),('BAC',2),('WFC',2),('GS',2),('MS',2),('AXP',2),('SPGI',2),
+            ('BLK',2),('CB',2),('MMC',2),('PGR',2),('TRV',2),('AON',2),('MET',1),
+            ('PRU',1),('AIG',1),('ALL',1),('USB',1),('TFC',1),('PNC',1),
+            ('SCHW',2),('BX',2),('KKR',2),
         ],
         'Industrials': [
-            'GE','CAT','HON','UNP','BA','RTX','LMT','DE','UPS','FDX',
-            'ETN','EMR','ITW','PH','GD','NOC','TDG','CARR','OTIS','CTAS',
-            'ROK','IR','WM','RSG','FAST','SWK','XYL','DOV','GWW','MSI',
+            ('GE',3),('CAT',2),('HON',2),('UNP',2),('BA',2),('RTX',2),('LMT',2),
+            ('DE',2),('UPS',2),('FDX',2),('ETN',2),('EMR',2),('ITW',2),('PH',2),
+            ('GD',2),('NOC',2),('TDG',2),('CARR',2),('OTIS',1),('CTAS',2),
+            ('WM',2),('RSG',1),('FAST',1),
         ],
         'Energy': [
-            'XOM','CVX','COP','SLB','EOG','MPC','PSX','VLO','OXY','PXD',
-            'DVN','HES','HAL','BKR','FANG','APA','MRO','EQT','KMI','WMB',
+            ('XOM',3),('CVX',3),('COP',2),('SLB',2),('EOG',2),('MPC',2),('PSX',2),
+            ('VLO',2),('OXY',2),('DVN',1),('HES',1),('HAL',1),('BKR',1),
+            ('APA',1),('MRO',1),('EQT',1),('KMI',2),('WMB',2),
         ],
         'Utilities': [
-            'NEE','DUK','SO','D','AEP','EXC','SRE','XEL','WEC','ES',
-            'AWK','ATO','CNP','NI','LNT','EVRG','OGE','PNW','NWE','UTL',
+            ('NEE',2),('DUK',2),('SO',2),('D',1),('AEP',1),('EXC',1),('SRE',1),
+            ('XEL',1),('WEC',1),('ES',1),('AWK',1),('ATO',1),('CNP',1),
         ],
         'Real Estate': [
-            'PLD','AMT','EQIX','CCI','PSA','SPG','WELL','DLR','O','AVB',
-            'EQR','INVH','VTR','PEAK','ARE','BXP','KIM','REG','FRT','MAC',
+            ('PLD',2),('AMT',2),('EQIX',2),('CCI',2),('PSA',2),('SPG',2),('WELL',2),
+            ('DLR',2),('O',1),('AVB',1),('EQR',1),('INVH',1),('VTR',1),
+            ('BXP',1),('KIM',1),
         ],
         'Basic Materials': [
-            'LIN','APD','ECL','SHW','FCX','NEM','NUE','VMC','MLM','CF',
-            'MOS','ALB','PPG','EMN','CE','LYB','IP','PKG','WRK','SEE',
+            ('LIN',3),('APD',2),('ECL',2),('SHW',2),('FCX',2),('NEM',2),('NUE',1),
+            ('VMC',1),('MLM',1),('ALB',1),('PPG',1),('LYB',1),
         ],
     }
 
+    # Approximate market caps in billions by tier (used for sizing tiles)
+    TIER_MC = {3: 800e9, 2: 200e9, 1: 40e9, 0: 8e9}
+
     def fetch():
-        import math
-        from concurrent.futures import ThreadPoolExecutor
+        import pandas as pd
+        # Collect all symbols
+        all_syms = [sym for syms in SP500_SECTORS.values() for sym, _ in syms]
 
-        all_syms = [s for syms in SP500_SECTORS.values() for s in syms]
+        print(f"  🗺  Heatmap: batch downloading {len(all_syms)} symbols…")
+        raw = None
+        try:
+            # One batch call — returns a DataFrame with MultiIndex columns (Ticker, OHLCV)
+            raw = yf.download(
+                tickers=' '.join(all_syms),
+                period='5d',
+                interval='1d',
+                group_by='ticker',
+                auto_adjust=True,
+                progress=False,
+                threads=True,
+            )
+        except Exception as e:
+            print(f"  Heatmap download error: {e}")
 
-        def one(sym):
+        # Extract last close and previous close per ticker
+        price_map = {}
+        if raw is not None and not raw.empty:
             try:
-                fi = yf.Ticker(sym).fast_info
-                price = float(fi.last_price or 0)
-                prev  = float(fi.previous_close or price or 1)
-                mc    = float(fi.market_cap or 0) if hasattr(fi, 'market_cap') else 0
-                chg   = round((price / prev - 1) * 100, 2) if prev else 0.0
-                return sym, {'ticker': sym, 'change': chg, 'marketCap': mc, 'price': round(price, 2)}
-            except:
-                return sym, None
+                # Multi-ticker download: columns are a MultiIndex (Ticker, OHLCV field)
+                if isinstance(raw.columns, pd.MultiIndex):
+                    tickers_in = raw.columns.get_level_values(0).unique()
+                    for sym in tickers_in:
+                        try:
+                            closes = raw[sym]['Close'].dropna()
+                            if len(closes) >= 2:
+                                price_map[sym] = (float(closes.iloc[-1]), float(closes.iloc[-2]))
+                            elif len(closes) == 1:
+                                price_map[sym] = (float(closes.iloc[0]), float(closes.iloc[0]))
+                        except: pass
+                else:
+                    # Single ticker fallback (shouldn't happen with multi-ticker list)
+                    closes = raw['Close'].dropna()
+                    if len(closes) >= 1:
+                        sym = all_syms[0]
+                        prev = float(closes.iloc[-2]) if len(closes) >= 2 else float(closes.iloc[-1])
+                        price_map[sym] = (float(closes.iloc[-1]), prev)
+            except Exception as e:
+                print(f"  Heatmap parse error: {e}")
+        else:
+            print("  Heatmap: download returned empty — using tier-based placeholders")
 
-        results = {}
-        with ThreadPoolExecutor(max_workers=20) as ex:
-            for sym, data in ex.map(one, all_syms):
-                if data:
-                    results[sym] = data
-
-        # Enrich with names from info (best-effort, only for tickers we got data for)
-        # Use a small sample for names to avoid rate limiting
         sectors = {}
         for sec, syms in SP500_SECTORS.items():
             sector_stocks = []
-            for sym in syms:
-                d = results.get(sym)
-                if d and d['marketCap'] > 0:
-                    d['name'] = sym   # default to ticker; will be enriched lazily on frontend
-                    d['sector'] = sec
-                    sector_stocks.append(d)
-            if sector_stocks:
-                sector_stocks.sort(key=lambda x: x['marketCap'], reverse=True)
-                sectors[sec] = sector_stocks
+            for sym, tier in syms:
+                p = price_map.get(sym)
+                price = p[0] if p else 0
+                prev  = p[1] if p else price
+                chg   = round((price / prev - 1) * 100, 2) if prev and prev != 0 else 0.0
+                mc    = TIER_MC.get(tier, 40e9)
+                sector_stocks.append({
+                    'ticker': sym,
+                    'name':   sym,
+                    'sector': sec,
+                    'change': chg,
+                    'marketCap': mc,
+                    'price': round(price, 2),
+                })
+            sector_stocks.sort(key=lambda x: x['marketCap'], reverse=True)
+            sectors[sec] = sector_stocks
 
         return {'sectors': sectors}
     return _from_cache(cache_key, fetch, ttl=600)
@@ -1784,81 +1836,117 @@ def get_etf_detail(ticker):
 
 
 def get_premarket_movers():
-    """Pre-market and after-hours movers using fast_info + 1d prepost history."""
+    """Pre-market / after-hours movers via one batch yf.download(prepost=True) call."""
     cache_key = "premarket:movers"
     def fetch():
-        import datetime, math
+        import datetime
         watchlist = ['AAPL','MSFT','AMZN','NVDA','GOOGL','META','TSLA','JPM','V','JNJ',
                      'BAC','WFC','GS','AMD','INTC','NFLX','UBER','COIN','PLTR','SOFI',
                      'GME','MSTR','ARM','RIVN','SMCI','SPY','QQQ','DIA','IWM','GLD',
                      'SLV','TLT','XLF','XLE','XLK','SNAP','RBLX','HOOD','DKNG','ROKU']
-        from concurrent.futures import ThreadPoolExecutor
 
-        def one(sym):
+        print(f"  ⚡ Premarket: batch downloading {len(watchlist)} symbols…")
+        raw = None
+        try:
+            # Single batch call with prepost=True — use 5m bars (not 1m) to cut data 5x
+            raw = yf.download(
+                tickers=' '.join(watchlist),
+                period='1d',
+                interval='5m',
+                prepost=True,
+                group_by='ticker',
+                auto_adjust=True,
+                progress=False,
+                threads=True,
+            )
+        except Exception as e:
+            print(f"  Premarket download error: {e}")
+
+        if raw is None or raw.empty:
+            print("  Premarket: download returned empty data")
+            return {'premarket': [], 'afterhours': [], 'marketOpen': True}
+
+        now_utc  = datetime.datetime.now(datetime.timezone.utc)
+        stocks   = []
+
+        import pandas as pd
+        _is_multi = isinstance(raw.columns, pd.MultiIndex)
+
+        def _get_ticker_df(sym):
+            """Extract single-ticker DataFrame from multi-ticker or single-ticker download."""
             try:
-                t = yf.Ticker(sym)
-                # Use fast_info for core price (no heavy API call)
-                fi = t.fast_info
-                price = float(fi.last_price or 0)
-                prev  = float(fi.previous_close or price or 1)
-                reg_chg = round((price / prev - 1) * 100, 2) if prev else 0.0
-                mc    = float(fi.market_cap) if hasattr(fi, 'market_cap') and fi.market_cap else None
+                if _is_multi:
+                    return raw[sym].dropna(how='all')
+                return raw.dropna(how='all')  # single ticker
+            except: return None
 
-                # Fetch 2-day 1m bars with prepost to capture extended-hours prices
-                hist = t.history(period='2d', interval='1m', prepost=True, auto_adjust=True)
-                pre_price = post_price = None
-                pre_chg = post_chg = None
+        for sym in watchlist:
+            try:
+                df = _get_ticker_df(sym)
+                if df is None or df.empty:
+                    continue
 
-                if not hist.empty:
-                    now_utc = datetime.datetime.now(datetime.timezone.utc)
-                    # Market regular hours: 9:30–16:00 ET = 14:30–21:00 UTC
-                    # Pre-market: 04:00–09:30 ET = 09:00–14:30 UTC
-                    # After-hours: 16:00–20:00 ET = 21:00–01:00 UTC next day
+                closes = df['Close'].dropna()
+                if len(closes) < 2:
+                    continue
 
-                    pre_bars  = []
-                    post_bars = []
-                    for ts, row in hist.iterrows():
-                        # Normalise timestamp to UTC
+                # Identify regular-session last close vs extended-hours
+                reg_closes  = []
+                pre_closes  = []
+                post_closes = []
+
+                for ts, val in closes.items():
+                    try:
                         ts_utc = ts.tz_convert('UTC') if ts.tzinfo else ts.replace(tzinfo=datetime.timezone.utc)
-                        hour_utc = ts_utc.hour + ts_utc.minute / 60
-                        # Only consider bars from today (last 24h)
-                        if (now_utc - ts_utc).total_seconds() > 86400:
-                            continue
-                        # Pre-market window: 09:00–14:29 UTC (4am–9:29am ET)
-                        if 9.0 <= hour_utc < 14.5:
-                            pre_bars.append(float(row['Close']))
-                        # After-hours window: 20:30–24:00 + 00:00–01:00 UTC (4pm–8pm ET)
-                        elif hour_utc >= 20.5 or hour_utc < 1.0:
-                            post_bars.append(float(row['Close']))
+                    except: continue
+                    age = (now_utc - ts_utc).total_seconds()
+                    if age > 2 * 86400: continue   # skip bars older than 2 days
+                    h = ts_utc.hour + ts_utc.minute / 60.0
+                    # Regular session: 14:30–21:00 UTC (9:30am–4pm ET)
+                    if 14.5 <= h < 21.0:
+                        reg_closes.append((ts_utc, float(val)))
+                    # Pre-market: 09:00–14:30 UTC (4am–9:30am ET)
+                    elif 9.0 <= h < 14.5:
+                        pre_closes.append((ts_utc, float(val)))
+                    # After-hours: 21:00–24:00 and 00:00–01:00 UTC (4pm–8pm ET)
+                    elif h >= 21.0 or h < 1.0:
+                        post_closes.append((ts_utc, float(val)))
 
-                    if pre_bars and price:
-                        pre_price = round(pre_bars[-1], 2)
-                        pre_chg   = round((pre_price / price - 1) * 100, 2)
-                    if post_bars and price:
-                        post_price = round(post_bars[-1], 2)
-                        post_chg   = round((post_price / price - 1) * 100, 2)
+                # Determine regular price and previous close
+                if not reg_closes:
+                    continue
+                reg_closes.sort(key=lambda x: x[0])
+                price      = reg_closes[-1][1]
+                prev_price = reg_closes[-2][1] if len(reg_closes) >= 2 else price
+                reg_chg    = round((price / prev_price - 1) * 100, 2) if prev_price else 0.0
 
-                return {
+                # Extended-hours prices (only include most-recent bar)
+                pre_price = post_price = None
+                pre_chg   = post_chg   = None
+                if pre_closes:
+                    pre_closes.sort(key=lambda x: x[0])
+                    pre_price = round(pre_closes[-1][1], 2)
+                    pre_chg   = round((pre_price / price - 1) * 100, 2) if price else None
+                if post_closes:
+                    post_closes.sort(key=lambda x: x[0])
+                    post_price = round(post_closes[-1][1], 2)
+                    post_chg   = round((post_price / price - 1) * 100, 2) if price else None
+
+                stocks.append({
                     'ticker': sym, 'name': sym,
                     'price': round(price, 2), 'change': reg_chg,
                     'preMarketPrice': pre_price, 'preMarketChange': pre_chg,
                     'postMarketPrice': post_price, 'postMarketChange': post_chg,
-                    'marketCap': mc,
-                }
+                })
             except Exception as e:
-                print(f"  PM mover error {sym}: {e}")
-                return None
-
-        stocks = []
-        with ThreadPoolExecutor(max_workers=10) as ex:
-            for r in ex.map(one, watchlist):
-                if r and r.get('price'): stocks.append(r)
+                print(f"  PM parse error {sym}: {e}")
+                continue
 
         pre_movers  = [s for s in stocks if s.get('preMarketChange') is not None]
         post_movers = [s for s in stocks if s.get('postMarketChange') is not None]
 
-        # If no extended-hours data (regular market hours), return all stocks sorted by reg change
         if not pre_movers and not post_movers:
+            # Regular market hours — show biggest % movers instead
             by_change = sorted(stocks, key=lambda x: abs(x.get('change') or 0), reverse=True)
             return {'premarket': by_change[:20], 'afterhours': by_change[:20], 'marketOpen': True}
 

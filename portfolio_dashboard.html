@@ -10358,7 +10358,7 @@ function renderSP500Heatmap() {
 
   // Collect all market caps to scale tile sizes
   const allStocks = Object.values(sectors).flat();
-  const maxMC = Math.max(...allStocks.map(s => s.marketCap || 0));
+  const maxMC = allStocks.reduce((m, s) => Math.max(m, s.marketCap || 0), 0);
   // Use log scale for more visible size variation
   const logMax = Math.log10(maxMC + 1);
 
