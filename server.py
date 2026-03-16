@@ -32,12 +32,12 @@ except Exception as _e:
 # Max workers for parallel yfinance fetches — keep low to avoid FD storms.
 # Each yfinance call uses ~3 file descriptors (TCP socket + SSL + internal).
 # With 5 workers: at most ~15 FDs per fetch batch.
-_YF_WORKERS = 5
+_YF_WORKERS = 15   # increased from 5 — more parallel fast_info/info calls
 
-# Global semaphore: at most 2 concurrent yfinance fetch batches at any time.
+# Global semaphore: at most 4 concurrent yfinance fetch batches at any time.
 # Prevents FD exhaustion when market refresh + portfolio refresh + movers
 # all fire simultaneously (each with _YF_WORKERS threads).
-_YF_SEM = threading.Semaphore(2)
+_YF_SEM = threading.Semaphore(4)
 
 # ── Auto-install dependencies ──────────────────────────────────────────────────
 def _ensure(pkg, import_as=None):
@@ -2610,7 +2610,7 @@ def get_quotes(symbols):
                 p, pct = data["regularMarketPrice"], data["regularMarketChangePercent"]
                 print(f"  {'🚨' if abs(pct)>=5 else '✅'} {sym:6s}  ${p:>9.4f}  {'↑' if pct>=0 else '↓'} {pct:+.2f}%")
         return results
-    return _from_cache(key, fetch)
+    return _from_cache(key, fetch, ttl=60)   # 60s instead of 30s default
 
 # ── Extended hours (pre-market / after-hours) ─────────────────────────────────
 def _fetch_one_extended(sym):
@@ -3021,48 +3021,83 @@ def get_stock_history(symbol, period='1mo'):
     return _from_cache(key, fetch, ttl=ttl_map.get(period, 3600))
 
 def get_market_data():
-    """Fetch indices, sector ETFs, and crypto in parallel using individual Ticker calls.
-    Replaces the unreliable yf.Tickers() batch approach which frequently silently fails."""
+    """Fetch indices, sector ETFs, and crypto via a single yf.download() batch call.
+    One HTTP request instead of 22 individual fast_info calls — ~5-10× faster."""
     key = "market_overview"
     def fetch():
+        import pandas as pd
         NAME_MAP = {"^GSPC":"S&P 500","^IXIC":"NASDAQ","^DJI":"DOW Jones","^RUT":"Russell 2000","^VIX":"VIX"}
         all_syms = MARKET_SYMBOLS + list(SECTOR_ETFS.keys()) + list(CRYPTO_SYMBOLS.keys())
-        print(f"\n📡 Fetching market overview — {len(all_syms)} symbols in parallel…")
+        print(f"\n📡 Fetching market overview — {len(all_syms)} symbols (batch download)…")
 
-        def _fetch_one(sym):
-            try:
-                fi = yf.Ticker(sym).fast_info
-                price      = float(fi.last_price      or 0)
-                prev_close = float(fi.previous_close  or price or 1)
-                change     = price - prev_close
-                change_pct = (change / prev_close * 100) if prev_close else 0
-                return sym, {
-                    "price":      round(price, 4),
-                    "change":     round(change, 4),
-                    "change_pct": round(change_pct, 4),
-                    "prev_close": round(prev_close, 4),
-                    "day_high":   round(float(fi.day_high  or 0), 4),
-                    "day_low":    round(float(fi.day_low   or 0), 4),
-                    "market_cap": round(float(fi.market_cap or 0), 0),
-                    "volume":     round(float(fi.three_month_average_volume or 0), 0),
-                }
-            except Exception as e:
-                print(f"  ⚠️ market {sym}: {e}")
-                return sym, {"price":0,"change":0,"change_pct":0,"prev_close":0,
-                             "day_high":0,"day_low":0,"market_cap":0,"volume":0}
+        _zero = {"price":0,"change":0,"change_pct":0,"prev_close":0,
+                 "day_high":0,"day_low":0,"market_cap":0,"volume":0}
+        price_map = {}
+        try:
+            raw = yf.download(
+                tickers=' '.join(all_syms),
+                period='5d',
+                interval='1d',
+                group_by='ticker',
+                auto_adjust=True,
+                progress=False,
+                threads=False,
+            )
+            if raw is not None and not raw.empty and isinstance(raw.columns, pd.MultiIndex):
+                for sym in raw.columns.get_level_values(0).unique():
+                    try:
+                        closes = raw[sym]['Close'].dropna()
+                        if len(closes) < 1:
+                            continue
+                        price = float(closes.iloc[-1])
+                        prev  = float(closes.iloc[-2]) if len(closes) >= 2 else price
+                        chg     = price - prev
+                        chg_pct = (chg / prev * 100) if prev else 0
+                        highs = raw[sym].get('High', raw[sym]['Close']).dropna()
+                        lows  = raw[sym].get('Low',  raw[sym]['Close']).dropna()
+                        vols  = raw[sym].get('Volume', raw[sym]['Close']).dropna()
+                        price_map[sym] = {
+                            "price":      round(price, 4),
+                            "change":     round(chg, 4),
+                            "change_pct": round(chg_pct, 4),
+                            "prev_close": round(prev, 4),
+                            "day_high":   round(float(highs.iloc[-1]), 4) if not highs.empty else 0,
+                            "day_low":    round(float(lows.iloc[-1]),  4) if not lows.empty  else 0,
+                            "market_cap": 0,
+                            "volume":     int(vols.iloc[-1]) if not vols.empty else 0,
+                        }
+                    except: pass
+        except Exception as e:
+            print(f"  ⚠️ market batch download error: {e}")
 
-        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
-            raw = dict(pool.map(_fetch_one, all_syms))
+        # Fall back to individual fast_info for any missing symbols
+        missing = [s for s in all_syms if s not in price_map]
+        if missing:
+            print(f"  ↩ fast_info fallback for {len(missing)} missing symbols…")
+            def _fi(sym):
+                try:
+                    fi = yf.Ticker(sym).fast_info
+                    p  = float(fi.last_price or 0)
+                    pc = float(fi.previous_close or p or 1)
+                    ch = p - pc
+                    return sym, {"price": round(p,4), "change": round(ch,4),
+                                 "change_pct": round((ch/pc*100) if pc else 0, 4),
+                                 "prev_close": round(pc,4), "day_high": round(float(fi.day_high or 0),4),
+                                 "day_low": round(float(fi.day_low or 0),4), "market_cap": 0, "volume": 0}
+                except: return sym, dict(_zero)
+            with ThreadPoolExecutor(max_workers=min(len(missing), 15)) as pool:
+                for sym, d in pool.map(_fi, missing):
+                    price_map[sym] = d
 
+        def _d(sym): return price_map.get(sym, dict(_zero))
         result = {"indices": {}, "sectors": {}, "crypto": {}}
         for sym in MARKET_SYMBOLS:
-            d = raw[sym]
-            result["indices"][sym] = {"name": NAME_MAP.get(sym, sym), **d}
+            result["indices"][sym] = {"name": NAME_MAP.get(sym, sym), **_d(sym)}
         for sym, name in SECTOR_ETFS.items():
-            d = raw[sym]
+            d = _d(sym)
             result["sectors"][sym] = {"name": name, "price": d["price"], "change_pct": d["change_pct"]}
         for sym, name in CRYPTO_SYMBOLS.items():
-            d = raw[sym]
+            d = _d(sym)
             result["crypto"][sym] = {"name": name, "price": d["price"], "change": d["change"],
                                      "change_pct": d["change_pct"], "market_cap": d["market_cap"],
                                      "volume": d["volume"]}

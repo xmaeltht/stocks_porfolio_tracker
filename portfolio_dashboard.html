@@ -6918,6 +6918,7 @@ function renderEarningsCalendar(items) {
 let _divCalData    = [];
 let _divCalTab     = 'upcoming';   // upcoming | thisweek | recent | all
 let _divCalLoaded  = false;
+let _divCalPage    = 1;            // pagination page (24 cards per page)
 
 async function loadDividendCalendar(force=false) {
   if (_divCalLoaded && !force) return;
@@ -6943,6 +6944,7 @@ async function loadDividendCalendar(force=false) {
 
 function switchDivCalTab(tab) {
   _divCalTab = tab;
+  _divCalPage = 1;  // reset pagination when switching tabs
   ['upcoming','thisweek','recent','all'].forEach(t => {
     const el = g('dct-' + t);
     if (el) el.classList.toggle('active', t === tab);
@@ -7025,7 +7027,12 @@ function renderDividendCalendar() {
     return;
   }
 
-  grid.innerHTML = filtered.map(it => {
+  // Paginate: render first 24 cards, show "Load more" for the rest
+  const PAGE = 24;
+  const showing = filtered.slice(0, _divCalPage * PAGE);
+  const hasMore = filtered.length > showing.length;
+
+  grid.innerHTML = showing.map(it => {
     const d        = it.days_away;
     const isToday  = d === 0;
     const isPast   = d !== null && d < 0;
@@ -7091,6 +7098,15 @@ function renderDividendCalendar() {
       <div class="div-card-freq">${it.frequency || 'Quarterly'} · ${it.sector || ''}</div>
     </div>`;
   }).join('');
+
+  // Append "Load more" button if there are more cards
+  if (hasMore) {
+    grid.innerHTML += `<div class="div-load-more-wrap" style="grid-column:1/-1;display:flex;justify-content:center;padding:16px 0">
+      <button onclick="_divCalPage++;renderDividendCalendar()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 24px;color:var(--text);cursor:pointer;font-size:.82rem">
+        Load more (${filtered.length - showing.length} remaining)
+      </button>
+    </div>`;
+  }
 }
 
 // ═══════════════════════════════════════════════
