@@ -10,9 +10,12 @@ Usage:
 """
 
 import json, os, sys, time, threading, webbrowser
-import sqlite3, hashlib, secrets, resource
+import sqlite3, hashlib, secrets, resource, gzip
 import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+# ── Compressed file cache (gzip, keyed by path) ──────────────────────────────
+_gz_cache = {}   # path -> {"etag": str, "gz": bytes}
 from datetime import datetime, timedelta
 from http.server import HTTPServer, ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs, parse_qs as pqs
@@ -3233,21 +3236,57 @@ class Handler(BaseHTTPRequestHandler):
     # ── Response helpers
     def send_json(self, data, status=200):
         body = json.dumps(data).encode()
-        self.send_response(status)
-        self.send_header("Content-Type",   "application/json")
-        self.send_header("Cache-Control",  "no-cache")
-        self.send_header("Content-Length", len(body))
-        self.end_headers()
+        accept_enc = self.headers.get("Accept-Encoding", "")
+        if "gzip" in accept_enc and len(body) > 2048:
+            body = gzip.compress(body, compresslevel=6)
+            self.send_response(status)
+            self.send_header("Content-Type",     "application/json")
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Cache-Control",    "no-cache")
+            self.send_header("Content-Length",   len(body))
+            self.end_headers()
+        else:
+            self.send_response(status)
+            self.send_header("Content-Type",   "application/json")
+            self.send_header("Cache-Control",  "no-cache")
+            self.send_header("Content-Length", len(body))
+            self.end_headers()
         self.wfile.write(body)
 
     def send_file(self, fpath, ct="text/html; charset=utf-8"):
         with open(fpath, "rb") as f:
             body = f.read()
-        self.send_response(200)
-        self.send_header("Content-Type",   ct)
-        self.send_header("Content-Length", len(body))
-        self.end_headers()
-        self.wfile.write(body)
+
+        # ETag for browser cache (304 Not Modified on repeat loads)
+        etag = '"' + hashlib.md5(body).hexdigest()[:16] + '"'
+        if self.headers.get("If-None-Match") == etag:
+            self.send_response(304)
+            self.end_headers()
+            return
+
+        # Gzip compression — compress once, cache the result in memory
+        accept_enc = self.headers.get("Accept-Encoding", "")
+        if "gzip" in accept_enc:
+            cached = _gz_cache.get(fpath)
+            if cached is None or cached["etag"] != etag:
+                _gz_cache[fpath] = {"etag": etag, "gz": gzip.compress(body, compresslevel=6)}
+            gz_body = _gz_cache[fpath]["gz"]
+            self.send_response(200)
+            self.send_header("Content-Type",     ct)
+            self.send_header("Content-Encoding", "gzip")
+            self.send_header("Content-Length",   len(gz_body))
+            self.send_header("ETag",             etag)
+            self.send_header("Cache-Control",    "no-cache")
+            self.end_headers()
+            self.wfile.write(gz_body)
+        else:
+            self.send_response(200)
+            self.send_header("Content-Type",   ct)
+            self.send_header("Content-Length", len(body))
+            self.send_header("ETag",           etag)
+            self.send_header("Cache-Control",  "no-cache")
+            self.end_headers()
+            self.wfile.write(body)
 
     def send_redirect(self, location):
         self.send_response(302)
