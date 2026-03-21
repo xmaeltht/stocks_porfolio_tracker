@@ -3997,361 +3997,432 @@ tr.vol-row { background: rgba(245,158,11,.04) !important; }
   <!-- ═══ ANALYSIS TAB ═══ -->
   <div class="tab-pane" id="tab-analysis">
 
-    <!-- ── Stock Lookup Hero ─────────────────────────────────── -->
-    <div class="sp-lookup-hero">
-      <div class="sp-lookup-title">Analyze Any Stock</div>
-      <div class="sp-lookup-sub">Search any ticker for full financials, analyst ratings, price charts and more</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;" id="sp-popular-chips"></div>
-      <div class="sp-lookup-row">
-        <div class="sp-lookup-wrap" id="sp-lookup-wrap">
-          <input id="sp-lookup-input" class="sp-lookup-input" type="text"
-            placeholder="e.g. AAPL, TSLA, NVDA…" autocomplete="off" spellcheck="false"
-            oninput="spLookupInput(this)"
-            onkeydown="if(event.key==='Enter')spLookupGo()"/>
-          <div class="search-drop" id="sp-lookup-drop" style="display:none"></div>
+    <!-- ── Analysis Sub-Navigation ──────────────────────────────────── -->
+    <div class="mkt-subnav" id="anal-subnav" role="tablist">
+      <button class="mkt-stab active" id="ast-portfolio" onclick="switchAnalTab('portfolio')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        Portfolio
+      </button>
+      <button class="mkt-stab" id="ast-research" onclick="switchAnalTab('research')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Research
+      </button>
+      <button class="mkt-stab" id="ast-risk" onclick="switchAnalTab('risk')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Risk &amp; Scenarios
+      </button>
+      <button class="mkt-stab" id="ast-tools" onclick="switchAnalTab('tools')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Tools
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: PORTFOLIO
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane active" id="asp-portfolio">
+
+      <!-- Holdings Valuation Table -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Portfolio Holdings</span>
+          <span class="mkt-block-sub">Fundamental metrics for your positions</span>
+          <button class="mkt-block-action" onclick="refreshAnalysisTab()" id="analysis-refresh-btn">↻ Refresh</button>
+          <span id="analysis-last-updated" style="font-size:.7rem;color:var(--muted);margin-left:6px;"></span>
         </div>
-        <button class="btn btn-primary" onclick="spLookupGo()" style="padding:10px 22px;font-size:.9rem;font-weight:700">Analyze →</button>
-      </div>
-      <div class="sp-lookup-recents" id="sp-lookup-recents"></div>
-    </div>
-
-    <!-- ── Portfolio toolbar ─────────────────────────────────── -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-      <div class="analysis-section-title" style="margin:0;border:none;padding:0;font-size:.72rem">Portfolio Holdings</div>
-      <button class="btn btn-outline btn-sm" onclick="refreshAnalysisTab()" id="analysis-refresh-btn" style="font-size:.74rem">⟳ Refresh</button>
-      <span id="analysis-last-updated" style="font-size:.72rem;color:var(--muted);margin-left:auto"></span>
-    </div>
-
-    <!-- Valuation Table -->
-    <div class="analysis-section">
-      <div style="overflow-x:auto">
-        <table class="valuation-table" id="valuation-table">
-          <thead>
-            <tr>
-              <th style="text-align:left">Ticker</th>
-              <th>Price</th>
-              <th>Mkt Cap</th>
-              <th>Revenue</th>
-              <th>Net Income</th>
-              <th>Net Margin</th>
-              <th>Rev Growth</th>
-              <th>P/E</th>
-              <th>Fwd P/E</th>
-              <th>EPS</th>
-              <th>Beta</th>
-              <th>Div Yield</th>
-              <th>Rating</th>
-            </tr>
-          </thead>
-          <tbody id="valuation-tbody">
-            <tr><td colspan="13" style="text-align:center;color:var(--muted);padding:24px">Switch to this tab to load data…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Analyst Consensus -->
-    <div class="analysis-section" id="analyst-consensus-section">
-      <div class="analysis-section-title">Analyst Consensus</div>
-      <div id="analyst-consensus-body">
-        <div style="color:var(--muted);font-size:.82rem">Loading…</div>
-      </div>
-    </div>
-
-    <!-- ── 1. PORTFOLIO HEAT MAP ──────────────────────────────── -->
-    <div class="analysis-section">
-      <div class="analysis-section-title">🔥 Portfolio Heat Map <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Daily performance · sized by position value</span></div>
-      <div class="hm-grid" id="hm-grid">
-        <div class="hm-empty">Add stocks to your portfolio to see the heat map</div>
-      </div>
-    </div>
-
-    <!-- ── 2. WHAT-IF SIMULATOR ──────────────────────────────── -->
-    <div class="analysis-section">
-      <div class="analysis-section-title">🎯 What-If Simulator <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Drag sliders to see portfolio impact</span></div>
-      <div id="whatif-rows"></div>
-      <div class="whatif-summary" id="whatif-summary" style="display:none">
-        <div class="whatif-sum-item">
-          <div class="whatif-sum-label">Portfolio Δ</div>
-          <div class="whatif-sum-val" id="wi-port-delta">—</div>
-        </div>
-        <div class="whatif-sum-item">
-          <div class="whatif-sum-label">P&amp;L Impact</div>
-          <div class="whatif-sum-val" id="wi-pnl-impact">—</div>
-        </div>
-        <div class="whatif-sum-item">
-          <div class="whatif-sum-label">New Total</div>
-          <div class="whatif-sum-val" id="wi-new-total">—</div>
+        <div class="analysis-section">
+          <div style="overflow-x:auto">
+            <table class="valuation-table" id="valuation-table">
+              <thead>
+                <tr>
+                  <th style="text-align:left">Ticker</th>
+                  <th>Price</th>
+                  <th>Mkt Cap</th>
+                  <th>Revenue</th>
+                  <th>Net Income</th>
+                  <th>Net Margin</th>
+                  <th>Rev Growth</th>
+                  <th>P/E</th>
+                  <th>Fwd P/E</th>
+                  <th>EPS</th>
+                  <th>Beta</th>
+                  <th>Div Yield</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody id="valuation-tbody">
+                <tr><td colspan="13" style="text-align:center;color:var(--muted);padding:24px">Switch to this tab to load data…</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ── 3. CORRELATION MATRIX ─────────────────────────────── -->
-    <div class="analysis-section">
-      <div class="analysis-section-title">🔗 Correlation Matrix <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">3-month daily returns · 1 = move together · −1 = move opposite</span></div>
-      <div id="corr-wrap">
-        <div style="color:var(--muted);font-size:.82rem">Switch to this tab to load correlation data…</div>
-      </div>
-    </div>
-
-    <!-- ── 4. ENTRY POINT ANALYZER ──────────────────────────── -->
-    <div class="analysis-section" id="entry-analyzer-section">
-      <div class="analysis-section-title">🎯 Entry Point Analyzer <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Multi-signal technical entry scoring · not financial advice</span></div>
-
-      <!-- Search row -->
-      <div class="ea-search-row">
-        <div class="ea-input-wrap">
-          <span class="ea-search-icon">🔍</span>
-          <input id="ea-input" class="ea-input" type="text" placeholder="Enter ticker — AAPL, NVDA, TSLA…"
-            autocomplete="off" spellcheck="false"
-            onkeydown="if(event.key==='Enter')runEntryAnalysis()"
-            oninput="this.value=this.value.toUpperCase()"/>
+      <!-- Analyst Consensus -->
+      <div class="mkt-block" id="analyst-consensus-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Analyst Consensus</span>
+          <span class="mkt-block-sub">Buy / Hold / Sell ratings across your holdings</span>
         </div>
-        <button class="btn btn-primary ea-btn" onclick="runEntryAnalysis()" id="ea-btn">Analyze Entry</button>
+        <div id="analyst-consensus-body">
+          <div style="color:var(--muted);font-size:.82rem">Loading…</div>
+        </div>
       </div>
 
-      <!-- Quick-pick chips -->
-      <div class="ea-chips" id="ea-chips">
-        <span style="font-size:.7rem;color:var(--muted);margin-right:4px">Quick:</span>
+      <!-- Portfolio Heat Map -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Portfolio Heat Map</span>
+          <span class="mkt-block-sub">Daily performance · sized by position value</span>
+        </div>
+        <div class="hm-grid" id="hm-grid">
+          <div class="hm-empty">Add stocks to your portfolio to see the heat map</div>
+        </div>
       </div>
 
-      <!-- Results panel (hidden until analysis runs) -->
-      <div id="ea-result" style="display:none;margin-top:18px">
+      <!-- Target Allocation Drift -->
+      <div class="mkt-block" id="drift-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Target Allocation Drift</span>
+          <span class="mkt-block-sub">Set target weights · see how far you've drifted from your plan</span>
+        </div>
+        <div class="drift-card">
+          <div class="drift-legend">
+            <div class="drift-legend-item"><div class="drift-legend-dot" style="background:var(--blue)"></div> Actual weight</div>
+            <div class="drift-legend-item"><div style="width:2px;height:8px;background:#3B82F6;opacity:.8;border-radius:1px;display:inline-block"></div>&nbsp;Target</div>
+          </div>
+          <div id="drift-rows">
+            <div style="color:var(--muted);font-size:.82rem;padding:8px 0">Switch to this tab to load allocation data…</div>
+          </div>
+          <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+            <button class="drift-set-btn" onclick="saveDriftTargets()">Save Targets</button>
+          </div>
+        </div>
+      </div>
 
-        <!-- Score header -->
-        <div class="ea-header">
-          <div class="ea-score-ring" id="ea-score-ring">
-            <svg viewBox="0 0 80 80" class="ea-ring-svg">
-              <circle cx="40" cy="40" r="32" class="ea-ring-track"/>
-              <circle cx="40" cy="40" r="32" class="ea-ring-fill" id="ea-ring-fill"/>
-            </svg>
-            <div class="ea-score-inner">
-              <div class="ea-score-num" id="ea-score-num">—</div>
-              <div class="ea-score-grade" id="ea-score-grade">—</div>
+    </div><!-- /asp-portfolio -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: RESEARCH
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="asp-research">
+
+      <!-- Stock Lookup Hero -->
+      <div class="mkt-block" style="background:linear-gradient(135deg,rgba(59,130,246,.08) 0%,var(--surface) 60%);border-color:rgba(59,130,246,.2);">
+        <div class="sp-lookup-hero" style="padding:0;background:none;border:none;border-radius:0;">
+          <div class="sp-lookup-title">Analyze Any Stock</div>
+          <div class="sp-lookup-sub">Search any ticker for full financials, analyst ratings, price charts and more</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;" id="sp-popular-chips"></div>
+          <div class="sp-lookup-row">
+            <div class="sp-lookup-wrap" id="sp-lookup-wrap">
+              <input id="sp-lookup-input" class="sp-lookup-input" type="text"
+                placeholder="e.g. AAPL, TSLA, NVDA…" autocomplete="off" spellcheck="false"
+                oninput="spLookupInput(this)"
+                onkeydown="if(event.key='Enter')spLookupGo()"/>
+              <div class="search-drop" id="sp-lookup-drop" style="display:none"></div>
+            </div>
+            <button class="btn btn-primary" onclick="spLookupGo()" style="padding:10px 22px;font-size:.9rem;font-weight:700">Analyze →</button>
+          </div>
+          <div class="sp-lookup-recents" id="sp-lookup-recents"></div>
+        </div>
+      </div>
+
+      <!-- Stock Comparison -->
+      <div class="mkt-block" id="comparison-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Stock Comparison</span>
+          <span class="mkt-block-sub">Normalised price chart + side-by-side fundamentals</span>
+        </div>
+        <div class="cmp-search-row">
+          <input class="cmp-ticker-input" id="cmp-t1" placeholder="AAPL" maxlength="10"/>
+          <input class="cmp-ticker-input" id="cmp-t2" placeholder="MSFT" maxlength="10"/>
+          <input class="cmp-ticker-input" id="cmp-t3" placeholder="GOOGL" maxlength="10"/>
+          <input class="cmp-ticker-input" id="cmp-t4" placeholder="" maxlength="10"/>
+          <button class="cmp-period-btn active" id="cmp-per-1y" onclick="setCmpPeriod('1y',this)">1Y</button>
+          <button class="cmp-period-btn" id="cmp-per-3m" onclick="setCmpPeriod('3m',this)">3M</button>
+          <button class="cmp-period-btn" id="cmp-per-6m" onclick="setCmpPeriod('6m',this)">6M</button>
+          <button class="cmp-period-btn" id="cmp-per-5y" onclick="setCmpPeriod('5y',this)">5Y</button>
+          <button class="cmp-run-btn" onclick="runComparison()">Compare →</button>
+        </div>
+        <div class="cmp-chart-wrap"><canvas id="cmp-chart"></canvas></div>
+        <div id="cmp-stats-wrap"></div>
+      </div>
+
+      <!-- Stock Screener -->
+      <div class="mkt-block" id="screener-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Stock Screener</span>
+          <span class="mkt-block-sub">S&amp;P 500 universe · filter by fundamentals</span>
+        </div>
+        <div class="screener-filters">
+          <div class="screener-filter-group">
+            <div class="screener-filter-label">Sector</div>
+            <select class="screener-select" id="scr-sector">
+              <option value="">All</option>
+              <option>Technology</option><option>Healthcare</option><option>Financials</option>
+              <option>Consumer Cyclical</option><option>Consumer Defensive</option>
+              <option>Communication Services</option><option>Industrials</option>
+              <option>Energy</option><option>Utilities</option><option>Real Estate</option>
+              <option>Basic Materials</option>
+            </select>
+          </div>
+          <div class="screener-filter-group">
+            <div class="screener-filter-label">Mkt Cap Min ($B)</div>
+            <input class="screener-input" id="scr-mc-min" type="number" placeholder="e.g. 10" min="0" style="width:90px"/>
+          </div>
+          <div class="screener-filter-group">
+            <div class="screener-filter-label">P/E Max</div>
+            <input class="screener-input" id="scr-pe-max" type="number" placeholder="e.g. 30" min="0" style="width:80px"/>
+          </div>
+          <div class="screener-filter-group">
+            <div class="screener-filter-label">Div Yield Min (%)</div>
+            <input class="screener-input" id="scr-div-min" type="number" placeholder="e.g. 2" min="0" step=".1" style="width:80px"/>
+          </div>
+          <div class="screener-filter-group">
+            <div class="screener-filter-label">Rev Growth Min (%)</div>
+            <input class="screener-input" id="scr-rev-min" type="number" placeholder="e.g. 5" step=".1" style="width:80px"/>
+          </div>
+          <div class="screener-filter-group">
+            <div class="screener-filter-label">Sort By</div>
+            <select class="screener-select" id="scr-sort">
+              <option value="marketCap">Market Cap</option>
+              <option value="change">% Change</option>
+              <option value="pe">P/E</option>
+              <option value="divYield">Div Yield</option>
+              <option value="revGrowth">Rev Growth</option>
+              <option value="volume">Volume</option>
+            </select>
+          </div>
+          <button class="screener-run-btn" onclick="runScreener()">Screen →</button>
+        </div>
+        <div style="margin-top:6px;margin-bottom:6px;font-size:.72rem;color:var(--muted);">
+          <span id="scr-count" class="screener-count"></span>
+          <span style="margin-left:10px">
+            <button class="screener-view-btn active" id="scr-view-general" onclick="setScreenerView('general',this)">General</button>
+            <button class="screener-view-btn" id="scr-view-performance" onclick="setScreenerView('performance',this)">Performance</button>
+            <button class="screener-view-btn" id="scr-view-valuation" onclick="setScreenerView('valuation',this)">Valuation</button>
+            <button class="screener-view-btn" id="scr-view-dividends" onclick="setScreenerView('dividends',this)">Dividends</button>
+          </span>
+        </div>
+        <div class="screener-table-wrap">
+          <table class="screener-tbl" id="screener-tbl">
+            <thead id="screener-thead"></thead>
+            <tbody id="screener-tbody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;">Click "Screen →" to load data</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Top Growth Picks -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Top Growth Picks</span>
+          <span class="mkt-block-sub">Based on analyst consensus price targets · not financial advice</span>
+        </div>
+        <div class="growth-grid" id="growth-grid">
+          <div style="color:var(--muted);font-size:.82rem">Switch to this tab to load growth picks…</div>
+        </div>
+      </div>
+
+    </div><!-- /asp-research -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: RISK & SCENARIOS
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="asp-risk">
+
+      <!-- Correlation Matrix -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Correlation Matrix</span>
+          <span class="mkt-block-sub">3-month daily returns · +1 = move together · −1 = move opposite</span>
+        </div>
+        <div id="corr-wrap">
+          <div style="color:var(--muted);font-size:.82rem">Switch to this tab to load correlation data…</div>
+        </div>
+      </div>
+
+      <!-- What-If Simulator -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">What-If Simulator</span>
+          <span class="mkt-block-sub">Drag sliders to see how price moves affect your portfolio</span>
+        </div>
+        <div id="whatif-rows"></div>
+        <div class="whatif-summary" id="whatif-summary" style="display:none">
+          <div class="whatif-sum-item">
+            <div class="whatif-sum-label">Portfolio Δ</div>
+            <div class="whatif-sum-val" id="wi-port-delta">—</div>
+          </div>
+          <div class="whatif-sum-item">
+            <div class="whatif-sum-label">P&amp;L Impact</div>
+            <div class="whatif-sum-val" id="wi-pnl-impact">—</div>
+          </div>
+          <div class="whatif-sum-item">
+            <div class="whatif-sum-label">New Total</div>
+            <div class="whatif-sum-val" id="wi-new-total">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Stress Test -->
+      <div class="mkt-block" id="stress-test-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Portfolio Stress Test</span>
+          <span class="mkt-block-sub">Historical scenario impact using per-stock beta · not a prediction</span>
+        </div>
+        <div class="stress-scen-grid" id="stress-scen-grid">
+          <button class="stress-scen-btn" data-scen="covid" onclick="runStressTest('covid',this)">
+            <div class="stress-scen-label">COVID Crash (2020)</div>
+            <div class="stress-scen-drop">−34%</div>
+            <div class="stress-scen-meta">33 trading days · recovery ~5 months</div>
+          </button>
+          <button class="stress-scen-btn" data-scen="rate2022" onclick="runStressTest('rate2022',this)">
+            <div class="stress-scen-label">2022 Rate Hike Bear</div>
+            <div class="stress-scen-drop">−25%</div>
+            <div class="stress-scen-meta">12 months · recovery ~14 months</div>
+          </button>
+          <button class="stress-scen-btn" data-scen="gfc2008" onclick="runStressTest('gfc2008',this)">
+            <div class="stress-scen-label">GFC 2008–09</div>
+            <div class="stress-scen-drop">−57%</div>
+            <div class="stress-scen-meta">17 months · recovery ~4 years</div>
+          </button>
+          <button class="stress-scen-btn" data-scen="dot2000" onclick="runStressTest('dot2000',this)">
+            <div class="stress-scen-label">Dot-com 2000–02</div>
+            <div class="stress-scen-drop">−49%</div>
+            <div class="stress-scen-meta">31 months · recovery ~7 years</div>
+          </button>
+        </div>
+        <div class="stress-results" id="stress-results"></div>
+      </div>
+
+      <!-- Portfolio Backtesting -->
+      <div class="mkt-block" id="backtest-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Portfolio Backtesting</span>
+          <span class="mkt-block-sub">How current holdings would have performed · equal-weight normalised · not a prediction</span>
+        </div>
+        <div class="bt-controls">
+          <span style="font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Since:</span>
+          <button class="bt-year-btn active" data-year="2020" onclick="loadBacktest(2020,this)">2020</button>
+          <button class="bt-year-btn" data-year="2019" onclick="loadBacktest(2019,this)">2019</button>
+          <button class="bt-year-btn" data-year="2022" onclick="loadBacktest(2022,this)">2022</button>
+          <button class="bt-year-btn" data-year="2023" onclick="loadBacktest(2023,this)">2023</button>
+          <button class="bt-year-btn" data-year="2024" onclick="loadBacktest(2024,this)">2024</button>
+        </div>
+        <div id="bt-content">
+          <div style="color:var(--muted);font-size:.82rem;padding:8px 0">Switch to this tab to run backtest…</div>
+        </div>
+      </div>
+
+    </div><!-- /asp-risk -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: TOOLS
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="asp-tools">
+
+      <!-- Entry Point Analyzer -->
+      <div class="mkt-block" id="entry-analyzer-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Entry Point Analyzer</span>
+          <span class="mkt-block-sub">Multi-signal technical entry scoring · not financial advice</span>
+        </div>
+        <div class="ea-search-row">
+          <div class="ea-input-wrap">
+            <svg class="ea-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="ea-input" class="ea-input" type="text" placeholder="Enter ticker — AAPL, NVDA, TSLA…"
+              autocomplete="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')runEntryAnalysis()"
+              oninput="this.value=this.value.toUpperCase()"/>
+          </div>
+          <button class="btn btn-primary ea-btn" onclick="runEntryAnalysis()" id="ea-btn">Analyze Entry</button>
+        </div>
+        <div class="ea-chips" id="ea-chips">
+          <span style="font-size:.7rem;color:var(--muted);margin-right:4px">Quick:</span>
+        </div>
+        <div id="ea-result" style="display:none;margin-top:18px">
+          <div class="ea-header">
+            <div class="ea-score-ring" id="ea-score-ring">
+              <svg viewBox="0 0 80 80" class="ea-ring-svg">
+                <circle cx="40" cy="40" r="32" class="ea-ring-track"/>
+                <circle cx="40" cy="40" r="32" class="ea-ring-fill" id="ea-ring-fill"/>
+              </svg>
+              <div class="ea-score-inner">
+                <div class="ea-score-num" id="ea-score-num">—</div>
+                <div class="ea-score-grade" id="ea-score-grade">—</div>
+              </div>
+            </div>
+            <div class="ea-header-info">
+              <div class="ea-ticker-display" id="ea-ticker-display">—</div>
+              <div class="ea-rec-badge" id="ea-rec-badge">—</div>
+              <div class="ea-price-row">
+                <span class="ea-price-label">Current Price</span>
+                <span class="ea-price-val" id="ea-price-val">—</span>
+              </div>
             </div>
           </div>
-          <div class="ea-header-info">
-            <div class="ea-ticker-display" id="ea-ticker-display">—</div>
-            <div class="ea-rec-badge" id="ea-rec-badge">—</div>
-            <div class="ea-price-row">
-              <span class="ea-price-label">Current Price</span>
-              <span class="ea-price-val" id="ea-price-val">—</span>
+          <div class="ea-zones">
+            <div class="ea-zone-card ea-zone-entry">
+              <div class="ea-zone-label">Entry Zone</div>
+              <div class="ea-zone-range" id="ea-entry-range">—</div>
+              <div class="ea-zone-sub" id="ea-entry-sub">Best buy range</div>
+            </div>
+            <div class="ea-zone-card ea-zone-stop">
+              <div class="ea-zone-label">Stop Loss</div>
+              <div class="ea-zone-range" id="ea-stop-val">—</div>
+              <div class="ea-zone-sub" id="ea-risk-sub">—% risk</div>
+            </div>
+            <div class="ea-zone-card ea-zone-target">
+              <div class="ea-zone-label">Targets</div>
+              <div class="ea-targets-list" id="ea-targets-list">—</div>
+              <div class="ea-zone-sub" id="ea-rr-sub">R:R ratio —</div>
             </div>
           </div>
+          <div class="ea-signals-title">Signal Breakdown</div>
+          <div class="ea-signals-grid" id="ea-signals-grid"></div>
+          <div class="ea-levels-wrap" id="ea-levels-wrap"></div>
+          <div class="ea-disclaimer">Based on 6 months of price data. Technical analysis does not guarantee future results. Always use your own judgment and risk management.</div>
         </div>
+        <div id="ea-loading" style="display:none;padding:24px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Analyzing entry signals…</div>
+        <div id="ea-error" style="display:none;padding:16px 0;color:var(--red);font-size:.84rem"></div>
+      </div>
 
-        <!-- Entry zone + targets -->
-        <div class="ea-zones">
-          <div class="ea-zone-card ea-zone-entry">
-            <div class="ea-zone-label">📥 Entry Zone</div>
-            <div class="ea-zone-range" id="ea-entry-range">—</div>
-            <div class="ea-zone-sub" id="ea-entry-sub">Best buy range</div>
+      <!-- DRIP Simulator -->
+      <div class="mkt-block" id="drip-section">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">DRIP Simulator</span>
+          <span class="mkt-block-sub">Dividend reinvestment compound calculator · hypothetical projection</span>
+        </div>
+        <div class="drip-card">
+          <div class="drip-controls">
+            <div class="drip-field">
+              <label class="drip-label">Initial Investment ($)</label>
+              <input class="drip-input" id="drip-principal" type="number" value="10000" min="100" step="100" oninput="calcDRIP()"/>
+            </div>
+            <div class="drip-field">
+              <label class="drip-label">Annual Dividend Yield (%)</label>
+              <input class="drip-input" id="drip-yield" type="number" value="3" min="0" max="30" step="0.1" oninput="calcDRIP()"/>
+            </div>
+            <div class="drip-field">
+              <label class="drip-label">Annual Price Growth (%)</label>
+              <input class="drip-input" id="drip-growth" type="number" value="8" min="-20" max="50" step="0.5" oninput="calcDRIP()"/>
+            </div>
+            <div class="drip-field">
+              <label class="drip-label">Monthly Contribution ($)</label>
+              <input class="drip-input" id="drip-monthly" type="number" value="500" min="0" step="50" oninput="calcDRIP()"/>
+            </div>
+            <div class="drip-field">
+              <label class="drip-label">Time Horizon (Years)</label>
+              <input class="drip-input" id="drip-years" type="number" value="20" min="1" max="50" step="1" oninput="calcDRIP()"/>
+            </div>
           </div>
-          <div class="ea-zone-card ea-zone-stop">
-            <div class="ea-zone-label">🛑 Stop Loss</div>
-            <div class="ea-zone-range" id="ea-stop-val">—</div>
-            <div class="ea-zone-sub" id="ea-risk-sub">—% risk</div>
-          </div>
-          <div class="ea-zone-card ea-zone-target">
-            <div class="ea-zone-label">🎯 Targets</div>
-            <div class="ea-targets-list" id="ea-targets-list">—</div>
-            <div class="ea-zone-sub" id="ea-rr-sub">R:R ratio —</div>
-          </div>
-        </div>
-
-        <!-- Signal breakdown -->
-        <div class="ea-signals-title">Signal Breakdown</div>
-        <div class="ea-signals-grid" id="ea-signals-grid"></div>
-
-        <!-- Fibonacci & Pivot levels (collapsible) -->
-        <div class="ea-levels-wrap" id="ea-levels-wrap"></div>
-
-        <div class="ea-disclaimer">Based on 6 months of price data. Technical analysis does not guarantee future results. Always use your own judgment and risk management.</div>
-      </div>
-
-      <div id="ea-loading" style="display:none;padding:24px 0;text-align:center;color:var(--muted);font-size:.84rem"><span class="spinner"></span> Analyzing entry signals…</div>
-      <div id="ea-error" style="display:none;padding:16px 0;color:var(--red);font-size:.84rem"></div>
-    </div>
-
-    <!-- ── 5. TOP GROWTH PICKS ───────────────────────────────── -->
-    <div class="analysis-section">
-      <div class="analysis-section-title">🚀 Top Growth Picks <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Based on analyst consensus price targets · not financial advice</span></div>
-      <div class="growth-grid" id="growth-grid">
-        <div style="color:var(--muted);font-size:.82rem">Switch to this tab to load growth picks…</div>
-      </div>
-    </div>
-
-    <!-- ── 6. PORTFOLIO STRESS TEST ──────────────────────────── -->
-    <div class="analysis-section" id="stress-test-section">
-      <div class="analysis-section-title">⚠️ Portfolio Stress Test <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Historical scenario impact using per-stock beta · not a prediction</span></div>
-      <div class="stress-scen-grid" id="stress-scen-grid">
-        <button class="stress-scen-btn" data-scen="covid" onclick="runStressTest('covid',this)">
-          <div class="stress-scen-label">🦠 COVID Crash (2020)</div>
-          <div class="stress-scen-drop">−34%</div>
-          <div class="stress-scen-meta">33 trading days · recovery ~5 months</div>
-        </button>
-        <button class="stress-scen-btn" data-scen="rate2022" onclick="runStressTest('rate2022',this)">
-          <div class="stress-scen-label">📈 2022 Rate Hike Bear</div>
-          <div class="stress-scen-drop">−25%</div>
-          <div class="stress-scen-meta">12 months · recovery ~14 months</div>
-        </button>
-        <button class="stress-scen-btn" data-scen="gfc2008" onclick="runStressTest('gfc2008',this)">
-          <div class="stress-scen-label">🏦 GFC 2008–09</div>
-          <div class="stress-scen-drop">−57%</div>
-          <div class="stress-scen-meta">17 months · recovery ~4 years</div>
-        </button>
-        <button class="stress-scen-btn" data-scen="dot2000" onclick="runStressTest('dot2000',this)">
-          <div class="stress-scen-label">💻 Dot-com 2000–02</div>
-          <div class="stress-scen-drop">−49%</div>
-          <div class="stress-scen-meta">31 months · recovery ~7 years</div>
-        </button>
-      </div>
-      <div class="stress-results" id="stress-results"></div>
-    </div>
-
-    <!-- ── 7. PORTFOLIO BACKTESTING ──────────────────────────── -->
-    <div class="analysis-section" id="backtest-section">
-      <div class="analysis-section-title">📈 Portfolio Backtesting <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">How current holdings would have performed · equal-weight normalised · not a prediction</span></div>
-      <div class="bt-controls">
-        <span style="font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;">Since:</span>
-        <button class="bt-year-btn active" data-year="2020" onclick="loadBacktest(2020,this)">2020</button>
-        <button class="bt-year-btn" data-year="2019" onclick="loadBacktest(2019,this)">2019</button>
-        <button class="bt-year-btn" data-year="2022" onclick="loadBacktest(2022,this)">2022</button>
-        <button class="bt-year-btn" data-year="2023" onclick="loadBacktest(2023,this)">2023</button>
-        <button class="bt-year-btn" data-year="2024" onclick="loadBacktest(2024,this)">2024</button>
-      </div>
-      <div id="bt-content">
-        <div style="color:var(--muted);font-size:.82rem;padding:8px 0">Switch to this tab to run backtest…</div>
-      </div>
-    </div>
-
-    <!-- ── 8. DRIP SIMULATOR ──────────────────────────────────── -->
-    <div class="analysis-section" id="drip-section">
-      <div class="analysis-section-title">💧 DRIP Simulator <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Dividend reinvestment compound calculator · hypothetical projection</span></div>
-      <div class="drip-card">
-        <div class="drip-controls">
-          <div class="drip-field">
-            <label class="drip-label">Initial Investment ($)</label>
-            <input class="drip-input" id="drip-principal" type="number" value="10000" min="100" step="100" oninput="calcDRIP()"/>
-          </div>
-          <div class="drip-field">
-            <label class="drip-label">Annual Dividend Yield (%)</label>
-            <input class="drip-input" id="drip-yield" type="number" value="3" min="0" max="30" step="0.1" oninput="calcDRIP()"/>
-          </div>
-          <div class="drip-field">
-            <label class="drip-label">Annual Price Growth (%)</label>
-            <input class="drip-input" id="drip-growth" type="number" value="8" min="-20" max="50" step="0.5" oninput="calcDRIP()"/>
-          </div>
-          <div class="drip-field">
-            <label class="drip-label">Monthly Contribution ($)</label>
-            <input class="drip-input" id="drip-monthly" type="number" value="500" min="0" step="50" oninput="calcDRIP()"/>
-          </div>
-          <div class="drip-field">
-            <label class="drip-label">Time Horizon (Years)</label>
-            <input class="drip-input" id="drip-years" type="number" value="20" min="1" max="50" step="1" oninput="calcDRIP()"/>
-          </div>
-        </div>
-        <div class="drip-results" id="drip-results"></div>
-        <div class="drip-chart-wrap"><canvas id="drip-chart"></canvas></div>
-        <div class="ea-disclaimer" style="margin-top:8px">Projection assumes constant yield and growth rate. Taxes, inflation, and changing yields are not modelled. Not financial advice.</div>
-      </div>
-    </div>
-
-    <!-- ── 9. TARGET ALLOCATION DRIFT ────────────────────────── -->
-    <div class="analysis-section" id="drift-section">
-      <div class="analysis-section-title">🎯 Target Allocation Drift <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">Set target weights · see how far you've drifted</span></div>
-      <div class="drift-card">
-        <div class="drift-legend">
-          <div class="drift-legend-item"><div class="drift-legend-dot" style="background:var(--blue)"></div> Actual weight</div>
-          <div class="drift-legend-item"><div style="width:2px;height:8px;background:#3B82F6;opacity:.8;border-radius:1px;display:inline-block"></div>&nbsp;Target</div>
-        </div>
-        <div id="drift-rows">
-          <div style="color:var(--muted);font-size:.82rem;padding:8px 0">Switch to this tab to load allocation data…</div>
-        </div>
-        <div style="margin-top:12px;display:flex;justify-content:flex-end;">
-          <button class="drift-set-btn" onclick="saveDriftTargets()">💾 Save Targets</button>
+          <div class="drip-results" id="drip-results"></div>
+          <div class="drip-chart-wrap"><canvas id="drip-chart"></canvas></div>
+          <div class="ea-disclaimer" style="margin-top:8px">Projection assumes constant yield and growth rate. Taxes, inflation, and changing yields are not modelled. Not financial advice.</div>
         </div>
       </div>
-    </div>
 
-    <!-- ── 10. STOCK COMPARISON TOOL ─────────────────────────── -->
-    <div class="analysis-section" id="comparison-section">
-      <div class="analysis-section-title">📊 Stock Comparison</div>
-      <div class="cmp-search-row">
-        <input class="cmp-ticker-input" id="cmp-t1" placeholder="AAPL" maxlength="10"/>
-        <input class="cmp-ticker-input" id="cmp-t2" placeholder="MSFT" maxlength="10"/>
-        <input class="cmp-ticker-input" id="cmp-t3" placeholder="GOOGL" maxlength="10"/>
-        <input class="cmp-ticker-input" id="cmp-t4" placeholder="" maxlength="10"/>
-        <button class="cmp-period-btn active" id="cmp-per-1y" onclick="setCmpPeriod('1y',this)">1Y</button>
-        <button class="cmp-period-btn" id="cmp-per-3m" onclick="setCmpPeriod('3m',this)">3M</button>
-        <button class="cmp-period-btn" id="cmp-per-6m" onclick="setCmpPeriod('6m',this)">6M</button>
-        <button class="cmp-period-btn" id="cmp-per-5y" onclick="setCmpPeriod('5y',this)">5Y</button>
-        <button class="cmp-run-btn" onclick="runComparison()">Compare →</button>
-      </div>
-      <div class="cmp-chart-wrap"><canvas id="cmp-chart"></canvas></div>
-      <div id="cmp-stats-wrap"></div>
-    </div>
-
-    <!-- STOCK SCREENER -->
-    <div class="analysis-section" id="screener-section">
-      <div class="analysis-section-title">🔍 Stock Screener <span style="font-size:.68rem;font-weight:400;color:var(--muted);margin-left:8px;">S&amp;P 500 universe · filter by fundamentals</span></div>
-      <div class="screener-filters">
-        <div class="screener-filter-group">
-          <div class="screener-filter-label">Sector</div>
-          <select class="screener-select" id="scr-sector">
-            <option value="">All</option>
-            <option>Technology</option><option>Healthcare</option><option>Financials</option>
-            <option>Consumer Cyclical</option><option>Consumer Defensive</option>
-            <option>Communication Services</option><option>Industrials</option>
-            <option>Energy</option><option>Utilities</option><option>Real Estate</option>
-            <option>Basic Materials</option>
-          </select>
-        </div>
-        <div class="screener-filter-group">
-          <div class="screener-filter-label">Market Cap Min ($B)</div>
-          <input class="screener-input" id="scr-mc-min" type="number" placeholder="e.g. 10" min="0" style="width:90px"/>
-        </div>
-        <div class="screener-filter-group">
-          <div class="screener-filter-label">P/E Max</div>
-          <input class="screener-input" id="scr-pe-max" type="number" placeholder="e.g. 30" min="0" style="width:80px"/>
-        </div>
-        <div class="screener-filter-group">
-          <div class="screener-filter-label">Div Yield Min (%)</div>
-          <input class="screener-input" id="scr-div-min" type="number" placeholder="e.g. 2" min="0" step=".1" style="width:80px"/>
-        </div>
-        <div class="screener-filter-group">
-          <div class="screener-filter-label">Rev Growth Min (%)</div>
-          <input class="screener-input" id="scr-rev-min" type="number" placeholder="e.g. 5" step=".1" style="width:80px"/>
-        </div>
-        <div class="screener-filter-group">
-          <div class="screener-filter-label">Sort By</div>
-          <select class="screener-select" id="scr-sort">
-            <option value="marketCap">Market Cap</option>
-            <option value="change">% Change</option>
-            <option value="pe">P/E</option>
-            <option value="divYield">Div Yield</option>
-            <option value="revGrowth">Rev Growth</option>
-            <option value="volume">Volume</option>
-          </select>
-        </div>
-        <button class="screener-run-btn" onclick="runScreener()">Screen →</button>
-      </div>
-      <div style="margin-top:6px;margin-bottom:6px;font-size:.72rem;color:var(--muted);">
-        <span id="scr-count" class="screener-count"></span>
-        <span style="margin-left:10px">
-          <button class="screener-view-btn active" id="scr-view-general" onclick="setScreenerView('general',this)">General</button>
-          <button class="screener-view-btn" id="scr-view-performance" onclick="setScreenerView('performance',this)">Performance</button>
-          <button class="screener-view-btn" id="scr-view-valuation" onclick="setScreenerView('valuation',this)">Valuation</button>
-          <button class="screener-view-btn" id="scr-view-dividends" onclick="setScreenerView('dividends',this)">Dividends</button>
-        </span>
-      </div>
-      <div class="screener-table-wrap">
-        <table class="screener-tbl" id="screener-tbl">
-          <thead id="screener-thead"></thead>
-          <tbody id="screener-tbody"><tr><td colspan="9" style="text-align:center;color:var(--muted);padding:20px;">Click "Screen →" to load data</td></tr></tbody>
-        </table>
-      </div>
-    </div>
+    </div><!-- /asp-tools -->
 
   </div><!-- /tab-analysis -->
 
@@ -11294,8 +11365,9 @@ function doDbBackup() {
 ══════════════════════════════════════════════════════════════ */
 // ─── Market sub-tab switcher ──────────────────────────────────────────────
 function switchMktTab(name) {
-  document.querySelectorAll('.mkt-stab').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.mkt-pane').forEach(p => p.classList.remove('active'));
+  const mktTab = g('tab-market');
+  (mktTab || document).querySelectorAll('.mkt-stab').forEach(b => b.classList.remove('active'));
+  (mktTab || document).querySelectorAll('.mkt-pane').forEach(p => p.classList.remove('active'));
   const btn = g('mst-' + name); if (btn) btn.classList.add('active');
   const pane = g('msp-' + name); if (pane) pane.classList.add('active');
   // Lazy-load data when switching to tabs that may not have loaded yet
@@ -11312,6 +11384,21 @@ function switchCalTab(name) {
   const pane = g('csp-' + name); if (pane) pane.classList.add('active');
 }
 
+// ─── Analysis sub-tab switcher ────────────────────────────────────────────
+function switchAnalTab(name) {
+  const analTab = g('tab-analysis');
+  if (analTab) {
+    analTab.querySelectorAll('#anal-subnav .mkt-stab').forEach(b => b.classList.remove('active'));
+    analTab.querySelectorAll('.mkt-pane').forEach(p => p.classList.remove('active'));
+  }
+  const btn = g('ast-' + name); if (btn) btn.classList.add('active');
+  const pane = g('asp-' + name); if (pane) pane.classList.add('active');
+  // Lazy-load data for each sub-pane
+  if (name === 'portfolio' && IS_SERVER) { loadAnalysisTab(); setTimeout(() => { buildDriftTracker(); }, 300); }
+  if (name === 'research'  && IS_SERVER) { loadGrowthPicks(); }
+  if (name === 'risk'      && IS_SERVER) { loadCorrelationMatrix(); setTimeout(() => { buildWhatIf(); }, 200); }
+}
+
 // Patch switchTab to lazy-load market & analysis data on tab switch
 (function() {
   const _origSwitchTab = switchTab;
@@ -11326,7 +11413,8 @@ function switchCalTab(name) {
       loadExtendedHours();
     }
     if (name === 'analysis' && IS_SERVER) {
-      setTimeout(() => { buildDriftTracker(); }, 300);
+      // Ensure the default sub-pane (portfolio) is active and loaded
+      switchAnalTab('portfolio');
     }
     setMobileNav(name);
   };
