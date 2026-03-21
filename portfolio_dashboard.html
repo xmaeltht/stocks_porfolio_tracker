@@ -2567,6 +2567,32 @@ td:first-child,td:nth-child(2){text-align:left;}
   border-radius:var(--radius);padding:22px;max-width:500px;width:92%;
 }
 .modal h3{font-size:.93rem;font-weight:700;margin-bottom:8px;}
+.modal--wide{max-width:800px!important;}
+.modal-close-x{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:2px 7px;border-radius:5px;line-height:1;transition:all .15s;}
+.modal-close-x:hover{color:var(--text);background:rgba(255,255,255,.08);}
+
+/* ── PORTFOLIO MANAGER TABLE ─────────────────────────────────────────────── */
+.pm-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.pm-table th{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);padding:6px 8px;white-space:nowrap;}
+.pm-table td{padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+.pm-table input[type="number"],.pm-table input[type="text"]{background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);padding:5px 8px;font-size:.82rem;width:100%;outline:none;transition:border-color .15s;box-sizing:border-box;}
+.pm-table input:focus{border-color:var(--blue);}
+.pm-table .pm-ticker-inp{text-transform:uppercase;font-weight:700;}
+.pm-table .pm-val{text-align:right;font-size:.8rem;color:var(--muted);padding:5px 8px;white-space:nowrap;}
+.pm-table .pm-pnl-pos{color:var(--green);}
+.pm-table .pm-pnl-neg{color:var(--red);}
+.pm-del-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:3px 8px;border-radius:4px;font-size:.9rem;transition:all .15s;}
+.pm-del-btn:hover{color:var(--red);background:rgba(239,68,68,.12);}
+
+/* ── EDIT MODAL TABS ─────────────────────────────────────────────────────── */
+.edit-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.edit-tab{padding:7px 16px;border:none;background:none;color:var(--muted);font-size:.78rem;font-weight:600;border-radius:0;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;font-family:var(--font-body);}
+.edit-tab:hover{color:var(--text);}
+.edit-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.edit-preview{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);border-radius:7px;padding:10px 14px;font-size:.79rem;color:var(--text);margin-bottom:12px;line-height:1.75;}
+.edit-preview strong{color:var(--blue);}
+.edit-preview .ep-warn{color:var(--yellow);}
+.edit-preview .ep-red{color:var(--red);}
 
 /* ── TOAST ────────────────────────────────────────────────────────────────── */
 .toast{
@@ -3552,7 +3578,8 @@ tr.vol-row { background: rgba(245,158,11,.04) !important; }
       <div class="section-title">Holdings <span id="hcount" style="font-weight:400;font-size:.76rem;"></span></div>
       <div class="toolbar">
         <div class="search-wrap"><input type="text" id="search" placeholder="Filter holdings…" aria-label="Filter holdings by ticker or name"/><span class="search-hint" aria-hidden="true">/</span></div>
-        <button class="btn btn-outline btn-sm" onclick="clearAll()">🗑 Clear All</button>
+        <button class="btn btn-outline btn-sm" onclick="openPortfolioManager()" title="Edit all positions at once">Edit Positions</button>
+        <button class="btn btn-outline btn-sm" onclick="clearAll()">Clear All</button>
       </div>
     </div>
     <div class="table-wrap">
@@ -4538,17 +4565,84 @@ tr.vol-row { background: rgba(245,158,11,.04) !important; }
 </div>
 
 <!-- EDIT POSITION MODAL -->
+<!-- PORTFOLIO MANAGER MODAL -->
+<div class="modal-overlay" id="portfolio-manager-modal">
+  <div class="modal modal--wide">
+    <div style="display:flex;align-items:center;margin-bottom:4px;">
+      <h3 style="margin:0;flex:1">Edit Portfolio Positions</h3>
+      <button class="modal-close-x" onclick="closeModal('portfolio-manager-modal')" title="Close">✕</button>
+    </div>
+    <p>Edit shares and average cost for any position. Add new stocks or remove existing ones. Changes apply when you click Save.</p>
+    <div style="overflow-x:auto;margin-bottom:8px;">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Shares</th>
+            <th>Avg Cost / Share</th>
+            <th style="text-align:right">Current Price</th>
+            <th style="text-align:right">Value</th>
+            <th style="text-align:right">Gain / Loss</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="pm-tbody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:4px;">
+      <button class="btn btn-outline btn-sm" onclick="pmAddRow()">+ Add Stock</button>
+    </div>
+    <div id="pm-err" style="color:var(--red);font-size:.78rem;margin-top:8px;display:none;"></div>
+    <div class="modal-btns" style="margin-top:14px;">
+      <button class="btn btn-outline" onclick="closeModal('portfolio-manager-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePortfolioManager()">Save All Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT POSITION MODAL -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal">
-    <h3>✏️ Edit Position</h3>
-    <p>Update shares and average cost for <strong id="edit-ticker-label">—</strong></p>
-    <div class="modal-field">
-      <label>Shares</label>
-      <input type="number" id="edit-shares" min="0.001" step="any" placeholder="100"/>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <h3 style="margin:0">Edit — <span id="edit-ticker-label" style="color:var(--blue)">—</span></h3>
     </div>
-    <div class="modal-field">
-      <label>Average Cost / Share</label>
-      <input type="number" id="edit-cost" min="0" step="any" placeholder="0.00"/>
+    <div id="edit-curr-info" style="font-size:.77rem;color:var(--muted);margin-bottom:12px;line-height:1.6;"></div>
+    <!-- Mode Tabs -->
+    <div class="edit-tabs">
+      <button class="edit-tab active" id="etab-replace" onclick="setEditMode('replace')">Edit</button>
+      <button class="edit-tab" id="etab-buy" onclick="setEditMode('buy')">Buy More</button>
+      <button class="edit-tab" id="etab-sell" onclick="setEditMode('sell')">Sell Shares</button>
+    </div>
+    <!-- Replace Mode (direct edit) -->
+    <div id="em-replace">
+      <div class="modal-field">
+        <label>Total Shares Held</label>
+        <input type="number" id="edit-shares" min="0.001" step="any" placeholder="100"/>
+      </div>
+      <div class="modal-field">
+        <label>Average Cost / Share</label>
+        <input type="number" id="edit-cost" min="0" step="any" placeholder="0.00"/>
+      </div>
+    </div>
+    <!-- Buy More Mode -->
+    <div id="em-buy" style="display:none">
+      <div class="modal-field">
+        <label>Additional Shares Purchased</label>
+        <input type="number" id="buy-shares" min="0.001" step="any" placeholder="10" oninput="updateBuyPreview()"/>
+      </div>
+      <div class="modal-field">
+        <label>Purchase Price / Share ($)</label>
+        <input type="number" id="buy-price" min="0" step="any" placeholder="0.00" oninput="updateBuyPreview()"/>
+      </div>
+      <div id="buy-preview" class="edit-preview" style="display:none"></div>
+    </div>
+    <!-- Sell Mode -->
+    <div id="em-sell" style="display:none">
+      <div class="modal-field">
+        <label>Shares to Sell</label>
+        <input type="number" id="sell-shares" min="0.001" step="any" placeholder="10" oninput="updateSellPreview()"/>
+      </div>
+      <div id="sell-preview" class="edit-preview" style="display:none"></div>
     </div>
     <div id="edit-err" style="color:var(--red);font-size:.78rem;margin-bottom:8px;display:none;"></div>
     <div class="modal-btns">
@@ -4640,6 +4734,7 @@ let portfolio   = [];
 let quotes      = {};
 let sortCol     = null, sortDir = -1, filterQ = '';
 let _editTicker = null;
+let _editMode   = 'replace';
 let _prevAlerts = new Set();
 let _extHours   = {};  // { TICKER: { pre_price, pre_pct, post_price, post_pct, ... } }
 
@@ -5752,34 +5847,223 @@ async function refresh() {
 }
 
 // ═══════════════════════════════════════════════
-//  EDIT STOCK POSITION
+//  EDIT STOCK POSITION (tabbed: Edit / Buy More / Sell)
 // ═══════════════════════════════════════════════
+function setEditMode(mode) {
+  _editMode = mode;
+  document.querySelectorAll('.edit-tab').forEach(t => t.classList.remove('active'));
+  const btn = g('etab-' + mode); if (btn) btn.classList.add('active');
+  g('em-replace').style.display = mode === 'replace' ? '' : 'none';
+  g('em-buy').style.display     = mode === 'buy'     ? '' : 'none';
+  g('em-sell').style.display    = mode === 'sell'    ? '' : 'none';
+  g('edit-err').style.display = 'none';
+}
+
+function updateBuyPreview() {
+  const h = portfolio.find(p => p.ticker === _editTicker);
+  if (!h) return;
+  const addShares = parseFloat(g('buy-shares').value) || 0;
+  const addPrice  = parseFloat(g('buy-price').value)  || 0;
+  const prev = g('buy-preview');
+  if (addShares <= 0 || addPrice <= 0) { prev.style.display = 'none'; return; }
+  const curAvg   = h.avg_cost || 0;
+  const newTotal = h.shares + addShares;
+  const newAvg   = ((h.shares * curAvg) + (addShares * addPrice)) / newTotal;
+  prev.style.display = '';
+  prev.innerHTML = `New total: <strong>${newTotal.toLocaleString(undefined,{maximumFractionDigits:4})} shares</strong><br>
+    New avg cost: <strong>${f.usd(newAvg)}</strong> <span style="color:var(--muted);font-size:.74rem">(was ${f.usd(curAvg)})</span>`;
+}
+
+function updateSellPreview() {
+  const h = portfolio.find(p => p.ticker === _editTicker);
+  if (!h) return;
+  const sellShares = parseFloat(g('sell-shares').value) || 0;
+  const prev = g('sell-preview');
+  if (sellShares <= 0) { prev.style.display = 'none'; return; }
+  prev.style.display = '';
+  if (sellShares > h.shares) {
+    prev.innerHTML = `<span class="ep-red">Cannot sell more than ${h.shares} shares</span>`;
+    return;
+  }
+  if (sellShares === h.shares) {
+    prev.innerHTML = `<span class="ep-warn">This will remove <strong>${_editTicker}</strong> from your portfolio entirely.</span>`;
+    return;
+  }
+  const remaining = h.shares - sellShares;
+  prev.innerHTML = `Remaining: <strong>${remaining.toLocaleString(undefined,{maximumFractionDigits:4})} shares</strong><br>
+    Avg cost stays: <strong>${f.usd(h.avg_cost || 0)}</strong>`;
+}
+
 function editStock(ticker) {
   _editTicker = ticker;
   const h = portfolio.find(p => p.ticker === ticker);
   if (!h) return;
+  const q     = quotes[ticker] || {};
+  const price = q.regularMarketPrice || 0;
+  // Populate summary line
+  const value  = price * h.shares;
+  const cost   = (h.avg_cost || 0) * h.shares;
+  const pnl    = cost > 0 ? value - cost : null;
+  const pnlStr = pnl !== null
+    ? ` · P&L: <span style="color:${pnl >= 0 ? 'var(--green)' : 'var(--red)'}"><strong>${pnl >= 0 ? '+' : ''}${f.usd(pnl)}</strong></span>`
+    : '';
   g('edit-ticker-label').textContent = ticker;
+  g('edit-curr-info').innerHTML =
+    `<strong>${h.shares.toLocaleString(undefined,{maximumFractionDigits:4})}</strong> shares · avg <strong>${f.usd(h.avg_cost || 0)}</strong>`
+    + (price > 0 ? ` · price <strong>${f.usd(price)}</strong>` : '')
+    + pnlStr;
+  // Reset to Replace mode and pre-fill fields
+  setEditMode('replace');
   g('edit-shares').value = h.shares;
   g('edit-cost').value   = h.avg_cost || '';
+  // Clear buy/sell fields
+  ['buy-shares','buy-price','sell-shares'].forEach(id => { const el = g(id); if(el) el.value = ''; });
+  g('buy-preview').style.display  = 'none';
+  g('sell-preview').style.display = 'none';
   g('edit-err').style.display = 'none';
   g('edit-modal').classList.add('open');
+  setTimeout(() => g('edit-shares').focus(), 60);
 }
 
 function saveEdit() {
-  const errEl  = g('edit-err');
-  const shares = parseFloat(g('edit-shares').value);
-  const cost   = parseFloat(g('edit-cost').value) || 0;
-  if (!shares || shares <= 0) { errEl.textContent = 'Enter a valid number of shares'; errEl.style.display = ''; return; }
+  const errEl = g('edit-err');
+  errEl.style.display = 'none';
   const idx = portfolio.findIndex(h => h.ticker === _editTicker);
-  if (idx >= 0) {
-    portfolio[idx] = { ...portfolio[idx], shares, avg_cost: cost };
-    save();
-    const rs = rows();
-    renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart();
-    showToast(`✅ <strong>${_editTicker}</strong> updated`, 'success', 3000);
+  if (idx < 0) return;
+  const h = portfolio[idx];
+
+  if (_editMode === 'replace') {
+    const shares = parseFloat(g('edit-shares').value);
+    const cost   = parseFloat(g('edit-cost').value) || 0;
+    if (!shares || shares <= 0) { errEl.textContent = 'Enter a valid number of shares'; errEl.style.display = ''; return; }
+    portfolio[idx] = { ...h, shares, avg_cost: cost };
+
+  } else if (_editMode === 'buy') {
+    const addShares = parseFloat(g('buy-shares').value);
+    const addPrice  = parseFloat(g('buy-price').value) || 0;
+    if (!addShares || addShares <= 0) { errEl.textContent = 'Enter number of shares purchased'; errEl.style.display = ''; return; }
+    const newTotal = h.shares + addShares;
+    const newAvg   = ((h.shares * (h.avg_cost || 0)) + (addShares * addPrice)) / newTotal;
+    portfolio[idx] = { ...h, shares: newTotal, avg_cost: newAvg };
+
+  } else if (_editMode === 'sell') {
+    const sellShares = parseFloat(g('sell-shares').value);
+    if (!sellShares || sellShares <= 0) { errEl.textContent = 'Enter number of shares sold'; errEl.style.display = ''; return; }
+    if (sellShares > h.shares) { errEl.textContent = `You only have ${h.shares} shares`; errEl.style.display = ''; return; }
+    if (sellShares === h.shares) {
+      if (!confirm(`Sell all ${h.shares} shares of ${_editTicker}? This removes it from your portfolio.`)) return;
+      portfolio.splice(idx, 1);
+      delete quotes[_editTicker];
+    } else {
+      portfolio[idx] = { ...h, shares: h.shares - sellShares };
+    }
   }
+
+  save();
+  const rs = rows();
+  renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart();
+  showToast(`<strong>${_editTicker}</strong> updated`, 'success', 3000);
   closeModal('edit-modal');
   _editTicker = null;
+}
+
+// ═══════════════════════════════════════════════
+//  PORTFOLIO MANAGER (edit all positions at once)
+// ═══════════════════════════════════════════════
+function openPortfolioManager() {
+  _renderManagerRows();
+  g('pm-err').style.display = 'none';
+  g('portfolio-manager-modal').classList.add('open');
+}
+
+function _renderManagerRows() {
+  const tbody = g('pm-tbody');
+  tbody.innerHTML = '';
+  portfolio.forEach((h, i) => {
+    const q     = quotes[h.ticker] || {};
+    const price = q.regularMarketPrice || 0;
+    const value = price * h.shares;
+    const cost  = (h.avg_cost || 0) * h.shares;
+    const pnl   = cost > 0 ? value - cost : null;
+    const pnlPct = cost > 0 ? ((value - cost) / cost * 100) : null;
+    const pnlCls = pnl === null ? '' : (pnl >= 0 ? 'pm-pnl-pos' : 'pm-pnl-neg');
+    const pnlStr = pnl === null ? '—'
+      : `${pnl >= 0 ? '+' : ''}${f.usd(pnl)} (${pnlPct >= 0 ? '+' : ''}${pnlPct.toFixed(1)}%)`;
+    tbody.insertAdjacentHTML('beforeend', `
+      <tr id="pm-row-${i}">
+        <td style="padding:5px 8px">
+          <span style="font-weight:700;color:var(--blue);font-size:.85rem">${h.ticker}</span>
+          <input type="hidden" class="pm-ticker-hidden" value="${h.ticker}"/>
+        </td>
+        <td><input type="number" class="pm-shares" data-idx="${i}" value="${h.shares}" min="0.001" step="any" style="width:90px" title="Shares held"/></td>
+        <td><input type="number" class="pm-cost"   data-idx="${i}" value="${h.avg_cost || ''}" min="0" step="any" placeholder="0.00" style="width:110px" title="Average cost per share"/></td>
+        <td class="pm-val">${price > 0 ? f.usd(price) : '—'}</td>
+        <td class="pm-val">${value > 0 ? f.usd(value) : '—'}</td>
+        <td class="pm-val ${pnlCls}">${pnlStr}</td>
+        <td><button class="pm-del-btn" onclick="pmDeleteRow(${i})" title="Remove ${h.ticker}">✕</button></td>
+      </tr>`);
+  });
+}
+
+function pmAddRow() {
+  const tbody = g('pm-tbody');
+  const uid   = 'new_' + Date.now();
+  tbody.insertAdjacentHTML('beforeend', `
+    <tr id="pm-row-${uid}">
+      <td><input type="text" class="pm-ticker-inp" placeholder="AAPL" maxlength="10" style="width:80px" title="Ticker symbol"/></td>
+      <td><input type="number" class="pm-shares" placeholder="100"  min="0.001" step="any" style="width:90px"/></td>
+      <td><input type="number" class="pm-cost"   placeholder="0.00" min="0"     step="any" style="width:110px"/></td>
+      <td class="pm-val">—</td><td class="pm-val">—</td><td class="pm-val">—</td>
+      <td><button class="pm-del-btn" onclick="this.closest('tr').remove()" title="Remove">✕</button></td>
+    </tr>`);
+  const inp = tbody.querySelector(`#pm-row-${uid} .pm-ticker-inp`);
+  if (inp) inp.focus();
+}
+
+function pmDeleteRow(idx) {
+  const row = g('pm-row-' + idx);
+  if (row) row.remove();
+}
+
+function savePortfolioManager() {
+  const errEl = g('pm-err');
+  errEl.style.display = 'none';
+  const newPortfolio = [];
+  const tableRows = g('pm-tbody').querySelectorAll('tr');
+  for (const row of tableRows) {
+    // Ticker: either a hidden field (existing row) or a text input (new row)
+    const hiddenTicker = row.querySelector('.pm-ticker-hidden');
+    const textTicker   = row.querySelector('.pm-ticker-inp');
+    let ticker;
+    if (hiddenTicker) ticker = hiddenTicker.value.trim().toUpperCase();
+    else if (textTicker) ticker = textTicker.value.trim().toUpperCase();
+    if (!ticker) continue;
+    const sharesEl = row.querySelector('.pm-shares');
+    const costEl   = row.querySelector('.pm-cost');
+    const shares   = parseFloat(sharesEl?.value);
+    const avg_cost = parseFloat(costEl?.value) || 0;
+    if (!shares || shares <= 0) {
+      errEl.textContent = `Invalid shares for ${ticker || 'new stock'}`;
+      errEl.style.display = ''; return;
+    }
+    if (newPortfolio.find(h => h.ticker === ticker)) {
+      errEl.textContent = `Duplicate ticker: ${ticker}`;
+      errEl.style.display = ''; return;
+    }
+    // Preserve extra fields (notes, alerts, etc.) from existing holdings
+    const existing = portfolio.find(h => h.ticker === ticker);
+    newPortfolio.push(existing ? { ...existing, shares, avg_cost } : { ticker, shares, avg_cost });
+  }
+  if (newPortfolio.length === 0) {
+    errEl.textContent = 'Portfolio cannot be empty'; errEl.style.display = ''; return;
+  }
+  portfolio = newPortfolio;
+  save();
+  const rs = rows();
+  renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart();
+  if (IS_SERVER) refresh();
+  closeModal('portfolio-manager-modal');
+  showToast(`Portfolio saved — ${newPortfolio.length} position${newPortfolio.length !== 1 ? 's' : ''}`, 'success', 3500);
 }
 
 // ═══════════════════════════════════════════════
@@ -5938,9 +6222,10 @@ function dlJSON() {
   a.click();
 }
 
-g('json-modal').addEventListener('click',   e => { if (e.target === g('json-modal'))   closeModal('json-modal'); });
-g('import-modal').addEventListener('click', e => { if (e.target === g('import-modal')) closeModal('import-modal'); });
-g('edit-modal').addEventListener('click',   e => { if (e.target === g('edit-modal'))   closeModal('edit-modal'); });
+g('json-modal').addEventListener('click',             e => { if (e.target === g('json-modal'))             closeModal('json-modal'); });
+g('import-modal').addEventListener('click',           e => { if (e.target === g('import-modal'))           closeModal('import-modal'); });
+g('edit-modal').addEventListener('click',             e => { if (e.target === g('edit-modal'))             closeModal('edit-modal'); });
+g('portfolio-manager-modal').addEventListener('click',e => { if (e.target === g('portfolio-manager-modal')) closeModal('portfolio-manager-modal'); });
 
 function doImport() {
   const errEl = g('import-err'); errEl.style.display = 'none';
@@ -5969,7 +6254,7 @@ document.addEventListener('keydown', e => {
     _gMode = false;
     closeDrawer();
     closeSidebar();
-    ['edit-modal', 'json-modal', 'import-modal'].forEach(id => closeModal(id));
+    ['edit-modal', 'json-modal', 'import-modal', 'portfolio-manager-modal'].forEach(id => closeModal(id));
     return;
   }
   if (inInput) return;
