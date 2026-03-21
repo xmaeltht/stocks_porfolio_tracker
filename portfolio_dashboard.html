@@ -3062,6 +3062,174 @@ tr.vol-row { background: rgba(245,158,11,.04) !important; }
 /* Better loading spinner center */
 .drawer-loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--muted); gap: 10px; font-size: .84rem; }
 
+
+
+/* ─── MARKET TAB REDESIGN ──────────────────────────────────────────────── */
+
+/* Sub-navigation pill bar */
+.mkt-subnav {
+  display: flex; gap: 2px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 4px; margin-bottom: 22px; overflow-x: auto; scrollbar-width: none;
+}
+.mkt-subnav::-webkit-scrollbar { display: none; }
+.mkt-stab {
+  display: flex; align-items: center; gap: 7px; padding: 8px 16px;
+  border: none; background: none; color: var(--muted); font-size: .8rem;
+  font-weight: 600; cursor: pointer; border-radius: 8px; white-space: nowrap;
+  transition: all .15s; font-family: var(--font-body); letter-spacing: .02em;
+}
+.mkt-stab:hover { color: var(--text); background: rgba(255,255,255,.05); }
+.mkt-stab.active {
+  background: var(--surface); color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,.35);
+}
+.mkt-stab svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+/* Sub-pane show/hide */
+.mkt-pane { display: none; animation: fadeSlideUp .22s ease both; }
+.mkt-pane.active { display: block; }
+
+/* Content block (card wrapper) */
+.mkt-block {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px;
+}
+.mkt-block-hd {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.mkt-block-title {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--text);
+}
+.mkt-block-sub {
+  font-size: .7rem; color: var(--muted); font-weight: 400;
+}
+.mkt-block-action {
+  margin-left: auto; padding: 4px 11px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--bg);
+  color: var(--text); font-size: .72rem; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.mkt-block-action:hover { border-color: var(--blue); color: var(--blue); }
+
+/* 2-column layout */
+.mkt-2col {
+  display: grid; grid-template-columns: 1fr 340px; gap: 16px; margin-bottom: 16px;
+}
+.mkt-block--grow { margin-bottom: 0; }
+.mkt-block--sidebar { margin-bottom: 0; }
+@media (max-width: 900px) {
+  .mkt-2col { grid-template-columns: 1fr; }
+}
+
+/* Calendar inner sub-tabs */
+.cal-subnav {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 18px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.cal-subnav::-webkit-scrollbar { display: none; }
+.cal-stab {
+  padding: 9px 18px; border: none; background: none; color: var(--muted);
+  font-size: .8rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; white-space: nowrap; transition: all .15s; font-family: var(--font-body);
+}
+.cal-stab:hover { color: var(--text); }
+.cal-stab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.cal-pane { display: none; }
+.cal-pane.active { display: block; }
+
+/* Futures card improvement */
+.futures-row {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.futures-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; cursor: pointer; position: relative; overflow: hidden;
+  transition: border-color .15s, transform .1s;
+}
+.futures-card:hover { border-color: rgba(59,130,246,.35); transform: translateY(-1px); }
+.futures-icon { font-size: 1.1rem; margin-bottom: 6px; line-height: 1; }
+.futures-name { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; font-weight: 600; }
+.futures-price { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+.futures-chg { font-size: .75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Sector grid improvement — full width in sector pane */
+#msp-sectors .sectors-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+/* ─── Market Redesign: additional polish ────────────────────────────────── */
+
+/* Index cards — larger numbers in overview */
+#msp-overview .idx-card { padding: 16px 18px; }
+#msp-overview .idx-price { font-size: 1.2rem; font-weight: 800; letter-spacing: -.02em; margin: 4px 0 2px; }
+#msp-overview .idx-name { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+#msp-overview .idx-chg { font-size: .82rem; font-weight: 700; }
+
+/* Crypto cards in grid */
+.crypto-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.crypto-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; cursor: pointer; transition: border-color .15s, transform .1s;
+}
+.crypto-card:hover { border-color: rgba(59,130,246,.3); transform: translateY(-1px); }
+.crypto-icon { font-size: 1.2rem; margin-bottom: 6px; opacity: .8; }
+.crypto-name { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; margin-bottom: 3px; }
+.crypto-price { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 1px; }
+.crypto-chg { font-size: .75rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Fear & Greed card in 2-col sidebar */
+.mkt-block--sidebar .fg-card {
+  flex-direction: column; gap: 14px;
+}
+.mkt-block--sidebar .fg-score { font-size: 2.6rem; font-weight: 900; line-height: 1; }
+.mkt-block--sidebar .fg-sentiment { font-size: .82rem; font-weight: 600; margin-top: 2px; }
+
+/* Top movers improvement */
+.movers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.movers-panel { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.movers-header { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+.mover-row { padding: 8px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background .12s; font-size: .82rem; }
+.mover-row:last-child { border-bottom: none; }
+.mover-row:hover { background: rgba(59,130,246,.06); }
+
+/* Sector tiles take full width */
+.sectors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.sec-tile { border-radius: 8px; padding: 14px 16px; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; transition: filter .15s, transform .1s; }
+.sec-tile:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.sec-tile-name { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.8); line-height: 1.3; }
+.sec-tile-pct { font-size: 1.1rem; font-weight: 800; color: #fff; margin-top: 6px; font-variant-numeric: tabular-nums; }
+
+/* Economic calendar improvements */
+.econ-cal-grid { display: flex; flex-direction: column; gap: 4px; }
+
+/* Active tab indicator — blue left border */
+.mkt-stab.active svg { stroke: var(--blue); }
+
+/* Premarket tabs */
+.premarket-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+.pm-tab { padding: 8px 16px; border: none; background: none; color: var(--muted); font-size: .8rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; font-family: var(--font-body); }
+.pm-tab:hover { color: var(--text); }
+.pm-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* Watchlist card */
+.watchlist-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.watchlist-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: .8rem; font-weight: 600; }
+.watchlist-add { display: flex; gap: 6px; align-items: center; }
+
+/* IPO wrap */
+#ipo-wrap .ipo-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+
+@media (max-width: 700px) {
+  .movers-grid { grid-template-columns: 1fr; }
+  .mkt-stab { padding: 7px 10px; font-size: .74rem; }
+  .cal-stab { padding: 8px 12px; font-size: .76rem; }
+}
+
 </style>
 </head>
 <body>
@@ -3448,199 +3616,342 @@ tr.vol-row { background: rgba(245,158,11,.04) !important; }
 
   <!-- ═══ MARKET TAB ═══ -->
   <div class="tab-pane active" id="tab-market">
-    <div style="margin-bottom:14px;">
-      <div class="section-title">Live Market Overview</div>
+
+    <!-- ── Market Sub-Navigation ─────────────────────────────────────── -->
+    <div class="mkt-subnav" role="tablist">
+      <button class="mkt-stab active" id="mst-overview" onclick="switchMktTab('overview')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="mkt-stab" id="mst-movers" onclick="switchMktTab('movers')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Movers
+      </button>
+      <button class="mkt-stab" id="mst-sectors" onclick="switchMktTab('sectors')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        Sectors
+      </button>
+      <button class="mkt-stab" id="mst-calendar" onclick="switchMktTab('calendar')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendar
+      </button>
+      <button class="mkt-stab" id="mst-watchlist" onclick="switchMktTab('watchlist')" role="tab">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Watchlist
+      </button>
     </div>
 
-    <!-- Futures / Overnight -->
-    <div class="section-title">Futures &amp; Overnight &amp; OVERNIGHT</div>
-    <div class="futures-row" id="futures-row">
-      <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading futures… <span class="spinner"></span></div>
-    </div>
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: OVERVIEW
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane active" id="msp-overview">
 
-    <!-- Pre / After-Hours Holdings -->
-    <div id="ext-hours-section" style="display:none;">
-      <div class="section-title" id="ext-hours-title">Extended Hours — Holdings</div>
-      <div class="ext-hours-grid" id="ext-hours-grid"></div>
-    </div>
-
-    <!-- Indices -->
-    <div class="section-title">Major Indices</div>
-    <div class="indices-row" id="indices-row">
-      <div class="idx-card" onclick="openStockPage('^GSPC')" style="cursor:pointer">
-        <div class="idx-name">S&amp;P 500</div>
-        <div class="idx-price" id="idx-GSPC">—</div>
-        <div class="idx-chg" id="idxc-GSPC">—</div>
-        <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-GSPC"></canvas></div>
-      </div>
-      <div class="idx-card" onclick="openStockPage('^IXIC')" style="cursor:pointer">
-        <div class="idx-name">NASDAQ</div>
-        <div class="idx-price" id="idx-IXIC">—</div>
-        <div class="idx-chg" id="idxc-IXIC">—</div>
-        <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-IXIC"></canvas></div>
-      </div>
-      <div class="idx-card" onclick="openStockPage('^DJI')" style="cursor:pointer">
-        <div class="idx-name">DOW JONES</div>
-        <div class="idx-price" id="idx-DJI">—</div>
-        <div class="idx-chg" id="idxc-DJI">—</div>
-        <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-DJI"></canvas></div>
-      </div>
-      <div class="idx-card" onclick="openStockPage('^RUT')" style="cursor:pointer">
-        <div class="idx-name">RUSSELL 2000</div>
-        <div class="idx-price" id="idx-RUT">—</div>
-        <div class="idx-chg" id="idxc-RUT">—</div>
-        <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-RUT"></canvas></div>
-      </div>
-      <div class="idx-card" onclick="openStockPage('^VIX')" style="cursor:pointer">
-        <div class="idx-name">VIX</div>
-        <div class="idx-price" id="idx-VIX">—</div>
-        <div class="idx-chg" id="idxc-VIX" style="color:var(--muted)">Volatility Index</div>
-        <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-VIX"></canvas></div>
-      </div>
-    </div>
-
-    <!-- Crypto -->
-    <div class="section-title">Crypto</div>
-    <div class="crypto-row" id="crypto-row">
-      <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading… <span class="spinner"></span></div>
-    </div>
-
-    <!-- Fear & Greed -->
-    <div class="section-title">Fear &amp; Greed Index</div>
-    <div class="fg-card" id="fg-card">
-      <div class="fg-meter">
-        <div class="fg-label">Market Sentiment</div>
-        <div class="fg-bar-track"><div class="fg-dot" id="fg-dot" style="left:50%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-top:2px;"><span>Extreme Fear</span><span>Neutral</span><span>Extreme Greed</span></div>
-      </div>
-      <div>
-        <div class="fg-score" id="fg-score">—</div>
-        <div class="fg-sentiment" id="fg-sentiment" style="color:var(--muted)">Loading…</div>
-      </div>
-    </div>
-
-    <!-- Sectors -->
-    <div class="section-title">Sector Performance</div>
-    <div class="sectors-grid" id="sectors-grid">
-      <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading sectors… <span class="spinner"></span></div>
-    </div>
-
-    <!-- Top Movers -->
-    <div class="section-title">Top Movers</div>
-    <div class="movers-grid" id="movers-grid">
-      <div class="movers-panel">
-        <div class="movers-header" style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:var(--green);">🚀 Top Gainers</span>
-          <span style="color:var(--muted);font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0">Click any row for details</span>
+      <!-- Futures compact strip -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Futures &amp; Commodities</span>
+          <span class="mkt-block-sub">Real-time overnight &amp; commodity prices</span>
         </div>
-        <div id="gainers-list"><div class="mover-row" style="color:var(--muted);cursor:default"><span class="spinner"></span>&nbsp; Loading…</div></div>
-      </div>
-      <div class="movers-panel">
-        <div class="movers-header" style="display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:var(--red);">🔻 Top Losers</span>
-          <span style="color:var(--muted);font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0">Click any row for details</span>
+        <div class="futures-row" id="futures-row">
+          <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading futures… <span class="spinner"></span></div>
         </div>
-        <div id="losers-list"><div class="mover-row" style="color:var(--muted);cursor:default"><span class="spinner"></span>&nbsp; Loading…</div></div>
       </div>
-    </div>
 
-    <!-- EARNINGS CALENDAR -->
-    <div class="section-title">Upcoming Earnings</div>
-    <div class="earnings-section" id="earnings-section">
-      <div class="earnings-grid" id="earnings-grid">
-        <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading earnings… <span class="spinner"></span></div>
-      </div>
-    </div>
-
-    <!-- DIVIDEND CALENDAR -->
-    <div class="section-title">Ex-Dividend Calendar</div>
-    <div class="div-cal-section" id="div-cal-section">
-      <div class="div-cal-summary" id="div-cal-summary"></div>
-      <div class="div-cal-tabs">
-        <button class="div-cal-tab active" onclick="switchDivCalTab('upcoming')" id="dct-upcoming">Upcoming (30d)</button>
-        <button class="div-cal-tab" onclick="switchDivCalTab('thisweek')" id="dct-thisweek">This Week</button>
-        <button class="div-cal-tab" onclick="switchDivCalTab('recent')" id="dct-recent">Recent (past 30d)</button>
-        <button class="div-cal-tab" onclick="switchDivCalTab('all')" id="dct-all">All Payers</button>
-      </div>
-      <div class="div-cal-grid" id="div-cal-grid">
-        <div class="div-empty">Loading dividend calendar… <span class="spinner"></span></div>
-      </div>
-    </div>
-
-    <!-- WATCHLIST -->
-    <div class="section-title">Your Watchlist</div>
-    <div class="watchlist-card">
-      <div class="watchlist-header">
-        <span>Stocks you're watching</span>
-        <div class="watchlist-add">
-          <div class="ac-wrap" id="wl-ticker-wrap" style="position:relative">
-            <input type="text" id="wl-input" placeholder="TICKER" maxlength="10" autocomplete="off"/>
-            <div class="ac-drop" id="wl-ticker-drop"></div>
+      <!-- Major Indices -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Major Indices</span>
+          <span class="mkt-block-sub">5-day sparklines · click any card for full chart</span>
+        </div>
+        <div class="indices-row" id="indices-row">
+          <div class="idx-card" onclick="openStockPage('^GSPC')" style="cursor:pointer">
+            <div class="idx-name">S&amp;P 500</div>
+            <div class="idx-price" id="idx-GSPC">—</div>
+            <div class="idx-chg" id="idxc-GSPC">—</div>
+            <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-GSPC"></canvas></div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="addToWatchlist()">+ Add</button>
+          <div class="idx-card" onclick="openStockPage('^IXIC')" style="cursor:pointer">
+            <div class="idx-name">NASDAQ</div>
+            <div class="idx-price" id="idx-IXIC">—</div>
+            <div class="idx-chg" id="idxc-IXIC">—</div>
+            <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-IXIC"></canvas></div>
+          </div>
+          <div class="idx-card" onclick="openStockPage('^DJI')" style="cursor:pointer">
+            <div class="idx-name">DOW JONES</div>
+            <div class="idx-price" id="idx-DJI">—</div>
+            <div class="idx-chg" id="idxc-DJI">—</div>
+            <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-DJI"></canvas></div>
+          </div>
+          <div class="idx-card" onclick="openStockPage('^RUT')" style="cursor:pointer">
+            <div class="idx-name">RUSSELL 2000</div>
+            <div class="idx-price" id="idx-RUT">—</div>
+            <div class="idx-chg" id="idxc-RUT">—</div>
+            <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-RUT"></canvas></div>
+          </div>
+          <div class="idx-card" onclick="openStockPage('^VIX')" style="cursor:pointer">
+            <div class="idx-name">VIX</div>
+            <div class="idx-price" id="idx-VIX">—</div>
+            <div class="idx-chg" id="idxc-VIX" style="color:var(--muted)">Volatility Index</div>
+            <div class="idx-spark-wrap"><canvas class="idx-spark" id="spark-VIX"></canvas></div>
+          </div>
         </div>
       </div>
-      <div id="watchlist-body"><div class="watchlist-empty">Add a ticker above to start watching</div></div>
-    </div>
 
-    <!-- ECONOMIC CALENDAR -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title">Economic Calendar</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.66rem;color:var(--muted);">
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>High Impact</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;display:inline-block"></span>Medium</span>
-        <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#6ee7b7;display:inline-block"></span>Low</span>
+      <!-- 2-col: Crypto + Fear & Greed -->
+      <div class="mkt-2col">
+        <div class="mkt-block mkt-block--grow">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title">Crypto</span>
+            <span class="mkt-block-sub">Top assets by market cap</span>
+          </div>
+          <div class="crypto-row" id="crypto-row">
+            <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading… <span class="spinner"></span></div>
+          </div>
+        </div>
+
+        <div class="mkt-block mkt-block--sidebar">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title">Fear &amp; Greed</span>
+            <span class="mkt-block-sub">Derived from VIX volatility</span>
+          </div>
+          <div class="fg-card" id="fg-card">
+            <div class="fg-meter">
+              <div class="fg-label">Market Sentiment</div>
+              <div class="fg-bar-track"><div class="fg-dot" id="fg-dot" style="left:50%"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-top:2px;"><span>Extreme Fear</span><span>Neutral</span><span>Extreme Greed</span></div>
+            </div>
+            <div>
+              <div class="fg-score" id="fg-score">—</div>
+              <div class="fg-sentiment" id="fg-sentiment" style="color:var(--muted)">Loading…</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="econ-cal-grid" id="econ-cal-grid">
-      <div style="color:var(--muted);font-size:.82rem;padding:20px;text-align:center"><span class="spinner"></span> Loading calendar…</div>
-    </div>
 
-    <!-- PREMARKET / AFTER-HOURS MOVERS -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title">Pre &amp; After-Hours Movers</div>
-      <button class="btn btn-sm" style="font-size:.68rem;padding:3px 10px" onclick="loadPremarketMovers()">Refresh</button>
-    </div>
-    <div class="premarket-tabs">
-      <button class="pm-tab active" id="pm-tab-pre"  onclick="switchPmTab('pre')">Pre-Market</button>
-      <button class="pm-tab"        id="pm-tab-post" onclick="switchPmTab('post')">After-Hours</button>
-    </div>
-    <div id="pm-table-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
-
-    <!-- TRENDING STOCKS -->
-    <div class="section-title">Trending Stocks</div>
-    <div id="trending-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
-
-    <!-- S&P 500 MARKET HEATMAP -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:18px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title">S&amp;P 500 Heatmap <span style="font-weight:400;font-size:.65rem;color:var(--muted);">Sized by market cap · colored by % change</span></div>
-      <button class="hm-load-btn" onclick="loadSP500Heatmap()" style="font-size:.7rem;padding:5px 12px">Load Heatmap</button>
-    </div>
-    <div id="sp-heatmap-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center">Click "Load Heatmap" to fetch S&amp;P 500 data (may take ~30s)</div></div>
-
-    <!-- IPO CALENDAR -->
-    <div class="section-title">Recent IPOs</div>
-    <div id="ipo-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
-
-    <!-- MARKET EARNINGS CALENDAR (full) -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:18px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title">Earnings Calendar</div>
-    </div>
-    <div class="earn-cal-wrap">
-      <div class="earn-cal-date-bar">
-        <button class="earn-cal-date-btn active" id="ecd-today" onclick="loadMarketEarnings(null, this)">Today</button>
-        <button class="earn-cal-date-btn" id="ecd-tomorrow" onclick="loadMarketEarnings(dateOffset(1), this)">Tomorrow</button>
-        <button class="earn-cal-date-btn" id="ecd-next7" onclick="loadMarketEarnings(dateOffset(7), this)">Next 7d</button>
-        <input type="date" class="earn-cal-date-input" id="ecd-custom" onchange="loadMarketEarnings(this.value, null)" title="Pick a date"/>
+      <!-- Market News -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Market News</span>
+          <span class="mkt-block-sub">Latest headlines</span>
+        </div>
+        <div class="market-news-grid" id="market-news-grid">
+          <div class="news-skeleton-wrap" style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px;padding:8px 0"><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div></div>
+        </div>
       </div>
-      <div id="earn-cal-events-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
-    </div>
 
-    <!-- MARKET NEWS -->
-    <div class="section-title">Market News</div>
-    <div class="market-news-grid" id="market-news-grid">
-      <div class="news-skeleton-wrap" style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px;padding:8px 0"><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div></div>
-    </div>
+      <!-- Pre/After-Hours Holdings (portfolio) -->
+      <div id="ext-hours-section" style="display:none;">
+        <div class="mkt-block">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title" id="ext-hours-title">Extended Hours — Holdings</span>
+          </div>
+          <div class="ext-hours-grid" id="ext-hours-grid"></div>
+        </div>
+      </div>
+
+    </div><!-- /msp-overview -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: MOVERS
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="msp-movers">
+
+      <!-- Pre/After-Hours Movers -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Pre &amp; After-Hours Movers</span>
+          <span class="mkt-block-sub">S&amp;P 500 extended-hours price action</span>
+          <button class="mkt-block-action" onclick="loadPremarketMovers()">↻ Refresh</button>
+        </div>
+        <div class="premarket-tabs">
+          <button class="pm-tab active" id="pm-tab-pre"  onclick="switchPmTab('pre')">Pre-Market</button>
+          <button class="pm-tab"        id="pm-tab-post" onclick="switchPmTab('post')">After-Hours</button>
+        </div>
+        <div id="pm-table-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+      </div>
+
+      <!-- Top Gainers / Losers -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Top Movers</span>
+          <span class="mkt-block-sub">S&amp;P 500 biggest moves today</span>
+        </div>
+        <div class="movers-grid" id="movers-grid">
+          <div class="movers-panel">
+            <div class="movers-header" style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="color:var(--green);">Top Gainers</span>
+              <span style="color:var(--muted);font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0">Click any row for details</span>
+            </div>
+            <div id="gainers-list"><div class="mover-row" style="color:var(--muted);cursor:default"><span class="spinner"></span>&nbsp; Loading…</div></div>
+          </div>
+          <div class="movers-panel">
+            <div class="movers-header" style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="color:var(--red);">Top Losers</span>
+              <span style="color:var(--muted);font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0">Click any row for details</span>
+            </div>
+            <div id="losers-list"><div class="mover-row" style="color:var(--muted);cursor:default"><span class="spinner"></span>&nbsp; Loading…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trending Stocks -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Trending Stocks</span>
+          <span class="mkt-block-sub">Most active on Yahoo Finance right now</span>
+        </div>
+        <div id="trending-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+      </div>
+
+      <!-- S&P 500 Heatmap -->
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">S&amp;P 500 Heatmap</span>
+          <span class="mkt-block-sub">Sized by market cap · colored by % change</span>
+          <button class="mkt-block-action" onclick="loadSP500Heatmap()">Load Heatmap</button>
+        </div>
+        <div id="sp-heatmap-wrap"><div style="color:var(--muted);font-size:.82rem;padding:20px 0;text-align:center">Click "Load Heatmap" to fetch S&amp;P 500 data (may take ~30s)</div></div>
+      </div>
+
+    </div><!-- /msp-movers -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: SECTORS
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="msp-sectors">
+
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Sector Performance</span>
+          <span class="mkt-block-sub">Click any tile to open the sector ETF</span>
+        </div>
+        <div class="sectors-grid" id="sectors-grid">
+          <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading sectors… <span class="spinner"></span></div>
+        </div>
+      </div>
+
+    </div><!-- /msp-sectors -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: CALENDAR
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="msp-calendar">
+
+      <!-- Internal calendar sub-tabs -->
+      <div class="cal-subnav">
+        <button class="cal-stab active" id="cst-earnings" onclick="switchCalTab('earnings')">Earnings</button>
+        <button class="cal-stab" id="cst-economic" onclick="switchCalTab('economic')">Economic Events</button>
+        <button class="cal-stab" id="cst-dividends" onclick="switchCalTab('dividends')">Dividends</button>
+        <button class="cal-stab" id="cst-ipo" onclick="switchCalTab('ipo')">IPOs</button>
+      </div>
+
+      <!-- Earnings -->
+      <div class="cal-pane active" id="csp-earnings">
+        <div class="mkt-block">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title">Earnings Calendar</span>
+            <span class="mkt-block-sub">Upcoming company earnings reports</span>
+          </div>
+          <!-- Portfolio holdings earnings (upcoming) -->
+          <div class="section-title" style="font-size:.72rem;margin-bottom:10px;margin-top:4px;">Your Holdings</div>
+          <div class="earnings-section" id="earnings-section">
+            <div class="earnings-grid" id="earnings-grid">
+              <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading earnings… <span class="spinner"></span></div>
+            </div>
+          </div>
+          <!-- Full market earnings calendar -->
+          <div class="section-title" style="font-size:.72rem;margin-bottom:10px;margin-top:20px;">Full Market Calendar</div>
+          <div class="earn-cal-wrap">
+            <div class="earn-cal-date-bar">
+              <button class="earn-cal-date-btn active" id="ecd-today" onclick="loadMarketEarnings(null, this)">Today</button>
+              <button class="earn-cal-date-btn" id="ecd-tomorrow" onclick="loadMarketEarnings(dateOffset(1), this)">Tomorrow</button>
+              <button class="earn-cal-date-btn" id="ecd-next7" onclick="loadMarketEarnings(dateOffset(7), this)">Next 7d</button>
+              <input type="date" class="earn-cal-date-input" id="ecd-custom" onchange="loadMarketEarnings(this.value, null)" title="Pick a date"/>
+            </div>
+            <div id="earn-cal-events-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Economic -->
+      <div class="cal-pane" id="csp-economic">
+        <div class="mkt-block">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title">Economic Calendar</span>
+            <span class="mkt-block-sub">Key macro events &amp; data releases</span>
+          </div>
+          <div class="econ-legend" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:.66rem;color:var(--muted);margin-bottom:12px;">
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>High Impact</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;display:inline-block"></span>Medium</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#6ee7b7;display:inline-block"></span>Low</span>
+          </div>
+          <div class="econ-cal-grid" id="econ-cal-grid">
+            <div style="color:var(--muted);font-size:.82rem;padding:20px;text-align:center"><span class="spinner"></span> Loading calendar…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dividends -->
+      <div class="cal-pane" id="csp-dividends">
+        <div class="mkt-block">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title">Ex-Dividend Calendar</span>
+            <span class="mkt-block-sub">Upcoming &amp; recent dividend dates for your holdings</span>
+          </div>
+          <div class="div-cal-section" id="div-cal-section">
+            <div class="div-cal-summary" id="div-cal-summary"></div>
+            <div class="div-cal-tabs">
+              <button class="div-cal-tab active" onclick="switchDivCalTab('upcoming')" id="dct-upcoming">Upcoming (30d)</button>
+              <button class="div-cal-tab" onclick="switchDivCalTab('thisweek')" id="dct-thisweek">This Week</button>
+              <button class="div-cal-tab" onclick="switchDivCalTab('recent')" id="dct-recent">Recent (past 30d)</button>
+              <button class="div-cal-tab" onclick="switchDivCalTab('all')" id="dct-all">All Payers</button>
+            </div>
+            <div class="div-cal-grid" id="div-cal-grid">
+              <div class="div-empty">Loading dividend calendar… <span class="spinner"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IPOs -->
+      <div class="cal-pane" id="csp-ipo">
+        <div class="mkt-block">
+          <div class="mkt-block-hd">
+            <span class="mkt-block-title">Recent IPOs</span>
+            <span class="mkt-block-sub">Newly listed companies</span>
+          </div>
+          <div id="ipo-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
+        </div>
+      </div>
+
+    </div><!-- /msp-calendar -->
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         SUB-PANE: WATCHLIST
+    ══════════════════════════════════════════════════════════════════════ -->
+    <div class="mkt-pane" id="msp-watchlist">
+
+      <div class="mkt-block">
+        <div class="mkt-block-hd">
+          <span class="mkt-block-title">Your Watchlist</span>
+          <span class="mkt-block-sub">Track stocks without adding them to your portfolio</span>
+        </div>
+        <div class="watchlist-card">
+          <div class="watchlist-header">
+            <span>Stocks you're watching</span>
+            <div class="watchlist-add">
+              <div class="ac-wrap" id="wl-ticker-wrap" style="position:relative">
+                <input type="text" id="wl-input" placeholder="TICKER" maxlength="10" autocomplete="off"/>
+                <div class="ac-drop" id="wl-ticker-drop"></div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="addToWatchlist()">+ Add</button>
+            </div>
+          </div>
+          <div id="watchlist-body"><div class="watchlist-empty">Add a ticker above to start watching</div></div>
+        </div>
+      </div>
+
+    </div><!-- /msp-watchlist -->
 
   </div><!-- /tab-market -->
 
@@ -10984,17 +11295,38 @@ function doDbBackup() {
 /* ══════════════════════════════════════════════════════════════
    WIRE SECOND-BATCH FEATURES INTO EXISTING HOOKS
 ══════════════════════════════════════════════════════════════ */
-// Patch switchTab to load economic calendar on market tab
+// ─── Market sub-tab switcher ──────────────────────────────────────────────
+function switchMktTab(name) {
+  document.querySelectorAll('.mkt-stab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mkt-pane').forEach(p => p.classList.remove('active'));
+  const btn = g('mst-' + name); if (btn) btn.classList.add('active');
+  const pane = g('msp-' + name); if (pane) pane.classList.add('active');
+  // Lazy-load data when switching to tabs that may not have loaded yet
+  if (name === 'movers'   && IS_SERVER) { loadPremarketMovers(); loadTrendingStocks(); }
+  if (name === 'calendar' && IS_SERVER) { loadEarningsCalendar(true); loadEconomicCalendar(); loadPortDividendCalendar(rows()); loadIPOCalendar(); }
+  if (name === 'sectors'  && IS_SERVER) { /* sectors already loaded with loadMarket */ }
+}
+
+// ─── Calendar inner sub-tab switcher ─────────────────────────────────────
+function switchCalTab(name) {
+  document.querySelectorAll('.cal-stab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.cal-pane').forEach(p => p.classList.remove('active'));
+  const btn = g('cst-' + name); if (btn) btn.classList.add('active');
+  const pane = g('csp-' + name); if (pane) pane.classList.add('active');
+}
+
+// Patch switchTab to lazy-load market & analysis data on tab switch
 (function() {
   const _origSwitchTab = switchTab;
   window.switchTab = function(name) {
     _origSwitchTab(name);
     if (name === 'market' && IS_SERVER) {
-      loadEconomicCalendar();
-      loadPremarketMovers();
-      loadTrendingStocks();
-      loadIPOList();
-      loadMarketEarnings(null, g('ecd-today'));
+      // On market tab switch: only load overview data eagerly
+      // Other sub-tabs lazy-load via switchMktTab()
+      loadMarket();
+      loadFutures();
+      loadSparklines();
+      loadExtendedHours();
     }
     if (name === 'analysis' && IS_SERVER) {
       setTimeout(() => { buildDriftTracker(); }, 300);
