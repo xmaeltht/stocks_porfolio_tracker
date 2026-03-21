@@ -2359,9 +2359,10 @@ tbody tr:nth-child(even){background:rgba(59,130,246,.018)!important;}
 .etf-page-back{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;cursor:pointer;font-size:.75rem;margin-bottom:8px;}
 
 /* ════ Premarket Movers ════ */
-.premarket-tabs{display:flex;gap:6px;margin-bottom:10px;}
-.pm-tab{padding:5px 14px;border:1px solid var(--border);background:none;color:var(--muted);font-size:.75rem;border-radius:20px;cursor:pointer;transition:all .15s;}
-.pm-tab.active{background:var(--blue);color:#fff;border-color:var(--blue);}
+.premarket-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:14px;}
+.pm-tab{padding:8px 18px;border:none;background:none;color:var(--muted);font-size:.8rem;font-weight:600;border-radius:0;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s;font-family:var(--font-body);}
+.pm-tab:hover{color:var(--text);}
+.pm-tab.active{background:none;color:var(--blue);border-color:transparent;border-bottom-color:var(--blue);}
 .pm-tbl{width:100%;border-collapse:collapse;font-size:.78rem;}
 .pm-tbl th{background:var(--surface);color:var(--muted);padding:7px 10px;text-align:right;border-bottom:1px solid var(--border);font-weight:600;white-space:nowrap;}
 .pm-tbl th:first-child,.pm-tbl th:nth-child(2){text-align:left;}
@@ -3210,11 +3211,7 @@ tr.vol-row { background: rgba(245,158,11,.04) !important; }
 /* Active tab indicator — blue left border */
 .mkt-stab.active svg { stroke: var(--blue); }
 
-/* Premarket tabs */
-.premarket-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
-.pm-tab { padding: 8px 16px; border: none; background: none; color: var(--muted); font-size: .8rem; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; font-family: var(--font-body); }
-.pm-tab:hover { color: var(--text); }
-.pm-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+/* Premarket tabs — styles defined at source (.pm-tab) */
 
 /* Watchlist card */
 .watchlist-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
