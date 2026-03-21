@@ -7129,39 +7129,75 @@ async function init() {
     return;
   }
 
-  // 2. Load portfolio from server (auth-protected — redirects to /login if not signed in)
+  // 2. Fire /api/init (portfolio+quotes+market+futures+news+ext-hours) and
+  //    /api/movers in parallel — one round-trip loads the entire page.
+  let initData = null, moversData = null;
   try {
-    const r = await fetch('/api/portfolio');
-    if (r.status === 401) { window.location.href = '/login'; return; }
-    const data = await r.json();
-    portfolio = (data.holdings || []).map(h => ({
-      ticker:   (h.ticker || '').toUpperCase().trim(),
-      shares:   parseFloat(h.shares)   || 0,
-      avg_cost: parseFloat(h.avg_cost) || 0,
-    }));
-    // Show username in header
-    if (data.username) {
-      const el = g('username-display');
-      if (el) el.textContent = '👤 ' + data.username;
-    }
+    const [ir, mr] = await Promise.all([
+      fetch('/api/init').then(r => {
+        if (r.status === 401) { window.location.href = '/login'; return null; }
+        return r.ok ? r.json() : null;
+      }),
+      fetch('/api/movers').then(r => r.ok ? r.json() : null).catch(() => null),
+    ]);
+    initData   = ir;
+    moversData = mr;
   } catch (e) {
-    showToast('⚠️ Could not load portfolio from server', 'error', 5000);
+    showToast('⚠️ Could not reach server', 'error', 5000);
   }
 
-  // 3. Initial render
+  if (!initData) return;  // likely redirected to /login
+
+  // 3. Apply portfolio
+  const portData = initData.portfolio || {};
+  portfolio = (portData.holdings || []).map(h => ({
+    ticker:   (h.ticker || '').toUpperCase().trim(),
+    shares:   parseFloat(h.shares)   || 0,
+    avg_cost: parseFloat(h.avg_cost) || 0,
+  }));
+  if (portData.username) {
+    const el = g('username-display');
+    if (el) el.textContent = '👤 ' + portData.username;
+  }
+
+  // 4. Apply pre-fetched quotes and extended hours
+  if (initData.quotes)   Object.assign(quotes, initData.quotes);
+  if (initData.extended) _extHours = initData.extended;
+
+  // 5. Initial render (quotes already populated — no skeleton needed)
   updateBadge();
   updateServerBadge(IS_SERVER);
-  setInterval(updateBadge, 30000);  // update badge + session banner every 30s
+  setInterval(updateBadge, 30000);
   const rs = rows();
-
-  // Show skeleton KPI cards instantly while quotes fetch in background
-  if (IS_SERVER && portfolio.length) _showSkeletonCards();
-
   renderCards(rs); renderAlerts(rs); renderTable(rs); renderAllocChart();
   renderAnalytics(rs); renderHealthScore(rs);
   updateTabBadge(rs.filter(r => r.alert).length);
+  computeRSRanks(rs.filter(r => r.price > 0));
+  checkPriceAlerts(quotes);
 
-  // 4. Fetch live prices for portfolio — adaptive interval by market session
+  // 6. Render market data immediately (no extra round-trip)
+  _marketLoaded = true;
+  if (initData.market)  renderMarket(initData.market);
+  if (moversData)       renderMovers(moversData);
+  if (initData.news)    renderMarketNews(initData.news);
+  // Render futures inline from init bundle
+  if (Array.isArray(initData.futures) && initData.futures.length) {
+    const row = g('futures-row');
+    if (row) row.innerHTML = initData.futures.map(f => {
+      const hasData  = f.price > 0;
+      const cls      = f.change_pct > 0 ? 'green' : f.change_pct < 0 ? 'red' : '';
+      const arrow    = f.change_pct >= 0 ? '▲ +' : '▼ ';
+      const dirClass = f.change_pct > 0 ? 'up-card' : f.change_pct < 0 ? 'dn-card' : '';
+      return `<div class="futures-card ${dirClass}" onclick="openDrawer('${f.symbol}')" style="cursor:pointer" title="Click for details">
+        <div class="futures-icon">${f.icon}</div>
+        <div class="futures-name">${f.name}</div>
+        <div class="futures-price">${hasData ? f.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
+        <div class="futures-chg ${cls}">${hasData ? arrow + Math.abs(f.change_pct).toFixed(2) + '%' : '—'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 7. Periodic refresh (quotes + news) — server cache makes first call instant
   refresh();
   (function scheduleRefresh() {
     const ms = getRefreshMs();
@@ -7171,24 +7207,24 @@ async function init() {
         checkPriceTargetAlerts();
         loadExtendedHours();
       }
-      scheduleRefresh();   // reschedule with updated session interval
+      scheduleRefresh();
     }, ms);
   })();
 
-  // 5. Load performance chart
+  // 8. Performance chart
   loadPerfChart(_chartRange);
 
-  // 6. Load market data immediately (it's the default tab)
-  if (IS_SERVER) loadMarket();
-
-  // 7. Load watchlist
-  if (IS_SERVER) loadWatchlist();
-
-  // 8. Load price targets
-  if (IS_SERVER) loadPriceTargets();
-
-  // 9. Init price alerts UI
-  initAlerts();
+  // 9. Secondary loads — stagger non-critical to avoid request spike
+  if (IS_SERVER) {
+    loadWatchlist();
+    loadSparklines();
+    loadPriceTargets();
+    initAlerts();
+    setTimeout(() => {
+      loadEarningsCalendar(true);
+      loadDividendCalendar();
+    }, 800);
+  }
 }
 
 init();

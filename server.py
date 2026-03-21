@@ -1744,39 +1744,69 @@ def get_ipo_list():
 
 
 def get_trending_stocks():
-    """Most-watched / trending stocks."""
+    """Most-watched / trending stocks via batch yf.download() + 24h cached metadata."""
     cache_key = "trending:stocks"
     def fetch():
-        # Use a curated popular list as yfinance doesn't expose trending
+        import pandas as pd
         popular = ['NVDA','TSLA','AAPL','AMD','PLTR','AMZN','META','MSFT','GOOGL','NFLX',
                    'SPY','QQQ','SOFI','RIVN','F','GM','INTC','BAC','GS','JPM',
                    'SMCI','ARM','MSTR','COIN','HOOD','RBLX','UBER','LYFT','SNOW','DDOG']
-        import math
-        from concurrent.futures import ThreadPoolExecutor
-        def one(sym):
-            try:
-                info = yf.Ticker(sym).info or {}
-                def _f(k):
-                    v = info.get(k)
-                    try: return float(v) if v is not None and not (isinstance(v,float) and math.isnan(v)) else None
-                    except: return None
-                price = _f('currentPrice') or _f('regularMarketPrice')
-                prev  = _f('regularMarketPreviousClose') or _f('previousClose')
-                chg   = round((price/prev-1)*100,2) if (price and prev and prev!=0) else 0.0
-                return {
-                    'ticker': sym, 'name': info.get('shortName',sym),
-                    'price': price, 'change': chg,
-                    'marketCap': info.get('marketCap'),
-                    'volume': info.get('volume'),
-                    'sector': info.get('sector',''),
-                    'pe': _f('trailingPE'),
-                }
-            except: return None
+        _meta_ttl = 3600 * 24
+        price_map = {}
+        try:
+            raw = yf.download(
+                tickers=' '.join(popular),
+                period='5d', interval='1d',
+                group_by='ticker', auto_adjust=True,
+                progress=False, threads=False,
+            )
+            if raw is not None and not raw.empty and isinstance(raw.columns, pd.MultiIndex):
+                for sym in raw.columns.get_level_values(0).unique():
+                    try:
+                        closes = raw[sym]['Close'].dropna()
+                        if len(closes) < 1: continue
+                        price = float(closes.iloc[-1])
+                        prev  = float(closes.iloc[-2]) if len(closes) >= 2 else price
+                        vols  = raw[sym]['Volume'].dropna()
+                        price_map[sym] = {
+                            'price':  round(price, 4),
+                            'change': round((price / prev - 1) * 100, 2) if prev else 0.0,
+                            'volume': int(vols.iloc[-1]) if not vols.empty else 0,
+                        }
+                    except: pass
+        except Exception as e:
+            print(f"  ⚠️ trending batch error: {e}")
+
         stocks = []
-        with ThreadPoolExecutor(max_workers=8) as ex:
-            for r in ex.map(one, popular):
-                if r and r.get('price'): stocks.append(r)
-        # sort by volume descending
+        for sym in popular:
+            d = price_map.get(sym)
+            if d is None or d['price'] <= 0: continue
+            mk   = f"meta:{sym}"
+            meta = _cache.get(mk, {}).get("data")
+            if not meta or (time.time() - _cache.get(mk, {}).get("ts", 0)) > _meta_ttl:
+                # Fire background meta refresh — don't block response
+                def _bg(s=sym, k=mk):
+                    try:
+                        info = yf.Ticker(s).info
+                        _cache[k] = {"ts": time.time(), "data": {
+                            "name":      info.get("shortName", s),
+                            "sector":    info.get("sector", ""),
+                            "marketCap": info.get("marketCap"),
+                            "pe":        float(info.get("trailingPE") or 0) or None,
+                        }}
+                    except: pass
+                threading.Thread(target=_bg, daemon=True).start()
+                meta = meta or {"name": sym, "sector": "", "marketCap": None, "pe": None}
+            stocks.append({
+                'ticker':    sym,
+                'name':      meta.get('name', sym),
+                'price':     d['price'],
+                'change':    d['change'],
+                'marketCap': meta.get('marketCap'),
+                'volume':    d['volume'],
+                'sector':    meta.get('sector', ''),
+                'pe':        meta.get('pe'),
+            })
         stocks.sort(key=lambda x: x.get('volume') or 0, reverse=True)
         return {'stocks': stocks}
     return _from_cache(cache_key, fetch, ttl=600)
@@ -2617,78 +2647,161 @@ def get_quotes(symbols):
 
 # ── Extended hours (pre-market / after-hours) ─────────────────────────────────
 def _fetch_one_extended(sym):
-    """Fetch pre-market and after-hours prices from yfinance .info for a single symbol."""
+    """Fallback: fetch pre/after-hours for a single ticker using yf history (chart API, no quoteSummary 401 issues)."""
     try:
-        info = yf.Ticker(sym).info
-
-        # Use regularMarketPrice as the reference close so dollar change and %
-        # are always consistent with each other.
-        reg_close = float(info.get('regularMarketPrice') or info.get('previousClose') or 0)
-
-        def _calc(ext_price):
-            """Return (change, pct) relative to the regular-session close."""
-            if ext_price <= 0 or reg_close <= 0:
-                return 0.0, 0.0
-            chg = ext_price - reg_close
-            pct = chg / reg_close * 100
-            return round(chg, 4), round(pct, 3)
-
-        pre_price  = float(info.get('preMarketPrice')  or 0)
-        post_price = float(info.get('postMarketPrice') or 0)
-
-        pre_change,  pre_pct  = _calc(pre_price)
-        post_change, post_pct = _calc(post_price)
-
+        import datetime as _dt
+        hist = yf.Ticker(sym).history(period='2d', interval='5m', prepost=True, auto_adjust=True)
+        if hist is None or hist.empty:
+            return sym, {'pre_price': 0, 'pre_change': 0, 'pre_pct': 0,
+                         'post_price': 0, 'post_change': 0, 'post_pct': 0, 'reg_close': 0}
+        idx = hist.index
+        if hasattr(idx, 'tz') and idx.tz is not None:
+            idx_et = idx.tz_convert('America/New_York')
+        else:
+            idx_et = idx.tz_localize('UTC').tz_convert('America/New_York')
+        closes = hist['Close'].copy()
+        closes.index = idx_et
+        closes = closes.dropna()
+        last_date = closes.index.date[-1]
+        day  = closes[closes.index.date == last_date]
+        reg  = day[(day.index.time >= _dt.time(9, 30)) & (day.index.time < _dt.time(16, 0))]
+        pre  = day[day.index.time < _dt.time(9, 30)]
+        post = day[day.index.time >= _dt.time(16, 0)]
+        reg_close  = float(reg.iloc[-1])  if not reg.empty  else float(day.iloc[-1]) if not day.empty else 0.0
+        pre_price  = float(pre.iloc[-1])  if not pre.empty  else 0.0
+        post_price = float(post.iloc[-1]) if not post.empty else 0.0
+        def _calc(ext):
+            if ext <= 0 or reg_close <= 0: return 0.0, 0.0
+            chg = ext - reg_close
+            return round(chg, 4), round(chg / reg_close * 100, 3)
+        pre_chg,  pre_pct  = _calc(pre_price)
+        post_chg, post_pct = _calc(post_price)
         return sym, {
-            'pre_price':   round(pre_price,  4),
-            'pre_change':  pre_change,
-            'pre_pct':     pre_pct,
-            'post_price':  round(post_price,  4),
-            'post_change': post_change,
-            'post_pct':    post_pct,
-            'reg_close':   round(reg_close, 4),
+            'pre_price':   round(pre_price,  4), 'pre_change':  pre_chg,  'pre_pct':  pre_pct,
+            'post_price':  round(post_price, 4), 'post_change': post_chg, 'post_pct': post_pct,
+            'reg_close':   round(reg_close,  4),
         }
     except Exception as e:
         print(f"  ⚠️ ext-hours {sym}: {e}")
         return sym, {'pre_price': 0, 'pre_change': 0, 'pre_pct': 0,
-                     'post_price': 0, 'post_change': 0, 'post_pct': 0,
-                     'reg_close': 0}
+                     'post_price': 0, 'post_change': 0, 'post_pct': 0, 'reg_close': 0}
 
 def get_extended_hours(symbols):
+    """Fetch pre-market and after-hours data via one batch yf.download(prepost=True) call."""
     if not symbols: return {}
     symbols = [s.strip().upper() for s in symbols if s.strip()]
     key = 'exthours:' + ','.join(sorted(symbols))
     def fetch():
-        print(f"⏰ Fetching extended hours for {len(symbols)} symbols in parallel…")
-        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
-            return dict(pool.map(_fetch_one_extended, symbols))
+        import pandas as pd, datetime as _dt
+        print(f"⏰ Extended hours — {len(symbols)} symbols (batch download)…")
+        _zero = {'pre_price': 0, 'pre_change': 0, 'pre_pct': 0,
+                 'post_price': 0, 'post_change': 0, 'post_pct': 0, 'reg_close': 0}
+        result = {s: dict(_zero) for s in symbols}
+        try:
+            raw = yf.download(
+                tickers=' '.join(symbols),
+                period='2d', interval='5m',
+                prepost=True, group_by='ticker',
+                auto_adjust=True, progress=False, threads=False,
+            )
+            if raw is None or raw.empty:
+                return result
+            # Convert index to Eastern Time for accurate pre/post-market filtering
+            idx = raw.index
+            if hasattr(idx, 'tz') and idx.tz is not None:
+                idx_et = idx.tz_convert('America/New_York')
+            else:
+                idx_et = idx.tz_localize('UTC').tz_convert('America/New_York')
+            _is_multi = isinstance(raw.columns, pd.MultiIndex)
+            for sym in symbols:
+                try:
+                    df_close = (raw[sym]['Close'] if _is_multi else raw['Close']).copy()
+                    df_close.index = idx_et
+                    closes = df_close.dropna()
+                    if closes.empty: continue
+                    last_date = closes.index.date[-1]
+                    day  = closes[closes.index.date == last_date]
+                    reg  = day[(day.index.time >= _dt.time(9, 30)) & (day.index.time < _dt.time(16, 0))]
+                    pre  = day[day.index.time < _dt.time(9, 30)]
+                    post = day[day.index.time >= _dt.time(16, 0)]
+                    reg_close  = float(reg.iloc[-1])  if not reg.empty  else float(day.iloc[-1])
+                    pre_price  = float(pre.iloc[-1])  if not pre.empty  else 0.0
+                    post_price = float(post.iloc[-1]) if not post.empty else 0.0
+                    def _calc(ext, rc=reg_close):
+                        if ext <= 0 or rc <= 0: return 0.0, 0.0
+                        chg = ext - rc
+                        return round(chg, 4), round(chg / rc * 100, 3)
+                    pre_chg,  pre_pct  = _calc(pre_price)
+                    post_chg, post_pct = _calc(post_price)
+                    result[sym] = {
+                        'pre_price':   round(pre_price,  4), 'pre_change':  pre_chg,  'pre_pct':  pre_pct,
+                        'post_price':  round(post_price, 4), 'post_change': post_chg, 'post_pct': post_pct,
+                        'reg_close':   round(reg_close,  4),
+                    }
+                except Exception as e:
+                    print(f"  ⚠️ ext-hours {sym}: {e}")
+        except Exception as e:
+            print(f"  ⚠️ extended hours batch error: {e}")
+            # Fall back to per-symbol history calls
+            with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
+                for sym, d in pool.map(_fetch_one_extended, symbols):
+                    result[sym] = d
+        return result
     return _from_cache(key, fetch, ttl=60)
 
 # ── Futures / overnight market ────────────────────────────────────────────────
 def get_futures():
     key = 'futures'
     def fetch():
+        import pandas as pd
         syms = [f['symbol'] for f in FUTURES_SYMBOLS]
         meta = {f['symbol']: f for f in FUTURES_SYMBOLS}
-        print(f"🌙 Fetching {len(syms)} futures in parallel…")
-        def _one(sym):
-            try:
-                fi    = yf.Ticker(sym).fast_info
-                price = float(fi.last_price    or 0)
-                prev  = float(fi.previous_close or price or 1)
-                change = price - prev
-                pct    = (change / prev * 100) if prev else 0
-                m = meta[sym]
-                return {'symbol': sym, 'name': m['name'], 'icon': m['icon'],
-                        'group': m['group'], 'price': round(price, 2),
-                        'change': round(change, 2), 'change_pct': round(pct, 3)}
-            except Exception as e:
-                print(f"  ⚠️ futures {sym}: {e}")
-                m = meta[sym]
-                return {'symbol': sym, 'name': m['name'], 'icon': m['icon'],
-                        'group': m['group'], 'price': 0, 'change': 0, 'change_pct': 0}
-        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
-            results = list(pool.map(_one, syms))
+        print(f"🌙 Fetching {len(syms)} futures (batch download)…")
+        price_map = {}
+        try:
+            raw = yf.download(
+                tickers=' '.join(syms),
+                period='5d', interval='1d',
+                group_by='ticker', auto_adjust=True,
+                progress=False, threads=False,
+            )
+            if raw is not None and not raw.empty:
+                if isinstance(raw.columns, pd.MultiIndex):
+                    for sym in raw.columns.get_level_values(0).unique():
+                        try:
+                            closes = raw[sym]['Close'].dropna()
+                            if len(closes) < 1: continue
+                            price = float(closes.iloc[-1])
+                            prev  = float(closes.iloc[-2]) if len(closes) >= 2 else price
+                            price_map[sym] = {
+                                'price':  round(price, 2),
+                                'change': round(price - prev, 2),
+                                'pct':    round((price - prev) / prev * 100 if prev else 0, 3),
+                            }
+                        except: pass
+                else:
+                    # Single-ticker fallback
+                    try:
+                        closes = raw['Close'].dropna()
+                        if len(closes) >= 1 and syms:
+                            sym = syms[0]
+                            price = float(closes.iloc[-1])
+                            prev  = float(closes.iloc[-2]) if len(closes) >= 2 else price
+                            price_map[sym] = {
+                                'price':  round(price, 2),
+                                'change': round(price - prev, 2),
+                                'pct':    round((price - prev) / prev * 100 if prev else 0, 3),
+                            }
+                    except: pass
+        except Exception as e:
+            print(f"  ⚠️ futures batch error: {e}")
+        results = []
+        for m in FUTURES_SYMBOLS:
+            sym = m['symbol']
+            d = price_map.get(sym, {'price': 0, 'change': 0, 'pct': 0})
+            results.append({'symbol': sym, 'name': m['name'], 'icon': m['icon'],
+                            'group': m['group'], 'price': d['price'],
+                            'change': d['change'], 'change_pct': d['pct']})
         return results
     try:
         return _from_cache(key, fetch, ttl=60)
@@ -2722,7 +2835,7 @@ def get_news(symbols):
                         seen.add(a["uuid"]); articles.append(a)
             except: pass
         return sorted(articles, key=lambda x: x["providerPublishTime"], reverse=True)[:12]
-    return _from_cache(key, fetch)
+    return _from_cache(key, fetch, ttl=300)  # 5-min cache — news doesn't change every 30s
 
 def get_stock_detail(symbol):
     symbol = symbol.strip().upper()
@@ -3116,11 +3229,9 @@ def get_market_data():
         return {"indices": {}, "sectors": {}, "crypto": {}}
 
 def get_movers():
-    """Scan MOVER_WATCHLIST using parallel individual Ticker calls.
-    Uses fast_info for live prices + cached slow metadata (name/sector/52w)."""
+    """Scan MOVER_WATCHLIST via a single batch yf.download() call.
+    Name/sector/52w/avg_volume metadata is kept in a 24-hour cache and refreshed in background."""
     key = "market_movers"
-    # Slow metadata cache: symbol → {name, sector, week52_high, week52_low, avg_volume}
-    # Populated lazily and kept for 24h so we don't slow down every movers refresh.
     _meta_ttl = 3600 * 24
 
     def _get_meta(sym):
@@ -3142,48 +3253,68 @@ def get_movers():
         return meta
 
     def fetch():
-        print(f"\n📡 Scanning movers — {len(MOVER_WATCHLIST)} stocks in parallel…")
+        import pandas as pd
+        print(f"\n📡 Movers — {len(MOVER_WATCHLIST)} stocks (batch download)…")
+        price_map = {}
+        try:
+            raw = yf.download(
+                tickers=' '.join(MOVER_WATCHLIST),
+                period='5d', interval='1d',
+                group_by='ticker', auto_adjust=True,
+                progress=False, threads=False,
+            )
+            if raw is not None and not raw.empty and isinstance(raw.columns, pd.MultiIndex):
+                for sym in raw.columns.get_level_values(0).unique():
+                    try:
+                        closes = raw[sym]['Close'].dropna()
+                        if len(closes) < 1: continue
+                        price = float(closes.iloc[-1])
+                        prev  = float(closes.iloc[-2]) if len(closes) >= 2 else price
+                        highs = raw[sym]['High'].dropna()
+                        lows  = raw[sym]['Low'].dropna()
+                        vols  = raw[sym]['Volume'].dropna()
+                        opens = raw[sym]['Open'].dropna()
+                        chg   = price - prev
+                        pct   = (chg / prev * 100) if prev else 0
+                        price_map[sym] = {
+                            "price":      round(price, 4),
+                            "change":     round(chg, 4),
+                            "change_pct": round(pct, 4),
+                            "day_high":   round(float(highs.iloc[-1]), 4) if not highs.empty else price,
+                            "day_low":    round(float(lows.iloc[-1]),  4) if not lows.empty  else price,
+                            "volume":     int(vols.iloc[-1])  if not vols.empty  else 0,
+                            "open":       round(float(opens.iloc[-1]), 4) if not opens.empty else price,
+                        }
+                    except: pass
+        except Exception as e:
+            print(f"  ⚠️ movers batch error: {e}")
 
-        def _scan_one(sym):
-            try:
-                fi    = yf.Ticker(sym).fast_info
-                price = float(fi.last_price     or 0)
-                prev  = float(fi.previous_close or price or 1)
-                if price <= 0:
-                    return None
-                chg   = price - prev
-                pct   = (chg / prev * 100) if prev else 0
-                vol   = int(fi.last_volume or 0)
-                mcap  = float(fi.market_cap or 0)
-                hi    = float(fi.day_high   or 0)
-                lo    = float(fi.day_low    or 0)
-                # Slow metadata from cache (non-blocking — uses stale if available)
-                mk = f"meta:{sym}"
-                meta = _cache[mk]["data"] if mk in _cache else {"name": sym, "sector": "",
-                       "week52_high": 0, "week52_low": 0, "avg_volume": 0}
-                return {
-                    "symbol":      sym,
-                    "name":        meta["name"],
-                    "sector":      meta["sector"],
-                    "price":       round(price, 4),
-                    "change":      round(chg,   4),
-                    "change_pct":  round(pct,   4),
-                    "open":        round(float(fi.open or 0), 4),
-                    "day_high":    round(hi, 4),
-                    "day_low":     round(lo, 4),
-                    "volume":      vol,
-                    "avg_volume":  meta["avg_volume"],
-                    "market_cap":  mcap,
-                    "week52_high": meta["week52_high"],
-                    "week52_low":  meta["week52_low"],
-                    "vol_ratio":   round(vol / meta["avg_volume"], 2) if meta["avg_volume"] else 0,
-                }
-            except Exception as e:
-                print(f"  ⚠️ movers {sym}: {e}")
-                return None
-
-        with ThreadPoolExecutor(max_workers=_YF_WORKERS) as pool:
-            raw = list(pool.map(_scan_one, MOVER_WATCHLIST))
+        # Build results using cached meta (non-blocking for main response)
+        results = []
+        for sym in MOVER_WATCHLIST:
+            d = price_map.get(sym)
+            if d is None or d["price"] <= 0:
+                continue
+            mk = f"meta:{sym}"
+            meta = _cache[mk]["data"] if mk in _cache else {
+                "name": sym, "sector": "", "week52_high": 0, "week52_low": 0, "avg_volume": 0}
+            results.append({
+                "symbol":      sym,
+                "name":        meta["name"],
+                "sector":      meta["sector"],
+                "price":       d["price"],
+                "change":      d["change"],
+                "change_pct":  d["change_pct"],
+                "open":        d["open"],
+                "day_high":    d["day_high"],
+                "day_low":     d["day_low"],
+                "volume":      d["volume"],
+                "avg_volume":  meta["avg_volume"],
+                "market_cap":  0,
+                "week52_high": meta["week52_high"],
+                "week52_low":  meta["week52_low"],
+                "vol_ratio":   round(d["volume"] / meta["avg_volume"], 2) if meta["avg_volume"] else 0,
+            })
 
         # Kick off slow-metadata refresh in background (non-blocking)
         def _refresh_meta():
@@ -3195,7 +3326,6 @@ def get_movers():
                     list(pool.map(_get_meta, syms_no_meta[:20]))
         threading.Thread(target=_refresh_meta, daemon=True).start()
 
-        results = [r for r in raw if r is not None]
         results.sort(key=lambda x: x["change_pct"], reverse=True)
         top = [r for r in results if r["change_pct"] > 0][:15]
         bot = sorted([r for r in results if r["change_pct"] < 0], key=lambda x: x["change_pct"])[:15]
@@ -3208,6 +3338,32 @@ def get_movers():
         if key in _cache:
             return _cache[key]["data"]
         return {"gainers": [], "losers": []}
+
+
+def get_init_bundle(user_id, username):
+    """Fetch everything the frontend needs on first load, all in parallel.
+    Returns portfolio + quotes + market + futures + news + extended-hours in one server call."""
+    holdings = db_get_portfolio(user_id)
+    tickers  = [h['ticker'] for h in holdings if h.get('ticker')]
+    with ThreadPoolExecutor(max_workers=5) as ex:
+        f_market  = ex.submit(get_market_data)
+        f_futures = ex.submit(get_futures)
+        f_news    = ex.submit(get_market_news)
+        f_quotes  = ex.submit(get_quotes, tickers)         if tickers else None
+        f_ext     = ex.submit(get_extended_hours, tickers) if tickers else None
+        market  = f_market.result()
+        futures = f_futures.result()
+        news    = f_news.result()
+        quotes  = f_quotes.result() if f_quotes else {}
+        ext     = f_ext.result()    if f_ext    else {}
+    return {
+        "portfolio": {"holdings": holdings, "username": username},
+        "quotes":    quotes,
+        "market":    market,
+        "futures":   futures,
+        "news":      news,
+        "extended":  ext,
+    }
 
 
 # ── HTTP Handler ───────────────────────────────────────────────────────────────
@@ -3407,6 +3563,9 @@ a{{color:#388bfd;text-decoration:none;font-size:.8rem}}
 
             if path in ("/", "/index.html"):
                 self.send_file(os.path.join(BASE_DIR, "portfolio_dashboard.html"))
+
+            elif path == "/api/init":
+                self.send_json(get_init_bundle(user["user_id"], user["username"]))
 
             elif path == "/api/portfolio":
                 holdings = db_get_portfolio(user["user_id"])
@@ -3802,6 +3961,16 @@ if __name__ == "__main__":
 
     if not PROD:
         threading.Timer(0.8, lambda: webbrowser.open(url)).start()
+
+    # Pre-warm the most expensive caches in background so the first request is instant
+    def _warmup():
+        time.sleep(4)   # let the server socket fully bind first
+        print("🔥 Pre-warming caches (market, movers, futures, news)…")
+        for fn in (get_market_data, get_futures, get_market_news, get_movers):
+            try: fn()
+            except Exception as _e: print(f"  ⚠️ warmup {fn.__name__}: {_e}")
+        print("✅ Cache pre-warm complete")
+    threading.Thread(target=_warmup, daemon=True).start()
 
     try:
         server.serve_forever()
