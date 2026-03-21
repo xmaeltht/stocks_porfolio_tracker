@@ -2837,6 +2837,231 @@ a{transition:color .15s,opacity .15s;}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .fade-in{animation:fadeIn .25s ease;}
 
+
+/* ─── UI Polish v2.1 ─────────────────────────────────────────────────────── */
+
+/* Input / select focus glow */
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,.18) !important;
+}
+
+/* Staggered news card entrance */
+.news-card:nth-child(1){animation-delay:.03s}
+.news-card:nth-child(2){animation-delay:.06s}
+.news-card:nth-child(3){animation-delay:.09s}
+.news-card:nth-child(4){animation-delay:.12s}
+.news-card:nth-child(5){animation-delay:.15s}
+.news-card:nth-child(6){animation-delay:.18s}
+.news-card:nth-child(7){animation-delay:.21s}
+.news-card:nth-child(8){animation-delay:.24s}
+
+/* Sharper table row hover */
+tbody tr { transition: background .12s; }
+tbody tr:hover { background: rgba(59,130,246,.06) !important; }
+
+/* Filter empty state */
+.filter-empty {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 56px 24px; color: var(--muted); gap: 8px;
+}
+.filter-empty svg { width: 40px; height: 40px; opacity: .35; }
+.filter-empty .fe-title { color: var(--text); font-size: .88rem; font-weight: 600; margin: 0; }
+.filter-empty .fe-sub { font-size: .78rem; margin: 0; }
+
+/* Better card sub text */
+.card-sub { font-size: var(--t-xs, .72rem); color: var(--muted); margin-top: 2px; }
+
+/* Pill badge on sidebar tab buttons */
+.tab-badge {
+  margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: 9px; background: var(--red); color: #fff;
+  font-size: .6rem; font-weight: 700; display: inline-flex;
+  align-items: center; justify-content: center; line-height: 1;
+}
+
+/* Search / key hint */
+.search-hint {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  font-size: .58rem; color: var(--muted); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px;
+  pointer-events: none; transition: opacity .2s;
+}
+.search-wrap { position: relative; }
+.search-wrap:focus-within .search-hint { opacity: 0; }
+
+/* Improve card value size */
+.card-value { font-size: 1.35rem; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
+
+/* Section header line divider already added — ensure spacing */
+.section-title { margin-bottom: 18px; padding-bottom: 10px; }
+
+/* Better empty state v2 */
+.empty-state-v2 {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 64px 24px; gap: 10px; color: var(--muted);
+}
+.empty-state-v2 .es-icon { opacity: .3; }
+.empty-state-v2 .es-title { color: var(--text); font-size: .9rem; font-weight: 600; margin: 0; }
+.empty-state-v2 .es-sub { font-size: .8rem; max-width: 280px; text-align: center; line-height: 1.6; margin: 0; }
+
+/* Watchlist empty state */
+.watchlist-empty {
+  padding: 40px 24px; text-align: center; color: var(--muted);
+  font-size: .82rem; line-height: 1.7;
+}
+
+/* Smooth number transitions on card values */
+.card-value, .card-sub { transition: color .3s; }
+
+/* Market status badge improvement */
+.mkt-badge { font-size: .65rem; font-weight: 600; padding: 3px 8px; border-radius: 20px; letter-spacing: .04em; text-transform: uppercase; }
+
+/* Performance chart container */
+.perf-chart-wrap { position: relative; }
+
+
+/* ─── UI Polish v2.2 ─────────────────────────────────────────────────────── */
+
+/* Toast with icon + close button */
+.toast { display: flex; align-items: center; gap: 10px; }
+.toast-icon { font-size: .85rem; font-weight: 700; flex-shrink: 0; opacity: .85; }
+.toast-msg  { flex: 1; }
+.toast-close {
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 1.1rem; line-height: 1; padding: 0 2px; flex-shrink: 0;
+  opacity: .6; transition: opacity .15s;
+}
+.toast-close:hover { opacity: 1; color: var(--text); }
+
+/* Drawer sector/industry tags */
+.dtag { display: inline-block; border-radius: 10px; padding: 2px 8px; font-size: .68rem; font-weight: 600; }
+.dtag-sector  { background: rgba(59,130,246,.12); color: var(--blue); border: 1px solid rgba(59,130,246,.3); }
+.dtag-industry{ background: var(--border); color: var(--muted); }
+
+/* Refresh progress bar under countdown */
+#next-refresh { display: flex; align-items: center; gap: 6px; font-size: .7rem; color: var(--muted); cursor: default; }
+#refresh-progress-wrap { width: 40px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+#refresh-progress { height: 100%; width: 0%; background: var(--blue); border-radius: 2px; transition: width 1s linear; }
+
+/* Clickable card press feedback */
+.card.clickable:active { transform: scale(.98); transition: transform .08s; }
+
+/* Better focus indicator for accessibility */
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
+
+/* Table sticky first column on mobile */
+@media (max-width: 900px) {
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  tbody td:first-child, thead th:first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; }
+}
+
+/* Better number formatting in tables */
+.num-cell { font-variant-numeric: tabular-nums; }
+
+/* Quick stats in header when market is open */
+.header-stat { font-size: .7rem; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 1px; border-left: 1px solid var(--border); padding: 0 12px; }
+.header-stat-val { font-size: .82rem; font-weight: 700; }
+
+/* Modal backdrop blur */
+.modal-bg { backdrop-filter: blur(4px); }
+
+
+/* ─── UI Polish v2.3 ─────────────────────────────────────────────────────── */
+
+/* Better ticker tape */
+.tt-item { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; cursor: pointer; border-right: 1px solid var(--border); white-space: nowrap; font-size: .72rem; transition: background .15s; }
+.tt-item:hover { background: rgba(59,130,246,.08); }
+.tt-sym { font-weight: 700; color: var(--text); font-family: var(--font-data); letter-spacing: .02em; }
+.tt-price { color: var(--muted); font-variant-numeric: tabular-nums; }
+.tt-chg { font-weight: 600; font-variant-numeric: tabular-nums; font-size: .7rem; }
+
+/* Card label with subtle icon */
+.card-label { font-size: var(--t-xs, .68rem); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+
+/* Better add-row form */
+#add-row { background: rgba(59,130,246,.04); border-bottom: 1px solid rgba(59,130,246,.12); }
+#add-row input { border-color: rgba(59,130,246,.2); }
+
+/* Improve alert row */
+tr.alert-row { background: rgba(239,68,68,.05) !important; }
+tr.alert-row td:first-child { border-left: 2px solid var(--red); }
+tr.alert-row:hover { background: rgba(239,68,68,.09) !important; }
+
+/* Volume spike row */
+tr.vol-row { background: rgba(245,158,11,.04) !important; }
+
+/* Improve drawer tabs */
+.dtab-bar { border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+.dtab-bar::-webkit-scrollbar { display: none; }
+
+/* Better number formatting */
+.num-r { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Positive/negative coloring transition */
+.green, .red { transition: color .4s ease; }
+
+/* Section subtitle */
+.section-sub { font-size: .75rem; color: var(--muted); margin-bottom: 14px; margin-top: -10px; }
+
+/* Better mobile tap targets */
+@media (max-width: 600px) {
+  .card { min-height: 80px; }
+  .btn { min-height: 36px; }
+}
+
+/* Quick analysis badge */
+.qa-badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: .65rem; font-weight: 700; }
+.qa-strong-buy { background: rgba(16,185,129,.2); color: var(--green); }
+.qa-buy { background: rgba(16,185,129,.12); color: var(--green); }
+.qa-hold { background: var(--yellow-bg); color: var(--yellow); }
+.qa-sell { background: var(--red-bg); color: var(--red); }
+
+
+/* ─── UI Polish v2.4 ─────────────────────────────────────────────────────── */
+
+/* Journal form card */
+.journal-add-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.journal-add-card h2 {
+  font-size: .88rem; font-weight: 700; text-transform: uppercase; 
+  letter-spacing: .07em; color: var(--muted); margin: 0 0 14px; 
+}
+.journal-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+.jfield { display: flex; flex-direction: column; gap: 4px; }
+.jfield label { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+
+/* Section bar alignment */
+.section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+
+/* Realized P&L table improvements */
+#rpnl-container table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+#rpnl-container th { background: var(--bg); color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; padding: 6px 10px; text-align: left; }
+#rpnl-container td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+#rpnl-container tr:hover td { background: rgba(59,130,246,.04); }
+
+/* Movers card grid */
+.movers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+
+/* Analysis tab section */
+#tab-analysis .section-title { margin-top: 12px; }
+
+/* Better empty portfolio welcome card */
+.empty-state { 
+  display: flex; flex-direction: column; align-items: center; 
+  padding: 64px 24px; gap: 14px; text-align: center;
+}
+.empty-state .icon { font-size: 2.5rem; opacity: .7; }
+
+/* Better loading spinner center */
+.drawer-loading { display: flex; align-items: center; justify-content: center; padding: 40px; color: var(--muted); gap: 10px; font-size: .84rem; }
+
 </style>
 </head>
 <body>
@@ -2908,7 +3133,7 @@ a{transition:color .15s,opacity .15s;}
     </div>
     <span id="server-badge" class="srv-off" title="Connecting…">⬤ Connecting…</span>
     <span id="market-badge" class="badge-closed">⬤ Closed</span>
-    <span id="next-refresh"></span>
+    <span id="next-refresh"><span id="refresh-progress-wrap"><span id="refresh-progress"></span></span></span>
     <span id="last-updated" style="font-size:.76rem;color:var(--muted);">—</span>
     <span id="username-display" style="font-size:.76rem;color:var(--muted);padding:3px 8px;background:var(--bg);border:1px solid var(--border);border-radius:20px;"></span>
     <button class="theme-btn" id="theme-btn" title="Toggle dark/light theme (T)" onclick="toggleTheme()">🌙</button>
@@ -2951,7 +3176,7 @@ a{transition:color .15s,opacity .15s;}
 
     <!-- ADD STOCK -->
     <div class="add-card">
-      <h2>➕ Add Stock</h2>
+      <h2>Add Stock</h2>
       <div class="add-form">
         <div class="field">
           <label>Ticker *</label>
@@ -2974,9 +3199,9 @@ a{transition:color .15s,opacity .15s;}
       <div class="card clickable" onclick="showCardDetail('daypnl')" title="Click to see today's movers"><div class="card-label">Today's P&amp;L</div><div class="card-value" id="c-day">—</div><div class="card-sub" id="c-daypct">—</div></div>
       <div class="card clickable" onclick="showCardDetail('totpnl')" title="Click to see total return by position"><div class="card-label">Total Return</div><div class="card-value" id="c-tot">—</div><div class="card-sub" id="c-totpct">—</div></div>
       <div class="card clickable" onclick="showCardDetail('updown')" title="Click to see gainers vs losers"><div class="card-label">Up / Down Today</div><div class="card-value" id="c-updown">— / —</div><div class="card-sub" id="c-updown-sub">positions</div></div>
-      <div class="card clickable" onclick="showCardDetail('best')" title="Click to see best performer details"><div class="card-label">Best Today 🚀</div><div class="card-value green" id="c-best">—</div><div class="card-sub" id="c-best-s">—</div></div>
-      <div class="card clickable" onclick="showCardDetail('worst')" title="Click to see worst performer details"><div class="card-label">Worst Today 🔻</div><div class="card-value red" id="c-worst">—</div><div class="card-sub" id="c-worst-s">—</div></div>
-      <div class="card clickable" onclick="showCardDetail('alerts')" title="Click to see all active alerts"><div class="card-label">Active Alerts 🚨</div><div class="card-value yellow" id="c-alerts">0</div><div class="card-sub">Moved ≥ ±5%</div></div>
+      <div class="card clickable" onclick="showCardDetail('best')" title="Click to see best performer details"><div class="card-label">Best Today</div><div class="card-value green" id="c-best">—</div><div class="card-sub" id="c-best-s">—</div></div>
+      <div class="card clickable" onclick="showCardDetail('worst')" title="Click to see worst performer details"><div class="card-label">Worst Today</div><div class="card-value red" id="c-worst">—</div><div class="card-sub" id="c-worst-s">—</div></div>
+      <div class="card clickable" onclick="showCardDetail('alerts')" title="Click to see all active alerts"><div class="card-label">Active Alerts</div><div class="card-value yellow" id="c-alerts">0</div><div class="card-sub">Moved ≥ ±5%</div></div>
     </div>
 
     <!-- SESSION BANNER -->
@@ -3161,7 +3386,7 @@ a{transition:color .15s,opacity .15s;}
     <div class="section-bar">
       <div class="section-title">Holdings <span id="hcount" style="font-weight:400;font-size:.76rem;"></span></div>
       <div class="toolbar">
-        <input type="text" id="search" placeholder="🔍 Filter…"/>
+        <div class="search-wrap"><input type="text" id="search" placeholder="Filter holdings…" aria-label="Filter holdings by ticker or name"/><span class="search-hint" aria-hidden="true">/</span></div>
         <button class="btn btn-outline btn-sm" onclick="clearAll()">🗑 Clear All</button>
       </div>
     </div>
@@ -3414,7 +3639,7 @@ a{transition:color .15s,opacity .15s;}
     <!-- MARKET NEWS -->
     <div class="section-title">Market News</div>
     <div class="market-news-grid" id="market-news-grid">
-      <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading news… <span class="spinner"></span></div>
+      <div class="news-skeleton-wrap" style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px;padding:8px 0"><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div><div class="skeleton" style="height:72px;border-radius:8px;"></div></div>
     </div>
 
   </div><!-- /tab-market -->
@@ -3424,7 +3649,7 @@ a{transition:color .15s,opacity .15s;}
 
     <!-- Add Entry -->
     <div class="journal-add-card">
-      <h2>📝 New Journal Entry</h2>
+      <h2>New Journal Entry</h2>
       <div class="journal-form">
         <div class="jfield"><label>Date *</label><input type="date" id="j-date" style="width:140px"/></div>
         <div class="jfield"><label>Action *</label>
@@ -3872,7 +4097,7 @@ a{transition:color .15s,opacity .15s;}
 </div>
 
 <!-- Scroll to top -->
-<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top" aria-label="Scroll to top">
   <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
 </button>
 
@@ -4120,9 +4345,12 @@ function showToast(html, type = 'info', duration = 5000) {
   const tc = g('toast-container');
   const d  = document.createElement('div');
   d.className = `toast toast-${type}`;
-  d.innerHTML = html;
+  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+  d.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ'}</span><span class="toast-msg">${html}</span><button class="toast-close" onclick="this.closest('.toast').remove()" aria-label="Dismiss">×</button>`;
   tc.appendChild(d);
-  setTimeout(() => { d.style.opacity = '0'; setTimeout(() => d.remove(), 320); }, duration);
+  const remove = () => { d.style.opacity = '0'; setTimeout(() => d.remove(), 320); };
+  d.addEventListener('click', e => { if (e.target.classList.contains('toast-close')) return; }); // don't dismiss on content click
+  setTimeout(remove, duration);
 }
 
 // ═══════════════════════════════════════════════
@@ -4220,16 +4448,20 @@ function updateBadge() {
 // ═══════════════════════════════════════════════
 //  COUNTDOWN TO NEXT AUTO-REFRESH
 // ═══════════════════════════════════════════════
-let _nextRefreshAt = 0, _countdownInt = null;
+let _nextRefreshAt = 0, _countdownStart = 0, _countdownInt = null;
 function startCountdown(ms) {
   _nextRefreshAt = Date.now() + ms;
+  _countdownStart = Date.now();
   if (_countdownInt) clearInterval(_countdownInt);
   _countdownInt = setInterval(() => {
     const rem = Math.max(0, _nextRefreshAt - Date.now());
     if (!rem) { clearInterval(_countdownInt); _countdownInt = null; g('next-refresh').textContent = ''; return; }
     const m = Math.floor(rem / 60000);
     const s = Math.floor((rem % 60000) / 1000);
-    g('next-refresh').textContent = `↻ in ${m}:${String(s).padStart(2, '0')}`;
+    const pct = Math.round((1 - rem / (_nextRefreshAt - _countdownStart)) * 100);
+    g('next-refresh').textContent = `↻ ${m}:${String(s).padStart(2, '0')}`;
+    const pr = g('refresh-progress');
+    if (pr) pr.style.width = Math.min(100, pct) + '%';
   }, 1000);
 }
 
@@ -4897,10 +5129,11 @@ function _renderTickerTape(rs) {
   const makeItem = r => {
     const up = (r.change_pct||0) >= 0;
     const cls = up ? 'green' : 'red';
-    return `<div class="tt-item" onclick="openStockPage('${r.ticker}')">
+    const arrow = up ? '▲' : '▼';
+    return `<div class="tt-item" onclick="openStockPage('${r.ticker}')" title="${r.name}">
       <span class="tt-sym">${r.ticker}</span>
-      <span class="tt-price">$${(r.price||0).toFixed(2)}</span>
-      <span class="tt-chg ${cls}">${up?'+':''}${(r.change_pct||0).toFixed(2)}%</span>
+      <span class="tt-price">${f.usd(r.price||0)}</span>
+      <span class="tt-chg ${cls}">${arrow} ${(r.change_pct||0).toFixed(2)}%</span>
     </div>`;
   };
   // Duplicate items for seamless looping
@@ -4972,7 +5205,14 @@ function renderTable(rs) {
     return;
   }
   if (!data.length) {
-    body.innerHTML = `<tr><td colspan="15" style="text-align:center;color:var(--muted);padding:28px">No match for "${filterQ}"</td></tr>`;
+    body.innerHTML = `<tr><td colspan="15">
+      <div class="filter-empty">
+        <svg class="fe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <p class="fe-title">No match for &ldquo;${filterQ}&rdquo;</p>
+        <p class="fe-sub">Try a different ticker symbol or company name</p>
+        <button onclick="filterQ='';g('search').value='';renderTable(rows())" style="margin-top:8px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font-size:.8rem">Clear filter</button>
+      </div>
+    </td></tr>`;
     return;
   }
   const spin = '<span class="spinner"></span>';
@@ -5116,7 +5356,10 @@ async function refresh() {
   renderAnalytics(rs); renderHealthScore(rs);
   checkPriceAlerts(quotes);
   updateTabBadge(rs.filter(r => r.alert).length);
-  g('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  const _now = new Date(); g('last-updated').textContent = 'Updated ' + _now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); g('last-updated').title = 'Last refreshed at ' + _now.toLocaleString();
+  // Update tab title with portfolio value
+  const tv = rs.reduce((s,r) => s + r.value, 0);
+  if (tv > 0) document.title = `$${(tv/1000).toFixed(1)}k — maelkloud`;
   btn.innerHTML = '↻ Refresh';
   btn.disabled  = false;
   loading = false;
@@ -5209,6 +5452,17 @@ document.querySelectorAll('thead th[data-col]').forEach(th => {
   });
 });
 g('search').addEventListener('input', debounce(e => { filterQ = e.target.value; renderTable(rows()); }, 180));
+// Press '/' to focus search (power user shortcut), Escape to clear
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName;
+  if (e.key === '/' && tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+    e.preventDefault();
+    const s = g('search'); if (s) { s.focus(); s.select(); }
+  }
+  if (e.key === 'Escape' && document.activeElement === g('search')) {
+    filterQ = ''; g('search').value = ''; renderTable(rows()); g('search').blur();
+  }
+});
 
 // ═══════════════════════════════════════════════
 //  EXPORT DROPDOWN HELPERS
@@ -5325,11 +5579,38 @@ function doImport() {
   } catch (e) { errEl.textContent = '⚠️ ' + e.message; errEl.style.display = ''; }
 }
 
-// Close modals / drawer on Escape
+// ── Keyboard shortcuts ─────────────────────────────────────────────────────
+let _gMode = false;
 document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName;
+  const inInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+
+  // Escape: close modals / drawer
   if (e.key === 'Escape') {
+    _gMode = false;
     closeDrawer();
+    closeSidebar();
     ['edit-modal', 'json-modal', 'import-modal'].forEach(id => closeModal(id));
+    return;
+  }
+  if (inInput) return;
+
+  // R — manual refresh
+  if (e.key === 'r' || e.key === 'R') { if (!e.ctrlKey && !e.metaKey) { e.preventDefault(); if (IS_SERVER && !loading) refresh(); } return; }
+  // T — toggle theme
+  if (e.key === 't' || e.key === 'T') { toggleTheme(); return; }
+  // F — focus filter / search
+  if (e.key === 'f' || e.key === 'F') { e.preventDefault(); const s = g('search'); if (s) { s.focus(); s.select(); } return; }
+  // ? — open shortcuts modal
+  if (e.key === '?') { e.preventDefault(); openShortcutsModal(); return; }
+
+  // G-prefix navigation: G then P/M/J/A
+  if (e.key === 'g' || e.key === 'G') { _gMode = true; setTimeout(() => { _gMode = false; }, 1200); return; }
+  if (_gMode) {
+    _gMode = false;
+    const tabMap = { p:'portfolio', P:'portfolio', m:'market', M:'market', j:'journal', J:'journal', a:'analysis', A:'analysis' };
+    if (tabMap[e.key]) { e.preventDefault(); switchTab(tabMap[e.key]); }
+    return;
   }
 });
 
@@ -5358,12 +5639,19 @@ function openDrawer(ticker) {
   g('d-price').className    = 'drawer-price-val ' + cc(chg);
   g('d-chg').textContent    = price ? `${chg >= 0 ? '+' : ''}${f.usd(chg)}  (${f.pct(chgP)})` : '—';
   g('d-chg').className      = 'drawer-price-chg ' + cc(chg);
-  g('drawer-body').innerHTML = '<div class="drawer-loading"><span class="spinner"></span>&nbsp; Loading details…</div>';
+  g('drawer-body').innerHTML = `<div class="drawer-loading" style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:48px 24px">
+    <span class="spinner" style="width:24px;height:24px;border-width:3px"></span>
+    <span style="color:var(--muted);font-size:.84rem">Loading ${ticker} details…</span>
+  </div>`;
 
   fetch(`/api/stock/${ticker}`)
     .then(r => r.json())
     .then(d => { renderDrawer(d, ticker); _wrapDrawerTabs(d, ticker); setTimeout(() => loadDrawerChart(d.symbol || ticker, '1mo', null), 300); })
-    .catch(() => { g('drawer-body').innerHTML = '<div class="drawer-loading" style="color:var(--red)">⚠️ Failed to load details — check server</div>'; });
+    .catch(() => { g('drawer-body').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px 24px;color:var(--muted)">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p style="color:var(--red);font-weight:600;margin:0">Failed to load details</p>
+    <p style="font-size:.8rem;margin:0;text-align:center">Check that the server is running, then<br><button onclick="openDrawer('${ticker}')" style="background:none;border:none;color:var(--blue);cursor:pointer;text-decoration:underline;font-size:inherit">try again</button></p>
+  </div>`; });
 }
 
 function closeDrawer() {
@@ -5384,8 +5672,8 @@ function renderDrawer(d, ticker) {
   }
 
   const tags = [];
-  if (d.sector)   tags.push(`<span style="background:#0C1E30;color:var(--blue);border:1px solid var(--blue);border-radius:10px;padding:2px 8px;font-size:.68rem;font-weight:700">${d.sector}</span>`);
-  if (d.industry) tags.push(`<span style="background:var(--border);color:var(--muted);border-radius:10px;padding:2px 8px;font-size:.68rem">${d.industry}</span>`);
+  if (d.sector)   tags.push(`<span class="dtag dtag-sector">${d.sector}</span>`);
+  if (d.industry) tags.push(`<span class="dtag dtag-industry">${d.industry}</span>`);
   if (d.exchange) tags.push(`<span style="background:var(--border);color:var(--muted);border-radius:10px;padding:2px 8px;font-size:.68rem">${d.exchange}</span>`);
   g('d-tags').innerHTML = tags.join('');
 
@@ -5938,7 +6226,11 @@ function renderJournal() {
   const el = g('journal-entries');
   const cnt = g('j-count');
   if (!_journalEntries.length) {
-    el.innerHTML = '<div class="journal-empty"><div style="font-size:2rem;margin-bottom:8px">📓</div>No entries yet. Log your first trade above.</div>';
+    el.innerHTML = `<div class="journal-empty" style="padding:48px 24px">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.3;margin-bottom:12px"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+    <p style="font-weight:600;color:var(--text);margin:0 0 6px">No journal entries yet</p>
+    <p style="font-size:.8rem;max-width:260px;text-align:center;line-height:1.6;margin:0">Log your first trade above to start tracking your buy/sell history and realized P&L.</p>
+  </div>`;
     if (cnt) cnt.textContent = '';
     return;
   }
@@ -6045,7 +6337,11 @@ function renderRealizedPnL(entries) {
   if (!el) return;
   const data = calcRealizedPnL(entries || []);
   if (!data.length) {
-    el.innerHTML = '<div class="rpnl-empty">No SELL entries in journal yet. Add BUY and SELL entries to track realized gains/losses.</div>';
+    el.innerHTML = `<div class="filter-empty" style="padding:32px 0">
+      <svg style="width:32px;height:32px;opacity:.3;margin-bottom:8px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <p class="fe-title" style="margin:0 0 4px">No realized trades yet</p>
+      <p class="fe-sub" style="margin:0">Add BUY and SELL journal entries to automatically track P&amp;L</p>
+    </div>`;
     return;
   }
   const totalPnl = data.reduce((s, r) => s + r.realizedPnl, 0);
@@ -6884,8 +7180,13 @@ function renderAllocChart() {
   }
 
   const canvas = g('alloc-chart');
-  if (_allocChart) { _allocChart.destroy(); _allocChart = null; }
-
+  if (_allocChart) {
+    // Smooth update — no destroy/recreate flash on every quote refresh
+    _allocChart.data.labels = labels;
+    _allocChart.data.datasets[0].data = data;
+    _allocChart.data.datasets[0].backgroundColor = colors;
+    _allocChart.update('none');
+  } else {
   _allocChart = new Chart(canvas, {
     type: 'doughnut',
     data: {
@@ -6918,6 +7219,7 @@ function renderAllocChart() {
       }
     }
   });
+  } // end else (new chart)
 
   // Render legend
   const legend = g('alloc-legend');
@@ -9370,6 +9672,7 @@ function renderPerfChart(data, spyPts) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 400, easing: 'easeInOutQuart' },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: {
@@ -10313,6 +10616,7 @@ function renderComparison(d, tickers) {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
+        animation: { duration: 350 },
         plugins: {
           legend: { labels: { color: 'var(--text)', font: { size: 11 } } },
           tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(1)}` } }
