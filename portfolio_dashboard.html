@@ -2621,6 +2621,222 @@ td:first-child,td:nth-child(2){text-align:left;}
   main{padding:12px 10px;}
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   UI POLISH v2.0 — Typography, Transitions, Components
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── TYPOGRAPHY SCALE ─────────────────────────────────────────────────────── */
+:root{
+  --t-xs:.63rem; --t-sm:.74rem; --t-base:.84rem;
+  --t-md:.9rem;  --t-lg:1.05rem; --t-xl:1.25rem; --t-2xl:1.5rem;
+  /* Spacing scale */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;
+  /* Transition */
+  --transition:all .18s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE TAB TRANSITIONS ─────────────────────────────────────────────────── */
+.tab-pane{display:none;}
+.tab-pane.active{display:block;animation:fadeSlideUp .22s ease;}
+@keyframes fadeSlideUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION HEADERS ─────────────────────────────────────────────────────── */
+.section-title{
+  display:flex!important;align-items:center!important;gap:10px!important;
+  font-size:var(--t-xs)!important;font-weight:700!important;
+  text-transform:uppercase!important;letter-spacing:.1em!important;
+  color:var(--muted)!important;margin-bottom:14px!important;
+  padding:0!important;border-left:none!important;
+}
+.section-title::after{
+  content:'';flex:1;height:1px;background:var(--border);display:block;
+}
+.section-title .st-icon{
+  width:22px;height:22px;border-radius:5px;flex-shrink:0;
+  background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.18);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.section-title .st-icon svg{width:13px;height:13px;stroke:var(--blue);fill:none;stroke-width:2;}
+[data-theme="light"] .section-title::after{background:#E2E8F0;}
+[data-theme="light"] .section-title .st-icon{background:rgba(37,99,235,.07);border-color:rgba(37,99,235,.15);}
+
+/* ── NEWS CARDS (improved) ────────────────────────────────────────────────── */
+.news-card{display:flex!important;flex-direction:column!important;min-height:95px!important;}
+.news-tag{
+  font-size:var(--t-xs)!important;font-weight:700!important;
+  text-transform:uppercase!important;letter-spacing:.08em!important;
+  color:var(--blue)!important;margin-bottom:5px!important;
+  display:flex!important;align-items:center!important;gap:5px!important;
+}
+.news-source-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--blue);flex-shrink:0;
+}
+.news-title{
+  font-size:.86rem!important;font-weight:600!important;line-height:1.45!important;
+  margin-bottom:8px!important;flex:1!important;
+  display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+}
+.news-meta{
+  font-size:var(--t-xs)!important;color:var(--muted)!important;margin-top:auto!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+}
+.news-badge{
+  font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:4px;
+}
+.news-badge.pos{background:var(--green-bg);color:var(--green);}
+.news-badge.neg{background:var(--red-bg);color:var(--red);}
+
+/* ── TABLE ENHANCEMENTS ───────────────────────────────────────────────────── */
+tbody tr:nth-child(even){background:rgba(255,255,255,.013);}
+[data-theme="light"] tbody tr:nth-child(even){background:rgba(0,0,0,.016);}
+tbody tr{transition:background .1s;}
+td{vertical-align:middle;}
+/* Numeric columns use monospace, text cols use body font */
+td:nth-child(n+3){font-variant-numeric:tabular-nums;}
+
+/* ── EXPORT MENU ITEMS ────────────────────────────────────────────────────── */
+.exp-menu-item{
+  padding:9px 14px;cursor:pointer;font-size:var(--t-sm);
+  border-bottom:1px solid var(--border);transition:background .12s,color .12s;
+  color:var(--text);display:flex;align-items:center;gap:9px;user-select:none;
+}
+.exp-menu-item:last-child{border-bottom:none;}
+.exp-menu-item:hover{background:rgba(59,130,246,.08);color:var(--blue);}
+.exp-menu-item svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;opacity:.7;}
+[data-theme="light"] .exp-menu-item:hover{background:rgba(37,99,235,.06);}
+
+/* ── IN-PORTFOLIO + WATCHLIST BADGES ─────────────────────────────────────── */
+.in-port-badge{
+  font-size:.58rem;font-weight:700;
+  background:rgba(59,130,246,.1);color:var(--blue);
+  border:1px solid rgba(59,130,246,.22);border-radius:5px;
+  padding:1px 5px;white-space:nowrap;vertical-align:middle;
+}
+.vol-spike-badge{
+  font-size:.58rem;font-weight:700;
+  background:rgba(245,158,11,.1);color:var(--yellow);
+  border:1px solid rgba(245,158,11,.22);border-radius:5px;
+  padding:1px 5px;white-space:nowrap;vertical-align:middle;
+}
+.wl-quick-btn{
+  padding:2px 8px;font-size:.63rem;border-radius:5px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--muted);cursor:pointer;white-space:nowrap;
+  transition:var(--transition);line-height:1.4;
+}
+.wl-quick-btn:hover,.wl-quick-btn.in-wl{
+  border-color:var(--blue);background:rgba(59,130,246,.1);color:var(--blue);
+}
+
+/* ── MARKET STATUS BADGE PULSE ────────────────────────────────────────────── */
+@keyframes mktPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.35)}70%{box-shadow:0 0 0 5px rgba(16,185,129,0)}}
+.badge-open{animation:mktPulse 2.8s infinite;}
+.badge-pre{position:relative;}
+
+/* ── STAT PILLS ───────────────────────────────────────────────────────────── */
+.stat-pill{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 8px;border-radius:5px;font-size:var(--t-xs);font-weight:600;
+}
+.stat-pill.up{background:var(--green-bg);color:var(--green);}
+.stat-pill.dn{background:var(--red-bg);color:var(--red);}
+.stat-pill.neu{background:rgba(100,116,139,.1);color:var(--muted);}
+
+/* ── SKELETON ROWS (for table loading) ───────────────────────────────────── */
+.sk-row{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;gap:14px;align-items:center;}
+.sk-cell{border-radius:4px;height:10px;}.sk-cell.w-xs{width:36px;}.sk-cell.w-sm{width:60px;}.sk-cell.w-md{width:90px;}.sk-cell.w-lg{width:130px;}.sk-cell.w-full{flex:1;}
+.skeleton{border-radius:4px;background:linear-gradient(90deg,var(--border) 25%,rgba(255,255,255,.06) 50%,var(--border) 75%);background-size:400px 100%;animation:shimmer 1.3s infinite;}
+
+/* ── SCROLL-TO-TOP BUTTON ─────────────────────────────────────────────────── */
+#scroll-top{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:50%;width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;
+  transition:opacity .2s,transform .2s,border-color .15s;
+  box-shadow:var(--shadow-md);z-index:150;color:var(--muted);
+}
+#scroll-top.visible{opacity:1;pointer-events:all;}
+#scroll-top:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px);}
+#scroll-top svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ── FOOTER REDESIGN ──────────────────────────────────────────────────────── */
+footer{
+  margin-left:var(--sidebar-w);background:var(--surface);
+  border-top:1px solid var(--border);padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;font-size:var(--t-xs);color:var(--muted);
+  transition:margin-left .25s;
+}
+.footer-brand{
+  display:flex;align-items:center;gap:8px;
+  font-weight:700;font-size:var(--t-sm);color:var(--text);
+}
+.footer-links{display:flex;gap:14px;}
+.footer-links a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.footer-links a:hover{color:var(--blue);}
+.footer-note{font-size:.62rem;color:var(--muted);opacity:.7;}
+@media(max-width:900px){footer{margin-left:0;padding:12px 14px;}}
+
+/* ── HOVER CARD SHIMMER ───────────────────────────────────────────────────── */
+.card.clickable{overflow:hidden;}
+.card.clickable::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,transparent 60%,rgba(59,130,246,.04) 100%);
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.card.clickable:hover::after{opacity:1;}
+
+/* ── DRAWER IMPROVEMENTS ─────────────────────────────────────────────────── */
+.drawer-tabs{
+  display:flex;gap:0;border-bottom:1px solid var(--border);
+  padding:0 20px;background:var(--surface);position:sticky;top:0;z-index:2;
+}
+.dtab{
+  padding:10px 14px;font-size:var(--t-sm);font-weight:600;
+  border:none;background:none;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;transition:var(--transition);
+  margin-bottom:-1px;
+}
+.dtab.active{color:var(--blue);border-bottom-color:var(--blue);}
+.dtab:hover:not(.active){color:var(--text);}
+
+/* ── KEYBOARD SHORTCUT PILLS ─────────────────────────────────────────────── */
+.kbd{
+  display:inline-block;padding:2px 7px;border-radius:5px;
+  background:var(--bg);border:1px solid var(--border);
+  font-family:var(--font-data);font-size:.7rem;font-weight:700;
+  color:var(--text);box-shadow:0 2px 0 var(--border);
+}
+
+/* ── TOOLTIP ─────────────────────────────────────────────────────────────── */
+[data-tip]{position:relative;cursor:default;}
+[data-tip]::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;
+  transform:translateX(-50%);background:#0B0E18;border:1px solid var(--border);
+  color:var(--text);font-size:.7rem;padding:4px 8px;border-radius:5px;
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;
+  z-index:1000;
+}
+[data-tip]:hover::after{opacity:1;}
+[data-theme="light"] [data-tip]::after{background:#fff;border-color:#E2E8F0;}
+
+/* ── SMOOTH TAB INDICATOR ─────────────────────────────────────────────────── */
+.sidebar .tab-btn{transition:var(--transition),border-left-width 0s;}
+
+/* ── SECTION BAR (section-title row with action button) ──────────────────── */
+.section-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+.section-bar .section-title{margin-bottom:0!important;}
+
+/* ── GENERAL LINK STYLE ───────────────────────────────────────────────────── */
+a{transition:color .15s,opacity .15s;}
+
+/* ── FADE-IN ANIMATION ────────────────────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.fade-in{animation:fadeIn .25s ease;}
+
 </style>
 </head>
 <body>
@@ -2700,12 +2916,12 @@ td:first-child,td:nth-child(2){text-align:left;}
     <!-- Export dropdown -->
     <div style="position:relative;" id="export-wrap">
       <button class="btn btn-outline btn-sm" onclick="toggleExportMenu()" id="export-btn">⬇ Export ▾</button>
-      <div id="export-menu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);z-index:500;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.5);overflow:hidden;">
-        <div onclick="doImportClick()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">⬆ Import JSON</div>
-        <div onclick="doJsonExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">⬇ Export JSON</div>
-        <div onclick="doCsvExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">📋 Export CSV</div>
-        <div onclick="doExcelExport()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">📊 Export Excel</div>
-        <div onclick="doDbBackup()" style="padding:9px 14px;cursor:pointer;font-size:.81rem;transition:background .1s;" onmouseover="this.style.background='rgba(255,255,255,.06)'" onmouseout="this.style.background=''">💾 Backup Database</div>
+      <div id="export-menu" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);z-index:500;min-width:175px;box-shadow:0 8px 28px rgba(0,0,0,.5);overflow:hidden;">
+        <div class="exp-menu-item" onclick="doImportClick()"><svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.4 18a8 8 0 1 0-14.5-4.3"/></svg>Import JSON</div>
+        <div class="exp-menu-item" onclick="doJsonExport()"><svg viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.9 18.6A9 9 0 0 0 12 3a8 8 0 0 0-7.9 9"/></svg>Export JSON</div>
+        <div class="exp-menu-item" onclick="doCsvExport()"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Export CSV</div>
+        <div class="exp-menu-item" onclick="doExcelExport()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Export Excel</div>
+        <div class="exp-menu-item" onclick="doDbBackup()"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Backup Database</div>
       </div>
     </div>
     <button class="btn btn-primary btn-sm" id="refresh-btn" onclick="refresh()">↻ Refresh</button>
@@ -2943,7 +3159,7 @@ td:first-child,td:nth-child(2){text-align:left;}
 
     <!-- HOLDINGS TABLE -->
     <div class="section-bar">
-      <div class="section-title">📋 Holdings <span id="hcount" style="font-weight:400;font-size:.76rem;"></span></div>
+      <div class="section-title">Holdings <span id="hcount" style="font-weight:400;font-size:.76rem;"></span></div>
       <div class="toolbar">
         <input type="text" id="search" placeholder="🔍 Filter…"/>
         <button class="btn btn-outline btn-sm" onclick="clearAll()">🗑 Clear All</button>
@@ -2979,7 +3195,7 @@ td:first-child,td:nth-child(2){text-align:left;}
     <!-- DIVIDEND CALENDAR (portfolio tab) -->
     <div id="port-div-section" style="display:none;">
       <div class="section-bar" style="margin-bottom:10px;">
-        <div class="section-title">💵 Upcoming Dividends</div>
+        <div class="section-title">Upcoming Dividends</div>
       </div>
       <div class="div-cal-grid" id="port-div-grid"></div>
     </div>
@@ -2987,7 +3203,7 @@ td:first-child,td:nth-child(2){text-align:left;}
     <!-- TAX LOT TRACKER -->
     <div id="tax-lot-section" style="display:none">
       <div class="section-bar" style="margin-bottom:10px;">
-        <div class="section-title">🧾 Tax Lot Tracker</div>
+        <div class="section-title">Tax Lot Tracker</div>
         <div style="font-size:.72rem;color:var(--muted)">Based on your journal entries · Shows short-term vs long-term status</div>
       </div>
       <div class="tl-card">
@@ -2999,7 +3215,7 @@ td:first-child,td:nth-child(2){text-align:left;}
 
     <!-- NEWS -->
     <div id="news-section" style="display:none;">
-      <div class="section-title" style="margin-bottom:10px;">📰 Market News</div>
+      <div class="section-title">Market News</div>
       <div class="news-grid" id="news-grid"></div>
     </div>
 
@@ -3008,23 +3224,23 @@ td:first-child,td:nth-child(2){text-align:left;}
   <!-- ═══ MARKET TAB ═══ -->
   <div class="tab-pane active" id="tab-market">
     <div style="margin-bottom:14px;">
-      <div class="section-title">🌍 Live Market Overview</div>
+      <div class="section-title">Live Market Overview</div>
     </div>
 
     <!-- Futures / Overnight -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">🌙 FUTURES &amp; OVERNIGHT</div>
+    <div class="section-title">Futures &amp; Overnight &amp; OVERNIGHT</div>
     <div class="futures-row" id="futures-row">
       <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading futures… <span class="spinner"></span></div>
     </div>
 
     <!-- Pre / After-Hours Holdings -->
     <div id="ext-hours-section" style="display:none;">
-      <div class="section-title" style="margin-bottom:8px;font-size:.72rem;" id="ext-hours-title">⏰ EXTENDED HOURS — YOUR HOLDINGS</div>
+      <div class="section-title" id="ext-hours-title">Extended Hours — Holdings</div>
       <div class="ext-hours-grid" id="ext-hours-grid"></div>
     </div>
 
     <!-- Indices -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">MAJOR INDICES</div>
+    <div class="section-title">Major Indices</div>
     <div class="indices-row" id="indices-row">
       <div class="idx-card" onclick="openStockPage('^GSPC')" style="cursor:pointer">
         <div class="idx-name">S&amp;P 500</div>
@@ -3059,13 +3275,13 @@ td:first-child,td:nth-child(2){text-align:left;}
     </div>
 
     <!-- Crypto -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">₿ CRYPTO</div>
+    <div class="section-title">Crypto</div>
     <div class="crypto-row" id="crypto-row">
       <div style="grid-column:1/-1;color:var(--muted);font-size:.8rem;padding:10px 0">Loading… <span class="spinner"></span></div>
     </div>
 
     <!-- Fear & Greed -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">FEAR &amp; GREED (VIX-BASED)</div>
+    <div class="section-title">Fear &amp; Greed Index</div>
     <div class="fg-card" id="fg-card">
       <div class="fg-meter">
         <div class="fg-label">Market Sentiment</div>
@@ -3079,13 +3295,13 @@ td:first-child,td:nth-child(2){text-align:left;}
     </div>
 
     <!-- Sectors -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">SECTOR PERFORMANCE (TODAY)</div>
+    <div class="section-title">Sector Performance</div>
     <div class="sectors-grid" id="sectors-grid">
       <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading sectors… <span class="spinner"></span></div>
     </div>
 
     <!-- Top Movers -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">TOP MOVERS</div>
+    <div class="section-title">Top Movers</div>
     <div class="movers-grid" id="movers-grid">
       <div class="movers-panel">
         <div class="movers-header" style="display:flex;justify-content:space-between;align-items:center;">
@@ -3104,7 +3320,7 @@ td:first-child,td:nth-child(2){text-align:left;}
     </div>
 
     <!-- EARNINGS CALENDAR -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">⏰ UPCOMING EARNINGS</div>
+    <div class="section-title">Upcoming Earnings</div>
     <div class="earnings-section" id="earnings-section">
       <div class="earnings-grid" id="earnings-grid">
         <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading earnings… <span class="spinner"></span></div>
@@ -3112,7 +3328,7 @@ td:first-child,td:nth-child(2){text-align:left;}
     </div>
 
     <!-- DIVIDEND CALENDAR -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">💰 EX-DIVIDEND CALENDAR</div>
+    <div class="section-title">Ex-Dividend Calendar</div>
     <div class="div-cal-section" id="div-cal-section">
       <div class="div-cal-summary" id="div-cal-summary"></div>
       <div class="div-cal-tabs">
@@ -3127,7 +3343,7 @@ td:first-child,td:nth-child(2){text-align:left;}
     </div>
 
     <!-- WATCHLIST -->
-    <div class="section-title" style="margin-bottom:8px;font-size:.72rem;">👁 YOUR WATCHLIST</div>
+    <div class="section-title">Your Watchlist</div>
     <div class="watchlist-card">
       <div class="watchlist-header">
         <span>Stocks you're watching</span>
@@ -3144,7 +3360,7 @@ td:first-child,td:nth-child(2){text-align:left;}
 
     <!-- ECONOMIC CALENDAR -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title" style="margin:0;font-size:.72rem;">📅 ECONOMIC CALENDAR</div>
+      <div class="section-title">Economic Calendar</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.66rem;color:var(--muted);">
         <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>High Impact</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:#fbbf24;display:inline-block"></span>Medium</span>
@@ -3157,7 +3373,7 @@ td:first-child,td:nth-child(2){text-align:left;}
 
     <!-- PREMARKET / AFTER-HOURS MOVERS -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title" style="margin:0;font-size:.72rem;">⚡ PREMARKET &amp; AFTER-HOURS MOVERS</div>
+      <div class="section-title">Pre &amp; After-Hours Movers</div>
       <button class="btn btn-sm" style="font-size:.68rem;padding:3px 10px" onclick="loadPremarketMovers()">Refresh</button>
     </div>
     <div class="premarket-tabs">
@@ -3167,23 +3383,23 @@ td:first-child,td:nth-child(2){text-align:left;}
     <div id="pm-table-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
 
     <!-- TRENDING STOCKS -->
-    <div class="section-title" style="margin-bottom:8px;margin-top:18px;font-size:.72rem;">🔥 TRENDING STOCKS</div>
+    <div class="section-title">Trending Stocks</div>
     <div id="trending-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
 
     <!-- S&P 500 MARKET HEATMAP -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:18px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title" style="margin:0;font-size:.72rem;">🟩 S&amp;P 500 MARKET HEATMAP <span style="font-weight:400;font-size:.65rem;color:var(--muted);">Sized by market cap · colored by % change</span></div>
+      <div class="section-title">S&amp;P 500 Heatmap <span style="font-weight:400;font-size:.65rem;color:var(--muted);">Sized by market cap · colored by % change</span></div>
       <button class="hm-load-btn" onclick="loadSP500Heatmap()" style="font-size:.7rem;padding:5px 12px">Load Heatmap</button>
     </div>
     <div id="sp-heatmap-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center">Click "Load Heatmap" to fetch S&amp;P 500 data (may take ~30s)</div></div>
 
     <!-- IPO CALENDAR -->
-    <div class="section-title" style="margin-bottom:8px;margin-top:18px;font-size:.72rem;">🚀 RECENT IPOs</div>
+    <div class="section-title">Recent IPOs</div>
     <div id="ipo-wrap"><div style="color:var(--muted);font-size:.82rem;padding:14px 0;text-align:center"><span class="spinner"></span> Loading…</div></div>
 
     <!-- MARKET EARNINGS CALENDAR (full) -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;margin-top:18px;flex-wrap:wrap;gap:8px;">
-      <div class="section-title" style="margin:0;font-size:.72rem;">📅 EARNINGS CALENDAR</div>
+      <div class="section-title">Earnings Calendar</div>
     </div>
     <div class="earn-cal-wrap">
       <div class="earn-cal-date-bar">
@@ -3196,7 +3412,7 @@ td:first-child,td:nth-child(2){text-align:left;}
     </div>
 
     <!-- MARKET NEWS -->
-    <div class="section-title" style="margin-bottom:8px;margin-top:24px;font-size:.72rem;">📰 MARKET NEWS</div>
+    <div class="section-title">Market News</div>
     <div class="market-news-grid" id="market-news-grid">
       <div style="grid-column:1/-1;color:var(--muted);font-size:.82rem;padding:20px;text-align:center">Loading news… <span class="spinner"></span></div>
     </div>
@@ -3230,7 +3446,7 @@ td:first-child,td:nth-child(2){text-align:left;}
 
     <!-- Entries List -->
     <div class="section-bar" style="margin-bottom:10px;">
-      <div class="section-title">📓 Trade Journal <span id="j-count" style="font-weight:400;font-size:.76rem;"></span></div>
+      <div class="section-title">Trade Journal <span id="j-count" style="font-weight:400;font-size:.76rem;"></span></div>
     </div>
     <div class="journal-entries" id="journal-entries">
       <div class="journal-empty">Loading journal… <span class="spinner"></span></div>
@@ -3238,7 +3454,7 @@ td:first-child,td:nth-child(2){text-align:left;}
 
     <!-- REALIZED P&L -->
     <div style="margin-top:24px;">
-      <div class="section-title" style="margin-bottom:10px;">💰 Realized P&amp;L (from BUY/SELL entries)</div>
+      <div class="section-title">Realized P&amp;L (from BUY/SELL entries)</div>
       <div id="rpnl-container"></div>
     </div>
 
@@ -3655,7 +3871,27 @@ td:first-child,td:nth-child(2){text-align:left;}
   </div>
 </div>
 
-<footer>maelkloud · Data via Yahoo Finance · Not financial advice · <a href="/logout" style="color:var(--muted);text-decoration:none;">Sign Out</a></footer>
+<!-- Scroll to top -->
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">
+  <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<footer>
+  <div class="footer-brand">
+    <svg width="16" height="16" viewBox="0 0 22 22" fill="none" style="flex-shrink:0">
+      <rect width="22" height="22" rx="5" fill="#3B82F6"/>
+      <polyline points="3,16 7,10 11,13 15,7 19,9" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    maelkloud
+    <span style="font-size:.6rem;font-weight:600;color:var(--muted);background:var(--border);border-radius:4px;padding:1px 5px;">v3.1</span>
+  </div>
+  <div class="footer-links">
+    <a href="#" onclick="openShortcutsModal();return false">Shortcuts</a>
+    <a href="https://finance.yahoo.com" target="_blank" rel="noopener">Data: Yahoo Finance</a>
+    <a href="#" onclick="switchTab('journal');return false">Journal</a>
+  </div>
+  <span class="footer-note">Not financial advice · <a href="/logout" style="color:var(--muted);text-decoration:none;" class="footer-links">Sign Out</a></span>
+</footer>
 
 <!-- QUICK PANEL (slide-up bottom sheet for card details) -->
 <div id="qpanel-overlay" onclick="closeQPanel()"></div>
@@ -3753,6 +3989,30 @@ td:first-child,td:nth-child(2){text-align:left;}
 //  UTILITY — defined first so everything can use it
 // ═══════════════════════════════════════════════
 function g(id) { return document.getElementById(id); }
+
+/** Debounce: prevent fn from being called more often than `ms` milliseconds */
+function debounce(fn, ms = 220) {
+  let t;
+  return function(...args) {
+    clearTimeout(t);
+    t = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+/** Throttle: call fn at most once per `ms` milliseconds */
+function throttle(fn, ms = 100) {
+  let last = 0;
+  return function(...args) {
+    const now = Date.now();
+    if (now - last >= ms) { last = now; fn.apply(this, args); }
+  };
+}
+
+/** Scroll-to-top button visibility */
+window.addEventListener('scroll', throttle(() => {
+  const btn = g('scroll-top');
+  if (btn) btn.classList.toggle('visible', window.scrollY > 400);
+}, 150), { passive: true });
 
 // ═══════════════════════════════════════════════
 //  CONFIG
@@ -4756,10 +5016,15 @@ function renderNews(arts) {
   if (!valid.length) { sec.style.display = 'none'; grid.innerHTML = ''; return; }
   sec.style.display = 'block';
   grid.innerHTML = valid.map(a => `
-    <a class="news-card" href="${a.link || '#'}" target="_blank" rel="noopener">
-      <div class="news-tag">${a._tag || ''} · ${a.publisher || 'News'}</div>
+    <a class="news-card fade-in" href="${a.link || '#'}" target="_blank" rel="noopener">
+      <div class="news-tag">
+        <span class="news-source-dot"></span>
+        ${a._tag ? `<span style="color:var(--muted);font-weight:600">${a._tag}</span> · ` : ''}${a.publisher || 'News'}
+      </div>
       <div class="news-title">${a.title}</div>
-      <div class="news-meta">${a.providerPublishTime ? f.ago(a.providerPublishTime) : 'Recently'}</div>
+      <div class="news-meta">
+        <span>${a.providerPublishTime ? f.ago(a.providerPublishTime) : 'Recently'}</span>
+      </div>
     </a>`).join('');
 }
 
@@ -4943,7 +5208,7 @@ document.querySelectorAll('thead th[data-col]').forEach(th => {
     renderTable(rows());
   });
 });
-g('search').addEventListener('input', e => { filterQ = e.target.value; renderTable(rows()); });
+g('search').addEventListener('input', debounce(e => { filterQ = e.target.value; renderTable(rows()); }, 180));
 
 // ═══════════════════════════════════════════════
 //  EXPORT DROPDOWN HELPERS
@@ -5482,10 +5747,12 @@ function renderMarketNews(arts) {
     return;
   }
   grid.innerHTML = valid.map(a => `
-    <a class="news-card" href="${a.link || '#'}" target="_blank" rel="noopener">
-      <div class="news-tag">${a.publisher || 'News'}</div>
+    <a class="news-card fade-in" href="${a.link || '#'}" target="_blank" rel="noopener">
+      <div class="news-tag"><span class="news-source-dot"></span>${a.publisher || 'Market News'}</div>
       <div class="news-title">${a.title}</div>
-      <div class="news-meta">${a.providerPublishTime ? f.ago(a.providerPublishTime) : 'Recently'}</div>
+      <div class="news-meta">
+        <span>${a.providerPublishTime ? f.ago(a.providerPublishTime) : 'Recently'}</span>
+      </div>
     </a>`).join('');
 }
 
@@ -5590,14 +5857,14 @@ function renderMovers(data) {
     const up    = m.change_pct >= 0;
     const cls   = up ? 'green' : 'red';
     const chgStr= `${up?'+':''}$${Math.abs(m.change).toFixed(2)}`;
-    const volRatioStr = m.vol_ratio > 1.5 ? ` <span style="color:var(--yellow);font-weight:700">🔥 ${m.vol_ratio}x</span>` : '';
-    const inWL = _watchlist.some(w => w.ticker === m.symbol);
+    const volRatioStr = m.vol_ratio > 1.5 ? ` <span class="vol-spike-badge">${m.vol_ratio.toFixed(1)}x vol</span>` : '';
+    const inWL  = _watchlist.some(w => w.ticker === m.symbol);
     const inPort = portfolio.some(h => h.ticker === m.symbol);
     return `<div class="mover-row" onclick="openStockPage('${m.symbol}')">
       <div class="mover-left">
-        <div style="display:flex;align-items:center;gap:6px">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
           <div class="mover-sym">${m.symbol}</div>
-          ${inPort ? '<span style="font-size:.6rem;background:#0C1E30;color:var(--blue);border:1px solid var(--blue);border-radius:6px;padding:1px 5px">In Portfolio</span>' : ''}
+          ${inPort ? '<span class="in-port-badge">In Portfolio</span>' : ''}
         </div>
         <div class="mover-company" title="${m.name}">${m.name}</div>
         ${m.sector ? `<div class="mover-sector">${m.sector}</div>` : ''}
@@ -5605,11 +5872,12 @@ function renderMovers(data) {
       <div class="mover-right">
         <div class="mover-pct ${cls}">${up?'+':''}${m.change_pct.toFixed(2)}%</div>
         <div class="mover-price-line">$${m.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} <span class="${cls}">${chgStr}</span>${volRatioStr}</div>
-        <div class="mover-vol-line" style="display:flex;align-items:center;gap:6px">
+        <div class="mover-vol-line" style="display:flex;align-items:center;gap:6px;">
           <span>Vol: ${volFmt(m.volume)}${mcapFmt(m.market_cap)}</span>
-          <button onclick="event.stopPropagation();quickWatchlist('${m.symbol}')" title="${inWL ? 'In watchlist' : 'Add to watchlist'}"
-            style="padding:1px 6px;font-size:.65rem;border-radius:5px;border:1px solid ${inWL ? 'var(--blue)' : 'var(--border)'};background:${inWL ? '#0C1E30' : 'transparent'};color:${inWL ? 'var(--blue)' : 'var(--muted)'};cursor:pointer;white-space:nowrap">
-            ${inWL ? '👁' : '+ WL'}
+          <button class="wl-quick-btn ${inWL ? 'in-wl' : ''}"
+            onclick="event.stopPropagation();quickWatchlist('${m.symbol}')"
+            title="${inWL ? 'Remove from watchlist' : 'Add to watchlist'}">
+            ${inWL ? '✓ Watching' : '+ Watchlist'}
           </button>
         </div>
       </div>
